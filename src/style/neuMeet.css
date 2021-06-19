@@ -1,0 +1,147 @@
+.neu-button{
+
+}
+
+
+label{
+    font-family: "Poppins",sans-serif;
+    font-size: 14px;
+    font-weight: 300;
+    color: #7389a9;
+}
+
+
+
+input[type="checkbox"]{
+    background-color: #e0e5ec;
+    height: 40px;
+    width: 40px;
+    -webkit-appearance: none;
+    border-radius: 24px;
+    box-shadow:  2px 2px 4px #ccd0d7,
+     -2px -2px 4px #f4faff;
+    border: 2px solid #e0e5ec;
+    outline: none;
+    display: flex;
+    align-items:  center;
+    justify-content: center;
+
+
+}
+
+input[type="checkbox"]:after{
+    font-family: 'Material Icons';
+
+    color: #7389a9;
+    font-size: 24px;
+}
+
+input[type="checkbox"]:checked{
+    box-shadow:
+     2px 2px 4px #ccd0d7,
+     -2px -2px 4px #f4faff,
+    inset 2px 2px 4px #ccd0d7,
+    inset -2px -2px 4px #f4faff;
+}
+
+input[type="checkbox"]:checked:after{
+    font-family: 'Material Icons';
+
+    color: #ff7c74;
+    font-size: 24px;
+}
+
+
+.radio-wrapper{
+    display: flex;
+    align-items: center;
+}
+
+
+
+.check-box{
+    outline: none;
+    width: 40px;
+    height: 40px;
+    border-radius: 24px;
+}
+
+.check-box:focus {
+    outline: none;
+}
+
+.round-button{
+    outline: none;
+    width: 40px;
+    height: 40px;
+    border-radius: 24px;
+
+    border-width: 0px;
+
+    background: #e0e5ec;
+    box-shadow:  3px 3px 6px #bec3c9,
+    -3px -3px 6px #ffffff;
+}
+
+.round-button:active{
+    background-color: #e0e5ec;
+    box-shadow:  inset 3px 3px 6px #bec3c9,
+    inset -3px -3px 6px #ffffff;
+}
+
+.round-button  .material-icons{
+    color: #7389a9;
+
+}
+
+.round-button:active > .material-icons{
+    color: #ff7c74;
+
+}
+
+
+input[type="range"]{
+    -webkit-appearance: none;
+    width: 200px;
+    background: transparent;
+}
+
+input[type=range]::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    height: 30px;
+    width: 30px;
+    border-radius: 24px;
+    background-color: #e0e5ec;
+    box-shadow:  3px 3px 6px #bec3c9,
+    -3px -3px 6px #ffffff;
+}
+
+input[type=range]:focus {
+    outline: none;
+}
+
+input[type=range]::-ms-track {
+    width: 100%;
+    cursor: pointer;
+
+    /* Hides the slider so custom styles can be added */
+    background: transparent;
+    border-color: transparent;
+    color: transparent;
+}
+
+input[type=range]::-webkit-slider-runnable-track {
+    width: 100%;
+    height: 30px;
+    background-color: #e0e5ec;
+    border: 2px solid #e0e5ec;
+    border-radius: 24px;
+    box-shadow: 2px 2px 4px #ccd0d7,
+    -2px -2px 4px #f4faff,
+    inset 2px 2px 4px #ccd0d7,
+    inset -2px -2px 4px #f4faff;
+
+}
+input[type=range]:focus::-webkit-slider-runnable-track {
+
+}

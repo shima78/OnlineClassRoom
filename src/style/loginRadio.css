@@ -1,0 +1,14 @@
+
+
+
+input[type=radio]{
+    -webkit-appearance: none;
+    width: 30px;
+    height: 4px;
+    border-radius: 24px;
+    background-color: #333333;
+}
+
+input[type=radio]:checked{
+    background-color: #ff7c74;
+}
