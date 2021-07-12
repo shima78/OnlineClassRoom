@@ -96,7 +96,9 @@ export default {
       socket.on("message",(message) =>{
         console.log("server said: " ,message.text);
       });
+
       console.log(this.SERVER);
+
 
       router.push("Meeting");
 

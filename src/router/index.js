@@ -2,9 +2,29 @@ import Vue from 'vue'
 import VueRouter from 'vue-router'
 import Home from '../views/Home.vue'
 import App from "@/App";
-
+import vuescroll from 'vuescroll';
 
 Vue.use(VueRouter);
+Vue.use(vuescroll, {
+  ops: {
+    rail:{
+      background: "rgba(0,0,0,0)",
+      opacity:0,
+      size:"0px",
+      border:"0px solid #000"
+    },
+    bar:{
+      background: "rgba(0,0,0,0)",
+      size: "0px"
+    },
+    scrollPanel:{
+      speed: 50
+    }
+
+
+  },
+
+});
 Vue.component('loading',{ template: '<div><H6>Loading!</H6>></div>'})
 
 const routes = [
