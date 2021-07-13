@@ -1,41 +1,48 @@
 const express = require('express');
 const jwt = require('jsonwebtoken');
-
+const userDB = require('./db/user'); 
+var multer  = require('multer');
+const { json } = require('body-parser');
+// var upload = multer({ dest: 'uploads/' });
 const app = express();
 
-app.get('/api', (req, res) => {
-  res.json({
-    message: 'Welcome to the API'
-  });
-});
 
-app.post('/api/posts', verifyToken, (req, res) => {  
-  jwt.verify(req.token, 'secretkey', (err, authData) => {
-    if(err) {
-      res.sendStatus(403);
-    } else {
-      res.json({
-        message: 'Post created...',
-        authData
-      });
+// app.post('/api/posts', verifyToken, (req, res) => {  
+//   jwt.verify(req.token, 'secretkey', (err, authData) => {
+//     if(err) {
+//       res.sendStatus(403);
+//     } else {
+//       res.json({
+//         message: 'Post created...',
+//         authData
+//       });
+//     }
+//   });
+// });
+
+app.post('/api/login', multer().none(), async(req, res) => {    
+    const username = req.body["username"]
+    const password = req.body["password"] 
+
+    const result = await userDB.getUser(username,password)
+     
+    if (result !== []){
+        const usr = result[0]
+        console.log(usr)
+        jwt.sign({usr}, 'secretkey', { expiresIn: '30s' }, (err, token) => {
+            res.json({
+            // user : user,
+            token : token
+            });
+        });
+        
     }
-  });
-});
+    else{
+        res.status(403)
+    }
 
-app.post('/api/login', (req, res) => {
-  // Mock user
-  const user = {
-    id: 1, 
-    username: 'brad',
-    email: 'brad@gmail.com'
-  }
 
-  jwt.sign({user}, 'secretkey', { expiresIn: '30s' }, (err, token) => {
-    res.json({
-      token
-    });
-  });
-});
+}); 
 
 // FORMAT OF TOKEN
 // Authorization: Bearer <access_token>
