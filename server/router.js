@@ -10,11 +10,11 @@ router.post('/login', multer().none(), async(req, res) => {
     const password = req.body["password"] 
 
     const result = await userDB.getUser(username,password)
-     
-    if (result !== []){
+    console.log(result)
+    if(result.length){
         const usr = result[0]
         console.log(usr)
-        jwt.sign({usr}, 'secretkey', { expiresIn: '30s' }, (err, token) => {
+        jwt.sign({usr}, 'secretkey', { expiresIn: '2h' }, (err, token) => {
             res.json({
             // user : user,
             token : token
@@ -23,7 +23,10 @@ router.post('/login', multer().none(), async(req, res) => {
         
     }
     else{
-        res.status(403)
+        res.status(400).send({
+            message: 'This is an error!'
+         });
+         
     }
 
 
