@@ -2,24 +2,18 @@
   <div id="generate-class-box">
     <div id="generate-class-form">
       <div id="flamingo-image">
-        <div class="radio-group">
-          <input type="radio" id="login" name="selector" v-model="LS" value='L' checked="checked">
-          <input type="radio" id="sign" name="selector" v-model="LS" value='S'>
-        </div>
+
       </div>
 
-      <template v-if="LS === 'S'">
-      <input id="class-name-input" class="input-bar text" v-model="sessionName" placeholder="Class Name" autocomplete="off">
-      <input id="user-name-input" class="input-bar text" v-model="username" placeholder="Username" autocomplete="off">
-      <input id="link-gen-out" class="input-bar text" v-model="ID" placeholder="Class ID" autocomplete="off">
-      <button id="link-gen-button" @click="meetingInit"> Start </button>
-      </template>
 
-      <template v-if="LS === 'L'">
-        <input id="user-name" class="input-bar text" v-model="ID" placeholder="Class ID" autocomplete="off">
-        <input id="class-uuid" class="input-bar text" v-model="username" placeholder="Username" autocomplete="off">
-        <button id="meet-enter-button" @click="loginInit" > Enter Meeting </button>
-      </template>
+
+
+          <input id="username" class="input-bar text" v-model="username" placeholder="Username" autocomplete="off" name="username">
+          <input id="password" class="input-bar text" v-model="password" placeholder="Password" autocomplete="off" name="password" type="password">
+          <button id="meet-enter-button" @click="loginInit" type="submit" > Enter Meeting </button>
+
+
+
 
 
       </div>
@@ -29,7 +23,9 @@
 
 
 <script>
+// eslint-disable-next-line no-unused-vars
 import io from 'socket.io-client';
+// eslint-disable-next-line no-unused-vars
 import uuid from "uuid";
 import router from "@/router";
 
@@ -42,65 +38,48 @@ export default {
   data(){
     return {
       username: "",
-      sessionName: "",
-      ID: "",
-      IC: null,
+      password: "",
       SERVER: null,
-      LS : 'S'
+      address: 'ws://localhost:5000',
+      actionAddress: null
     }
   },
   methods: {
 
-
-
-
-    meetingInit: function (){
-      this.SERVER = io('ws://localhost:3000');
-      console.log(this.username);
-      console.log(this.sessionName);
-      console.log(this.ID);
-
-      const socket = this.SERVER;
-
-      this.IC = true;
-      this.ID = uuid.v4();
-
-      socket.emit('joinRoom',{username: this.username, room: this.ID, isCreator: this.IC});
-      //this.$emit("init",this.SERVER);
-
-      socket.on("message",(message) =>{
-        console.log("server said: " ,message.text);
-      });
-      console.log(this.SERVER);
-
-
-      router.push("Meeting");
-
-    },
     loginInit: function (){
 
-      this.SERVER = io('ws://localhost:3000');
+      this.actionAddress = "http://localhost:5000/router/login";
+      const xhr = new XMLHttpRequest();
+      const formData = new FormData();
+      formData.append("username",this.username);
+      formData.append("password",this.password);
+      xhr.open("post",this.actionAddress);
+      xhr.send(formData);
+      xhr.onload = function () {
+        console.log("status code:\t"+xhr.status);
+        console.log(xhr.response);
+      }
+
+      //xhr.open("post",this.actionAddress,true);
+      //xhr.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
+      //xhr.send("username="+this.username+"&password="+this.password);
+      //Login pass then socket
+
+      //this.SERVER = io(this.address);
+
+     // const socket = this.SERVER;
 
 
-      console.log(this.sessionName);
-      console.log(this.username);
-
-      const socket = this.SERVER;
-
-      this.IC = false;
 
 
-      socket.emit('joinRoom',{username: this.username, room: this.ID, isCreator: this.IC});
+      //socket.emit('joinRoom',{username: this.username, room: 654598456189451564, isCreator: false});
       //this.$emit("userLogin",this.SERVER);
 
-      socket.on("message",(message) =>{
-        console.log("server said: " ,message.text);
-      });
-
-      console.log(this.SERVER);
 
 
-      router.push("Meeting");
+
+      router.push({name: "Meeting",params: {socket: this.SERVER,token: ""}});
+
 
 
     }

@@ -56,7 +56,7 @@ export default {
         listButton : null,
         questionButton : null,
         selected: null,
-
+        SERVER: null,
         entryText: null,
         messagesArray: new Array()
     }
@@ -67,23 +67,36 @@ export default {
           this.chatButton = document.getElementById("chat-button");
           this.listButton = document.getElementById("list-button");
           this.questionButton = document.getElementById("question-button");
+          this.SERVER = this.$route.params.socket;
 
+      this.SERVER.on("message",(message) =>{
+        let today = new Date();
+        this.messagesArray.push({
+          username: message.username,
+          message: message.text,
+          time: today.getHours()+":"+today.getMinutes(),
+          index: this.messagesArray.length
+        })
+      });
 
 
     },
     sendMessage : function (){
-      let today = new Date();
+
       if(this.entryText =="") {
-        console.log("empty");
         return;
       }
       else{
-        this.messagesArray.push({
+
+
+      /*  this.messagesArray.push({
           username: "placeHolder",
           message: this.entryText,
           time: today.getHours()+":"+today.getMinutes(),
           index: this.messagesArray.length
-        })
+        });*/
+
+        this.SERVER.emit("chatMessage",this.entryText);
       }
 
 
