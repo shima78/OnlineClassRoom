@@ -9,7 +9,7 @@
         {{message}}
      </p>
       <label class="time-label">
-        {{time_h}}:{{time_m}}
+        {{time}}
       </label>
     </div>
 </template>
@@ -25,8 +25,7 @@ export default {
   props:{
     username: String,
     message: String,
-    time_h: String,
-    time_m: String
+    time: String
   }
 }
 </script>

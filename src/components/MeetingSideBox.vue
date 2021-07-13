@@ -15,9 +15,9 @@
 
           <div id="chat-message-box">
             <vue-scroll>
-              <div id="bubble-chat-container">
-
-              </div>
+              <template v-for="messageOBJ in this.messagesArray">
+                  <chat-bubble :key="messageOBJ.index" :username="messageOBJ.username" :message="messageOBJ.message" :time="messageOBJ.time"></chat-bubble>
+              </template>
             </vue-scroll>
           </div>
 
@@ -57,7 +57,8 @@ export default {
         questionButton : null,
         selected: null,
 
-        entryText: null
+        entryText: null,
+        messagesArray: new Array()
     }
 
   },
@@ -67,15 +68,26 @@ export default {
           this.listButton = document.getElementById("list-button");
           this.questionButton = document.getElementById("question-button");
 
+
+
     },
     sendMessage : function (){
+      let today = new Date();
       if(this.entryText =="") {
         console.log("empty");
         return;
       }
-      console.log( document.getElementById("bubble-chat-container"));
-      document.getElementById("bubble-chat-container").insertAdjacentHTML("afterend",
-      "<chat-bubble></chat-bubble>");
+      else{
+        this.messagesArray.push({
+          username: "placeHolder",
+          message: this.entryText,
+          time: today.getHours()+":"+today.getMinutes(),
+          index: this.messagesArray.length
+        })
+      }
+
+
+
 
     }
   },
