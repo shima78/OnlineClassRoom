@@ -58,6 +58,8 @@ export default {
       xhr.onload = function () {
         console.log("status code:\t"+xhr.status);
         console.log(xhr.response);
+
+        console.log(xhr.responseText);
       }
 
       //xhr.open("post",this.actionAddress,true);
