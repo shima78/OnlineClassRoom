@@ -12,8 +12,7 @@
           </button>
         </div>
       <div id="chatList" class="side-box-v-container" v-if="selected === 1">
-
-          <div id="chat-message-box">
+          <div id="chat-message-box" class="side-shadow-container">
             <vue-scroll>
               <template v-for="messageOBJ in this.messagesArray">
                   <chat-bubble :key="messageOBJ.index" :username="messageOBJ.username" :message="messageOBJ.message" :time="messageOBJ.time"></chat-bubble>
@@ -21,7 +20,7 @@
             </vue-scroll>
           </div>
 
-          <div id="chatMessageEntry">
+          <div id="chatMessageEntry" >
               <input id="chatMessageInput" type="text" class="input-bar" v-model="entryText">
               <button id="send-button" class="round-button" @click="sendMessage">
                 <i class="material-icons">send</i>
@@ -29,8 +28,12 @@
           </div>
       </div>
       <div id="attendList" class="side-box-v-container" v-if="selected === 2">
-        <div>
-
+        <div id="attend-list-box" class="side-shadow-container">
+              <vue-scroll>
+                <template v-for="userOBJ in this.userArray">
+                  <chat-bubble :key="userOBJ.index" :username="userOBJ.username"></chat-bubble>
+                </template>
+              </vue-scroll>
         </div>
       </div>
       <div id="questionList" class="side-box-v-container" v-if="selected === 3">
@@ -58,26 +61,51 @@ export default {
         selected: null,
         SERVER: null,
         entryText: null,
-        messagesArray: new Array()
+        messagesArray: new Array(),
+        userArray: new Array()
     }
 
   },
   methods:{
-    init: function (){
-          this.chatButton = document.getElementById("chat-button");
-          this.listButton = document.getElementById("list-button");
-          this.questionButton = document.getElementById("question-button");
-          this.SERVER = this.$route.params.socket;
+    init: function () {
+      this.chatButton = document.getElementById("chat-button");
+      this.listButton = document.getElementById("list-button");
+      this.questionButton = document.getElementById("question-button");
+      this.SERVER = this.$route.params.socket;
 
-      this.SERVER.on("message",(message) =>{
+      this.SERVER.on("message", (message) => {
         let today = new Date();
         this.messagesArray.push({
           username: message.username,
           message: message.text,
-          time: today.getHours()+":"+today.getMinutes(),
+          time: today.getHours() + ":" + today.getMinutes(),
           index: this.messagesArray.length
-        })
+        });
+
+
+
+        this.SERVER.on("roomUsers",(users) => {
+            console.log(users);
+        });
+
+        //temp
+        for(let i = 0;i<40;i++){
+          this.userArray.push({
+            index: i,
+            username: "user" + i
+          });
+        }
+
+
+
+
       });
+
+
+
+
+
+
 
 
     },
@@ -127,7 +155,6 @@ export default {
   }
 
   .side-box-v-container{
-
     display: grid;
     margin: 20px 10px 10px;
     border-radius: 24px;
@@ -218,21 +245,21 @@ export default {
   }
 
 
-  #chatList::-webkit-scrollbar {
+  .side-box-v-container::-webkit-scrollbar {
     display: none;
   }
 
-  #chat-message-box::-webkit-scrollbar {
+  .side-shadow-container::-webkit-scrollbar {
     display: none;
   }
-  #chatList{
+  .side-box-v-container{
 
     overflow-y: scroll;
     -ms-overflow-style: none;  /* IE and Edge */
     scrollbar-width: none;  /* Firefox */
   }
 
-  #chat-message-box{
+  .side-shadow-container{
 
     overflow-y: scroll;
     display: flex;

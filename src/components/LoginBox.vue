@@ -41,7 +41,8 @@ export default {
       password: "",
       SERVER: null,
       address: 'ws://localhost:5000',
-      actionAddress: null
+      actionAddress: null,
+
     }
   },
   methods: {
@@ -55,32 +56,39 @@ export default {
       formData.append("password",this.password);
       xhr.open("post",this.actionAddress);
       xhr.send(formData);
+
+      let token = null;
       xhr.onload = function () {
-        console.log("status code:\t"+xhr.status);
-        console.log(xhr.response);
+        if(xhr.status == 200){
+          console.log("status code:\t"+xhr.status);
+          console.log("response: " + xhr.responseText);
+          console.log(token = (JSON.parse(xhr.responseText))['token']);
+          sessionStorage.setItem('token',token);
 
-        console.log(xhr.responseText);
+        }
+
+        else{
+          console.log("login error");
+        }
+
+
       }
-
       //xhr.open("post",this.actionAddress,true);
       //xhr.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
       //xhr.send("username="+this.username+"&password="+this.password);
       //Login pass then socket
 
-      //this.SERVER = io(this.address);
+      this.SERVER = io.connect(this.address,{query: {token}});
 
-     // const socket = this.SERVER;
+     const socket = this.SERVER;
 
-
-
-
-      //socket.emit('joinRoom',{username: this.username, room: 654598456189451564, isCreator: false});
-      //this.$emit("userLogin",this.SERVER);
+      socket.emit('joinRoom',{username: this.username, room: 654598456189451564, isCreator: false});
+      this.$emit("userLogin",this.SERVER);
 
 
 
 
-      router.push({name: "Meeting",params: {socket: this.SERVER,token: ""}});
+      router.push({name: "Meeting",params: {socket: this.SERVER,token: token}});
 
 
 

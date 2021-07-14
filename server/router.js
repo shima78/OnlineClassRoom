@@ -3,13 +3,10 @@ var router = express.Router();
 const jwt = require('jsonwebtoken');
 const userDB = require('./db/user'); 
 var multer  = require('multer');
+const cors = require('cors');
 
-
-router.post('/login', multer().none(), async(req, res) => {   
-    
-    console.log("connected");
-    console.log(req.body);
-    const username = req.body["username"]
+router.post('/login', multer().none(), async(req, res) => {    
+    const username = req.body["username"] 
     const password = req.body["password"] 
 
     const result = await userDB.getUser(username,password)

@@ -1,5 +1,0 @@
-node_modules
-node_modules/
-/node_modules
-database.sqlite3
-server/database.sqlite3
