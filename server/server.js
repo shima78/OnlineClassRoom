@@ -28,7 +28,7 @@ io.use(function(socket, next){
       jwt.verify(socket.handshake.query.token, 'SECRET_KEY', function(err, decoded) {
         if (err) return next(new Error('Authentication error'));
         socket.decoded = decoded;
-        console.log(socket.decoded)
+        console.log(socket.decoded);
         next();
       });
     }
