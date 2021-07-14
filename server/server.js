@@ -37,8 +37,8 @@ io.use(function(socket, next){
     }    
   })
   .on('connection',socket =>{
-    socket.on('joinRoom', ({ username, room }) => {
-        const user = userJoin(socket.id, username, room);
+    socket.on('joinRoom', ({ username, room, role, userid }) => {
+        const user = userJoin(socket.id, username, room, role,userid);
     
         socket.join(user.room);
     

@@ -2,20 +2,27 @@
 const moment = require('moment')
 
 const users = [];
-function userJoin(id,username,room){
-    const user =  {id, username,room, time:  moment().format('h:mm a') };
+function userJoin(socketID,username,room, role,userID ){
+    const user =  {socketID, 
+        username,
+        userID,
+        room,
+        JoinTime:  moment().format('h:mm a'),
+        role,
+        online : true
+     };
     users.push(user);
     return user
 }
 function getCurrentUser(id){
-    return users.find(user => user.id === id);
+    return users.find(user => user.socketID === id);
 }
 
 function userLeave(id){
-    const index = users.find(user=> user.id ===id);
+    const index = users.find(user=> user.socketID ===id);
     usr  = users[index]
     if (index!= -1){
-        users.splice(index,1)[0];
+        users[index].online = false
         return usr;
     }
 

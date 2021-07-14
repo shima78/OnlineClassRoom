@@ -6,7 +6,7 @@ var multer  = require('multer');
 
 
 router.post('/login', multer().none(), async(req, res) => {    
-    const username = req.body["username"]
+    const username = req.body["username"] 
     const password = req.body["password"] 
 
     const result = await userDB.getUser(username,password)
