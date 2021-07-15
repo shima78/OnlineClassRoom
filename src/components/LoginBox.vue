@@ -73,9 +73,6 @@ export default {
 
 
       }
-      //xhr.open("post",this.actionAddress,true);
-      //xhr.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
-      //xhr.send("username="+this.username+"&password="+this.password);
       //Login pass then socket
 
       this.SERVER = io.connect(this.address,{query: {token}});

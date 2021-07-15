@@ -9,26 +9,23 @@ const botName = 'admin';
 const PORT = 5000
 const app = express();
 const jwt = require('jsonwebtoken');
-
 const cors = require('cors');
-
-var corsOptions = {
-    origin: '*',
-    optionsSuccessStatus: 200 // some legacy browsers (IE11, various SmartTVs) choke on 204
-  }
-
-  app.use(cors(corsOptions));
+let corsOptions = {
+    origin: "http://192.168.1.104:8080",
+    optionsSuccessStatus: 200
+}
+app.use(cors(corsOptions));
 app.use('/router', router);
 
 //set static folder 
-app.use(express.static(path.join(__dirname, 'public')))
+app.use(express.static(path.join(__dirname, 'public')));
 
 
 //we need a server that we can access
-const server = http.createServer(app)
+const server = http.createServer(app);
 
 
-const io = socketio(server);
+const io = socketio(server,{cors: {origin: "*"}});
 //Run when a client connects
 
 io.use(function(socket, next){
@@ -54,8 +51,7 @@ io.use(function(socket, next){
         socket.emit('message', formatMessage(botName, 'Welcome to ChatCord!'));
     
         // Broadcast when a user connects
-        socket.broadcast.to(user.room)
-        .emit('message',
+        socket.broadcast.to(user.room).emit('message',
         formatMessage(botName, `${user.username} has joined the chat`)
           );
           
@@ -76,14 +72,14 @@ io.use(function(socket, next){
 
     //listen for answers
     socket.on('chatAnswer',ans => {
-        const user = getCurrentUser(socket.id)
+        const user = getCurrentUser(socket.id);
         //show this naswer to everone
         io.to(user.room).emit('answer',formatMessage(user.username,ans));
     })
 
     socket.on('disconnect', () =>{
         const user = userLeave(socket.id);
-        console.log(user)
+        console.log(user);
         //to emit all the clinets in general we can use io.emit
         if (user) {
             io.to(user.room).emit('message',formatMessage(botName,`${user.username} has 

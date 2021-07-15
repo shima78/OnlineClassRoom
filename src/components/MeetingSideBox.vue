@@ -71,7 +71,7 @@ export default {
       this.chatButton = document.getElementById("chat-button");
       this.listButton = document.getElementById("list-button");
       this.questionButton = document.getElementById("question-button");
-      this.SERVER = this.$route.params.socket;
+      /*this.SERVER = this.$route.params.socket;
 
       this.SERVER.on("message", (message) => {
         let today = new Date();
@@ -100,7 +100,7 @@ export default {
 
 
       });
-
+      */
 
 
 
@@ -124,7 +124,7 @@ export default {
           index: this.messagesArray.length
         });*/
 
-        this.SERVER.emit("chatMessage",this.entryText);
+        //this.SERVER.emit("chatMessage",this.entryText);
       }
 
 
