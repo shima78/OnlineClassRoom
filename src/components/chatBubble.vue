@@ -36,7 +36,7 @@ export default {
   display: flex;
   flex-direction: column;
   align-items: start;
-  justify-content: start;
+  justify-content: flex-start;
   padding: 12px 12px 10px 12px;
   margin: 12px 14px 12px 14px;
 

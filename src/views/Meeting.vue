@@ -14,7 +14,6 @@
       <div id="side-container">
         <MeetingSideBox>
         </MeetingSideBox>
-
       </div>
 
 

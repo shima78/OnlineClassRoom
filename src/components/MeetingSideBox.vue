@@ -71,7 +71,8 @@ export default {
       this.chatButton = document.getElementById("chat-button");
       this.listButton = document.getElementById("list-button");
       this.questionButton = document.getElementById("question-button");
-      /*this.SERVER = this.$route.params.socket;
+      this.SERVER = this.$route.params.socket;
+      console.log("side box has the socket:" + this.$route.params.socket)
 
       this.SERVER.on("message", (message) => {
         let today = new Date();
@@ -96,16 +97,12 @@ export default {
           });
         }
 
+        console.log(this.userArray)
+
 
 
 
       });
-      */
-
-
-
-
-
 
 
     },
@@ -115,8 +112,7 @@ export default {
         return;
       }
       else{
-
-
+      console.log(this.entryText)
       /*  this.messagesArray.push({
           username: "placeHolder",
           message: this.entryText,
@@ -124,7 +120,7 @@ export default {
           index: this.messagesArray.length
         });*/
 
-        //this.SERVER.emit("chatMessage",this.entryText);
+        this.SERVER.emit("chatMessage",this.entryText);
       }
 
 
@@ -140,7 +136,7 @@ export default {
 <style src="../style/neuMeet.css"></style>
 <style scoped>
   #side-box{
-    width: 400px;
+    width: 450px;
     height: 100%;
     max-height: 100%;
     max-width: 100%;
