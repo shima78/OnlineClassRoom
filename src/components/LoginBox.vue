@@ -69,17 +69,28 @@ export default {
 
           */
           this.SERVER = io(this.address);
-          console.log("login box server:\t" + typeof (this.SERVER));
+          // console.log("login box server:\t" + typeof (this.SERVER));
           const socket = this.SERVER;
 
           socket.on("connect", () => {
             // either with send()
-            console.log("on connect client")
+            // console.log("on connect client")
           });
+        
+          socket.emit('login',{name: this.username,pass:this.password, room: 654598456189451564})
+          
+          socket.on("loginRes",(data)=>{
+            console.log(data)
+              if(data==400){
+                console.log("wrong")
+                }
+              else{
+                socket.emit('joinRoom', {username: this.username, room: 654598456189451564, isCreator: false});
+              router.push({name: "Meeting", params: {socket: this.SERVER, token: "1"}});
+              }
+          })
 
-          socket.emit('joinRoom', {username: this.username, room: 654598456189451564, isCreator: false});
-           router.push({name: "Meeting", params: {socket: this.SERVER, token: "1"}});
-
+       
         //} else {
          //console.log("login error");
         //}
