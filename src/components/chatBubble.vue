@@ -55,6 +55,8 @@ export default {
   text-justify: inter-word;
   margin-left: 4px;
   margin-right: 1px;
+
+  overflow-wrap: normal;
 }
 .time-label{
   font-size: 10px;

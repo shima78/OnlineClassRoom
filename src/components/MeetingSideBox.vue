@@ -31,7 +31,7 @@
         <div id="attend-list-box" class="side-shadow-container">
               <vue-scroll>
                 <template v-for="userOBJ in this.userArray">
-                  <chat-bubble :key="userOBJ.index" :username="userOBJ.username"></chat-bubble>
+                  <user-bubble :key="userOBJ.index" :username="userOBJ.username" :role="'owner'"></user-bubble>
                 </template>
               </vue-scroll>
         </div>
@@ -48,17 +48,18 @@
 <script>
 
 import ChatBubble from "@/components/chatBubble";
+import UserBubble from "@/components/userbubble";
 
 export default {
   name: "MeetingSideBox",
   // eslint-disable-next-line vue/no-unused-components
-  components: {ChatBubble},
+  components: {UserBubble, ChatBubble},
   data() {
     return {
         chatButton : null,
         listButton : null,
         questionButton : null,
-        selected: null,
+        selected: 1,
         SERVER: null,
         entryText: null,
         messagesArray: new Array(),
@@ -86,20 +87,9 @@ export default {
 
 
         this.SERVER.on("roomUsers",(users) => {
-            console.log(users);
+          console.log("usernameList obtained by server:"+users.users)
+            this.userArray = users.users;
         });
-
-        //temp
-        for(let i = 0;i<40;i++){
-          this.userArray.push({
-            index: i,
-            username: "user" + i
-          });
-        }
-
-        console.log(this.userArray)
-
-
 
 
       });
