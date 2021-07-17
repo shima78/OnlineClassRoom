@@ -5,7 +5,8 @@ function userJoin(socketID,username,room, role,userID ){
         username,
         userID,
         room,
-        JoinTime:  moment().format('h:mm a'),
+        joinTime:  moment().format('h:mm a'),
+        leaveTime: '',
         role,
         online : true
      };
@@ -20,7 +21,8 @@ function userLeave(id){
     const index = users.find(user=> user.socketID ===id);
     const usr  = users[index]
     if (index!= -1){
-        // usr.online = false
+        usr.online = false
+        usr.leaveTime =  moment().format('h:mm a')
         return usr;
     }
 
