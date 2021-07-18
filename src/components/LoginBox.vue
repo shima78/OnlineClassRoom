@@ -9,6 +9,7 @@
 
 
           <input id="username" class="input-bar text" v-model="username" placeholder="Username" autocomplete="off" name="username">
+          <input id="roomid" class="input-bar text" v-model="roomID" placeholder="room ID" autocomplete="off" name="roomid">
           <input id="password" class="input-bar text" v-model="password" placeholder="Password" autocomplete="off" name="password" type="password">
           <button id="meet-enter-button" @click="loginInit" type="submit" > Enter Meeting </button>
 
@@ -39,9 +40,11 @@ export default {
     return {
       username: "",
       password: "",
+      roomID:null,
       SERVER: null,
       address: 'ws://localhost:3000',
-
+      role: null,
+      usid: null //unique socket id
 
     }
   },
@@ -49,43 +52,27 @@ export default {
 
     loginInit: function (){
 
-
-      /*const xhr = new XMLHttpRequest();
-      const formData = new FormData();
-      formData.append("username",this.username);
-      formData.append("password",this.password);
-      xhr.open("post","http://localhost:5000/login");
-      xhr.send(formData);
-
-      let token_in = null;
-      xhr.onload = async function () {
-        if (xhr.status == 200) {
-          console.log("status code:\t" + xhr.status);
-          console.log("response: " + xhr.responseText);
-          console.log(token_in = (JSON.parse(xhr.responseText))['token']);
-          sessionStorage.setItem('token', token_in);
-          // eslint-disable-next-line no-unused-vars
-          const {token} = sessionStorage;
-
-          */
           this.SERVER = io(this.address);
-          console.log("login box server:\t" + typeof (this.SERVER));
           const socket = this.SERVER;
 
-          socket.on("connect", () => {
-            // either with send()
-            console.log("on connect client")
-          });
 
-          socket.emit('joinRoom', {username: this.username, room: 654598456189451564, isCreator: false});
-           router.push({name: "Meeting", params: {socket: this.SERVER, token: "1"}});
+      socket.emit('login',{name: this.username,pass:this.password, room: this.roomID})
 
-        //} else {
-         //console.log("login error");
-        //}
-
-
-      //}
+      socket.on("loginRes",(data)=>{
+        console.log(data)
+        if(data==400){
+          console.log("wrong") //login data handling
+        }
+        else{
+          this.usid = data.socketID;
+          this.role = data.role;
+          socket.emit('joinRoom', {username: this.username, room: this.roomID , isCreator: false});
+          router.push({name: "Meeting", params: {socket: this.SERVER, token: "1"}});
+          console.log("" +
+              "we have:" +
+              this.usid + '\n\n' + "also: " +this.role)
+        }
+      })
       //Login pass then socket
 
 
