@@ -14,7 +14,7 @@ function formatQuestions(username, text, room, difficulty){
         answers : []
     };
     allQuestions.push(q)
-    return allQuestions
+    return allQuestions.filter(q => q.room === room);
 }
 
 
@@ -27,7 +27,8 @@ function changDifficulty(qid,d){
     // q.difficulty = d
     const index = getquestionById(qid)
     allQuestions[index].difficulty = d
-    return allQuestions
+    var room = allQuestions[index].room
+    return allQuestions.filter(q => q.room === room);
 }
 
 // const answers = [];
@@ -44,7 +45,8 @@ function formatAnswers(username, text, qid){
     };
     const index = getquestionById(qid)
     allQuestions[index].answers.push(ans);
-    return allQuestions;
+    var room = allQuestions[index].room
+    return allQuestions.filter(q => q.room === room);
 }
 
 
@@ -54,13 +56,16 @@ function setScore(qid,ansid,score){
     const indexq = getquestionById(qid)
     const indexAns = allQuestions[indexq].answers.find( a=> a.id === ansid);
     allQuestions[indexq].answers[indexAns].score = score
-    return allQuestions
+    var room = allQuestions[indexq].room
+    return allQuestions.filter(q => q.room === room);
+
 }
 function accept(qid,ansid,isAcc){
     const indexq = getquestionById(qid)
     const indexAns = allQuestions[indexq].answers.find( a=> a.id === ansid);
     allQuestions[indexq].answers[indexAns].isAccepted = isAcc
-    return allQuestions
+    var room = allQuestions[indexq].room
+    return allQuestions.filter(q => q.room === room);
 }
 
 

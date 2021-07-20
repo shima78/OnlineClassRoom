@@ -1,5 +1,5 @@
 const express = require('express')
-var  router = require('./router')
+// var  router = require('./router')
 const path = require('path')
 const http = require('http')
 const socketio = require('socket.io')
@@ -15,7 +15,7 @@ let corsOptions = {
     optionsSuccessStatus: 200
 }
 app.use(cors(corsOptions))
-app.use('/router', router)
+// app.use('/router', router)
 
 //set static folder 
 app.use(express.static(path.join(__dirname, 'public')))
