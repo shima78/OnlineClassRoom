@@ -1,10 +1,10 @@
 <template>
-  <div class="chat-bubble">
+  <div class="answer-bubble">
       <label class="username-label">
         {{username}}
       </label>
-    <label class="role-label" v-if="role === 'owner'">
-      {{role}}
+    <label class="role-label" v-if="role">
+      Owner
     </label>
   </div>
 </template>
@@ -19,13 +19,13 @@ export default {
   },
   props:{
     username: String,
-    role: String
+    role: Boolean
   }
 }
 </script>
 
 <style scoped>
-.chat-bubble{
+.answer-bubble{
 
   display: flex;
   flex-direction: row;
@@ -59,7 +59,7 @@ export default {
   font-family: "Poppins",sans-serif;
   font-size: 10px;
   font-weight: 400;
-  color: #cf525c;
+  color: #ff7c74;
 
 }
 

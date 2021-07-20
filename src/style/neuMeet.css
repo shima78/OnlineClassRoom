@@ -1,7 +1,16 @@
-.neu-button{
-
+.scrollable{
+    -ms-overflow-style: none; /* for Internet Explorer, Edge */
+    scrollbar-width: none; /* for Firefox */
+    overflow-y: scroll;
 }
 
+.scrollable::-webkit-scrollbar {
+    display: none; /* for Chrome, Safari, and Opera */
+}
+
+[contenteditable]{
+    outline: 0px solid transparent;
+}
 
 label{
     font-family: "Poppins",sans-serif;
@@ -17,7 +26,7 @@ p{
     color: #7389a9;
 }
 
-input[type="checkbox"]{
+.toggle-button{
     background-color: #e0e5ec;
     height: 40px;
     width: 40px;
@@ -34,14 +43,14 @@ input[type="checkbox"]{
 
 }
 
-input[type="checkbox"]:after{
+.toggle-button:after{
     font-family: 'Material Icons';
 
     color: #7389a9;
     font-size: 24px;
 }
 
-input[type="checkbox"]:checked{
+.toggle-button:checked{
     box-shadow:
      2px 2px 4px #ccd0d7,
      -2px -2px 4px #f4faff,
@@ -49,7 +58,7 @@ input[type="checkbox"]:checked{
     inset -2px -2px 4px #f4faff;
 }
 
-input[type="checkbox"]:checked:after{
+.toggle-button:checked:after{
     font-family: 'Material Icons';
 
     color: #ff7c74;
@@ -189,3 +198,34 @@ input[type=range]:focus::-webkit-slider-runnable-track {
 
 
 }
+
+
+
+
+.slider-check-box{
+    background-color: #7389a9;
+    height: 20px;
+    width: 10px;
+    -webkit-appearance: none;
+    border-radius: 24px;
+
+    box-shadow:  1px 1px 4px #bec3c9,
+     -1px -1px 4px #ffffff;
+    outline: none;
+    display: flex;
+    align-items:  center;
+    justify-content: center;
+
+}
+.slider-check-box:checked{
+    -webkit-appearance: none;
+    background-color: #ff7c74;
+}
+
+.inc-button{
+    height: 24px;
+    width: 24px;
+    margin-right: 4px;
+    margin-left: 4px;
+}
+

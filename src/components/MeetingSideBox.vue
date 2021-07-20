@@ -21,23 +21,58 @@
           </div>
 
           <div id="chatMessageEntry" >
-              <input id="chatMessageInput" type="text" class="input-bar" v-model="entryText">
-              <button id="send-button" class="round-button" @click="sendMessage">
+              <input id="chatMessageInput" type="text" class="input-bar" v-model="chatEntryText">
+              <button id="send-button" class="round-button pink-button" @click="sendMessage">
                 <i class="material-icons">send</i>
               </button>
           </div>
       </div>
       <div id="attendList" class="side-box-v-container" v-if="selected === 2">
+        
         <div id="attend-list-box" class="side-shadow-container">
               <vue-scroll>
                 <template v-for="userOBJ in this.userArray">
-                  <user-bubble :key="userOBJ.index" :username="userOBJ.username" :role="'owner'"></user-bubble>
+                  <user-bubble :key="userOBJ.index" :username="userOBJ.username" :role="userOBJ.role"></user-bubble>
                 </template>
               </vue-scroll>
         </div>
       </div>
-      <div id="questionList" class="side-box-v-container" v-if="selected === 3">
-        <div>
+      <div id="question-list" class="side-box-v-container" v-if="selected === 3">
+        <div id="question-entry" class="side-shadow-container">
+          <div style="width: 100%; box-sizing: border-box;">
+         <!-- <div class="question-label-wrapper">
+            <label class="question-label">
+              Question
+            </label>
+          </div> -->
+            <textarea id="question-entry-input" class="input-bar scrollable" rows="6" >
+            </textarea>
+          </div >
+            <div id="question-input-action-wrapper">
+              <div style="display: flex; flex-direction: row;justify-content: space-between; align-items: center">
+                <button id="question-hard-inc-low" class="round-button inc-button"   @click="questionHardshipDec" >
+                  <i class="material-icons">remove</i>
+                </button>
+              <input type="checkbox" class="slider-check-box" v-model="this.questionHardship.checkBoxBind" disabled="true" value=1>
+              <input type="checkbox" class="slider-check-box" v-model="this.questionHardship.checkBoxBind" disabled="true" value=2>
+              <input type="checkbox" class="slider-check-box" v-model="this.questionHardship.checkBoxBind" disabled="true" value=3>
+              <input type="checkbox" class="slider-check-box" v-model="this.questionHardship.checkBoxBind" disabled="true" value=4>
+              <input type="checkbox" class="slider-check-box" v-model="this.questionHardship.checkBoxBind" disabled="true" value=5>
+                <button id="question-hard-inc-high" class="round-button inc-button"   @click="questionHardshipInc">
+                  <i class="material-icons">add</i>
+                </button>
+              </div>
+            <button id="question-send-button" class="pink-button">Ask</button>
+            </div>
+        </div>
+        <div id="question-box" class="side-shadow-container">
+          <vue-scroll>
+            <question-bubble answer-count="123" time="12:16" level="5" question-index="1" question-text="How many people did mongols kill?How many people did mongols kill?How many people did mongols kill?How many people did mongols kill?How many people did mongols kill?How many people did mongols kill?How many people did mongols kill?How many people did mongols kill?How many people did mongols kill?How many people did mongols kill?How many people did mongols kill?How many people did mongols kill?"></question-bubble>
+          </vue-scroll>
+        </div>
+
+        <div id="answer-box" class="side-shadow-container">
+          <answer-bubble username="username" score="20.00" time="16:20" answer-message="Mongols killed 12,560,000 people."></answer-bubble>
 
         </div>
       </div>
@@ -49,11 +84,13 @@
 
 import ChatBubble from "@/components/chatBubble";
 import UserBubble from "@/components/userbubble";
+import QuestionBubble from "@/components/questionBubble";
+import AnswerBubble from "@/components/answerBubble";
 
 export default {
   name: "MeetingSideBox",
   // eslint-disable-next-line vue/no-unused-components
-  components: {UserBubble, ChatBubble},
+  components: {AnswerBubble, QuestionBubble, UserBubble, ChatBubble},
   data() {
     return {
         chatButton : null,
@@ -61,9 +98,13 @@ export default {
         questionButton : null,
         selected: 1,
         SERVER: null,
-        entryText: null,
+        chatEntryText: null,
+        questionEntryText: null,
         messagesArray: new Array(),
-        userArray: new Array()
+        userArray: this.$route.params.userDataArray,
+        questionHardship: {currentValue:1,checkBoxBind:[1]}
+
+
     }
 
   },
@@ -72,9 +113,11 @@ export default {
       this.chatButton = document.getElementById("chat-button");
       this.listButton = document.getElementById("list-button");
       this.questionButton = document.getElementById("question-button");
+      console.log("routevar:",this.$route.params.userDataArray)
       this.SERVER = this.$route.params.socket;
-      console.log("side box has the socket:" + this.$route.params.socket)
 
+      console.log("side box has the socket:", this.$route.params.socket)
+      console.log("side b0x has userlist", this.userArray);
       this.SERVER.on("message", (message) => {
         let today = new Date();
         this.messagesArray.push({
@@ -85,10 +128,10 @@ export default {
         });
 
 
-
-        this.SERVER.on("roomUsers",(users) => {
-          console.log("usernameList obtained by server:"+users.users)
-            this.userArray = users.users;
+        this.SERVER.on("roomUsers", (data) => {
+          console.log("incoming data:", data);
+          console.log("\n\nusernameList obtained by server:" + data.users);
+          this.userArray = data.users;
         });
 
 
@@ -98,11 +141,11 @@ export default {
     },
     sendMessage : function (){
 
-      if(this.entryText =="") {
+      if(this.chatEntryText =="") {
         return;
       }
       else{
-      console.log(this.entryText)
+      console.log(this.chatEntryText)
       /*  this.messagesArray.push({
           username: "placeHolder",
           message: this.entryText,
@@ -110,16 +153,35 @@ export default {
           index: this.messagesArray.length
         });*/
 
-        this.SERVER.emit("chatMessage",this.entryText);
+        this.SERVER.emit("chatMessage",this.chatEntryText);
       }
 
+    },
+
+    questionHardshipInc:  function (){
+      if(this.questionHardship.currentValue < 5){
+
+        this.questionHardship.currentValue += 1;
+        this.questionHardship.checkBoxBind.push(this.questionHardship.currentValue);
+        console.log("checkbox" + this.questionHardship.checkBoxBind)
 
 
+      }
+    },
+    questionHardshipDec: function (){
+      if(this.questionHardship.currentValue > 1){
 
+        this.questionHardship.currentValue -= 1;
+
+        this.questionHardship.checkBoxBind.pop();
+        console.log("checkbox" + this.questionHardship.checkBoxBind)
+
+      }
     }
   },
   mounted() {
     this.init();
+
   }
 }
 </script>
@@ -188,13 +250,21 @@ export default {
 }
 
 
-#send-button{
-  background-image: linear-gradient(145deg, #ff7c74, #d86861);
+.pink-button{
+  background-color: #ff7c74;
   box-shadow:  3px 3px 6px #bec3c9,
   -3px -3px 6px #ffffff;
   margin-right: 8px;
   border-radius: 100px;
 
+}
+.pink-button:active{
+    background-color: #e0e5ec;
+    box-shadow:  inset 3px 3px 6px #bec3c9,
+    inset -3px -3px 6px #ffffff;
+    margin-right: 8px;
+    border-radius: 100px;
+    color: #ff7c74;
 }
 #send-button:active{
 
@@ -212,6 +282,13 @@ export default {
   color: #ff7c74;
 }
   .input-bar{
+
+
+    font-family: "Poppins",sans-serif;
+    font-size: 14px;
+    font-weight: 500;
+    color: #7389a9;
+
     margin-right: 10px;
     margin-left: 10px;
 
@@ -229,6 +306,72 @@ export default {
 
 
   }
+
+
+
+  #question-list{
+    grid-template-columns: auto;
+    grid-template-rows: 190px 1fr 1fr;
+  }
+
+  #question-entry{
+
+    display: flex;
+    flex-direction: column;
+    align-items: start;
+    justify-content: space-between;
+    padding-right: 0px;
+    padding-left: 0px;
+    padding-bottom: 10px;
+    border-radius: 0px;
+    box-shadow: none;
+  }
+
+  #question-entry-input{
+    box-sizing: border-box;
+    width: 100%;
+    padding-top: 10px;
+    padding-bottom: 10px;
+    margin: 0px;
+    border-radius: 24px;
+
+
+
+
+
+  }
+
+  #question-input-action-wrapper{
+    width: 100%;
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+    margin: 5px 0px 5px 0px;
+  }
+
+  #question-send-button{
+
+    height: 30px;
+    border-radius: 18px;
+    margin-right: 6px;
+    padding-left: 8px;
+    padding-right: 8px;
+    border: none;
+    outline: none;
+    color: white;
+    font-family: "Poppins",sans-serif;
+    font-size: 14px;
+    font-weight: bold;
+
+
+  }
+
+  #question-send-button:active{
+    color: #ff7c74;
+  }
+
+
 
 
   .side-box-v-container::-webkit-scrollbar {
@@ -255,18 +398,40 @@ export default {
     scrollbar-width: none;  /* Firefox */
 
 
-      border-radius: 24px;
+    border-radius: 24px;
     background-color: #e0e5ec;
     margin-right: 10px;
     margin-left: 10px;
     margin-bottom: 10px;
-
+    min-height: 20px;
 
     box-shadow:  inset 4px 4px 8px #c5cad0,
     inset -4px -4px 8px #fbffff;
 
 
   }
+
+
+  /*.question-label{
+    font-size: 16px;
+    color: #e0e5ec;
+    font-weight: bolder;
+  }
+  .question-label-wrapper{
+    box-sizing: border-box;
+    width: 100%;
+    height: 30px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background-color: #ff7c74;
+
+
+    border-radius: 12px 12px 0px 0px;
+    padding: 4px 8px 4px 8px;
+
+
+  }*/
 
 
 

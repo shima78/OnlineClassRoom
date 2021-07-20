@@ -1,21 +1,15 @@
 <template>
   <div id="generate-class-box">
     <div id="generate-class-form">
-      <div id="flamingo-image">
-
+      <div id="flamingo-image-div">
+        <img src="../assets/flamingo-art.svg" id="flamingo-image">
       </div>
 
 
-
-
-          <input id="username" class="input-bar text" v-model="username" placeholder="Username" autocomplete="off" name="username">
-          <input id="roomid" class="input-bar text" v-model="roomID" placeholder="room ID" autocomplete="off" name="roomid">
-          <input id="password" class="input-bar text" v-model="password" placeholder="Password" autocomplete="off" name="password" type="password">
-          <button id="meet-enter-button" @click="loginInit" type="submit" > Enter Meeting </button>
-
-
-
-
+          <input id="username" class="input-bar text" v-model="username" placeholder="Username" autocomplete="off" name="username" maxLength="32">
+          <input id="roomid" class="input-bar text" v-model="roomID" placeholder="room ID" autocomplete="off" name="roomid" maxLength="32">
+          <input id="password" class="input-bar text" v-model="password" placeholder="Password" autocomplete="off" name="password" type="password" maxLength="64">
+          <button id="meet-enter-button" @click="loginInit" > Enter Meeting </button>
 
       </div>
     </div>
@@ -44,7 +38,8 @@ export default {
       SERVER: null,
       address: 'ws://localhost:3000',
       role: null,
-      usid: null //unique socket id
+      usid: null,//unique socket id,
+      userArray: new Array()
 
     }
   },
@@ -64,10 +59,19 @@ export default {
           console.log("wrong") //login data handling
         }
         else{
-          this.usid = data.socketID;
+          this.usid = data;
           this.role = data.role;
           socket.emit('joinRoom', {username: this.username, room: this.roomID , isCreator: false});
-          router.push({name: "Meeting", params: {socket: this.SERVER, token: "1"}});
+
+
+          this.SERVER.on("roomUsers",(data) => {
+            console.log("incoming data: in login: ", data);
+            console.log("\n\nusernameList obtained by server in login:", data.users);
+            this.userArray = data.users;
+          });
+
+
+          router.push({name: "Meeting", params: {socket: this.SERVER, token: "1",userDataArray: this.userArray,usid:this.usid}});
           console.log("" +
               "we have:" +
               this.usid + '\n\n' + "also: " +this.role)
@@ -157,7 +161,7 @@ button{
   color: white;
   font-family: "Poppins",sans-serif;
   font-size: 14px;
-  font-weight: 300;
+  font-weight: 400;
 
 
   transition-duration: 0.1s;
@@ -201,15 +205,19 @@ button:active{
   grid-row: 3;
 }
 
-#flamingo-image{
+#flamingo-image-div{
   gird-row:1;
   grid-column: 1/3;
+  background-repeat: no-repeat;
+  justify-items: center;
 
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  flex-direction: column-reverse;
 
+}
+
+#flamingo-image{
+  margin: 60px;
+  margin-right: -10px;
+  margin-top: -10px;
 }
 #meet-enter-button{
   grid-column: 1/3;

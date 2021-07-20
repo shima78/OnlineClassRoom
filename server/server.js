@@ -41,8 +41,8 @@ io.on('connection',socket =>{
            
     })
 
-    socket.on('joinRoom', ({ username, room ,isCreator}) => {  //room is room ID
-        const user = userJoin(socket.id, username, room, isCreator,socket.id);
+    socket.on('joinRoom', ({ username, room ,isCreator})  => {  //room is room ID
+        const user = userJoin(socket.id, username, room, isCreator, socket.id);
         console.log(user);
         socket.join(user.room);
 
@@ -70,12 +70,36 @@ io.on('connection',socket =>{
         io.to(user.room).emit('message',formatMessage(user.username,msg));
     });
 
-    //listen for answers
-    socket.on('chatAnswer',ans => {
-        const user = getCurrentUser(socket.id)
+
+
+    //listen for Questions
+    socket.on('chatQuestions',({username, text, room}) => {
+        const user = getCurrentUser(socket.id);
         //show this naswer to everone
-        io.to(user.room).emit('answer',formatMessage(user.username,ans));
-    });
+        io.to(user.room).emit('newQuestion',formatQuestions(username, text, room));
+    })
+
+    //listen for answers
+    socket.on('chatAnswer',({username, text, qid})=> {
+        const user = getCurrentUser(socket.id);
+        //show this naswer to everone
+        io.to(user.room).emit('answer',formatAnswers(username, text, qid));
+    })
+
+     //set score for answer
+    socket.on('setScore',({qid,ansid,score})=> {
+        const user = getCurrentUser(socket.id);
+        //show this answer to everone
+        //instead of new score we can use answer!
+        io.to(user.room).emit('newScore', setScore(qid,ansid,score));
+    })
+        //listen for answers
+        //AMIR: WHAT IS accept??
+    socket.on('accept',({qid,ansid,isAcc})=> {
+    const user = getCurrentUser(socket.id);
+    //show this answer to everone
+    io.to(user.room).emit('newAccept', accept(qid,ansid,isAcc));
+    })
 
     socket.on('disconnect', () =>{
         const user = userLeave(socket.id);

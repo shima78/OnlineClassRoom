@@ -1,11 +1,11 @@
 <template>
-    <div class="chat-bubble">
+    <div class="answer-bubble">
       <div class="username-label-wrapper">
         <label class="username-label">
           {{username}}
         </label>
       </div>
-     <p class="chat-p">
+     <p class="answer-p">
         {{message}}
      </p>
       <label class="time-label">
@@ -31,7 +31,7 @@ export default {
 </script>
 
 <style scoped>
-.chat-bubble{
+.answer-bubble{
 
   display: flex;
   flex-direction: column;
@@ -48,7 +48,7 @@ export default {
   -3px -3px 6px #ffffff;
 }
 
-.chat-p{
+.answer-p{
   font-size: 14px;
   margin-top: 8px;
   text-align: left;
