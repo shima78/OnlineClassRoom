@@ -1,8 +1,8 @@
 <template>
     <div id="nav-bar">
           <div id="media-control">
-            <input type="checkbox" id="speaker" class="check-box">
-            <input type="checkbox" id="microphone" class="check-box">
+            <input type="checkbox" class="toggle-button check-box" id="speaker">
+            <input type="checkbox" class="toggle-button check-box" id="microphone">
             <input type="range" id="volume-slider" class="slider">
           </div>
 

@@ -22,7 +22,7 @@ app.use(express.static(path.join(__dirname, 'public')))
 
 
 //we need a server that we can access
-const server = http.createServer(app)
+const server = http.createServer(app);  
 
 
 const io = socketio(server,{cors: {origin: "*"}})
@@ -56,6 +56,15 @@ io.on('connection',socket =>{
         const user = getCurrentUser(socket.id)
         //show this message to everone
         io.to(user.room).emit('message',formatMessage(user.username,msg));
+    });
+
+
+
+    //listen for Questions
+    socket.on('chatQuestions',({username, text, room}) => {
+        const user = getCurrentUser(socket.id);
+        //show this naswer to everone
+        io.to(user.room).emit('newQuestion',formatQuestions(username, text, room));
     })
 
     //listen for Questions
