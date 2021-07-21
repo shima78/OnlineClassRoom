@@ -2,10 +2,10 @@
   <div id="white-board-wrapper">
     <div id="white-board-control">
       <div id="upload-ctrl-group" class="ctrl-group">
-        <button class="round-button upload-button">
+        <button class="round-button upload-button" >
           <label>PDF</label>
         </button>
-        <button class="round-button upload-button">
+        <button class="round-button upload-button" @click="sharePic">
           <label>Picture</label>
         </button>
       </div>
@@ -64,7 +64,7 @@
 
     </div>
 
-    <div id="white-board-canvas"></div>
+    <canvas id="white-board-canvas"></canvas>
   </div>
 
 </template>
@@ -90,6 +90,11 @@ export default {
   },
   components:{
     VSwatches
+  },
+  methods:{
+    sharePic(){
+      
+    }
   }
 }
 </script>

@@ -19,11 +19,11 @@ function getCurrentUser(id){
 
 function userLeave(id){
     const index = users.find(user=> user.socketID ===id);
-    const usr  = users[index]
+    // const usr  = users[index]
     if (index!= -1){
-        usr.online = false
-        usr.leaveTime =  moment().format('h:mm a')
-        return usr;
+        users[index].online = false
+        users[index].leaveTime =  moment().format('h:mm a')
+        return getRoomUsers( users[index].room);
     }
 
 }

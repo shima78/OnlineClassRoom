@@ -17,7 +17,7 @@ function formatQuestions(username, text, room, difficulty){
     return allQuestions.filter(q => q.room === room);
 }
 
-
+ 
 function getquestionById(qid){
     const index = allQuestions.find(q=> q.id === qid);
     return index
