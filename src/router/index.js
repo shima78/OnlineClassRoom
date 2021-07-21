@@ -7,6 +7,9 @@ import VSwatches from 'vue-swatches';
 
 // Import the styles too, typically in App.vue or main.js
 import 'vue-swatches/dist/vue-swatches.css'
+import Vuex from 'vuex'
+
+Vue.use(Vuex);
 Vue.use(VSwatches);
 Vue.use(VueRouter);
 Vue.use(vuescroll, {
@@ -29,6 +32,68 @@ Vue.use(vuescroll, {
   },
 
 });
+
+
+
+// eslint-disable-next-line no-unused-vars
+export const store = new Vuex.Store({
+  state: {
+    server: null,
+    userDataArray: new Array(),
+    questionArray: new Array(),
+    username: null,
+    roomId: null,
+    role: null,
+    userID :null
+  },
+  mutations: {
+    addQuestion(state,payload){
+      state.questionArray.push(payload)
+    },
+    updateUsers(state,payload){
+      state.userDataArray = payload;
+    },
+    setServer(state,payload){
+      state.server = payload;
+    },
+    setRoomID(state,payload){
+      state.roomId = payload;
+    },
+    setRole(state,payload){
+      state.role = payload;
+    },
+    setUsername(state,payload){
+      state.username = payload;
+    },
+    setUserID(state,payload){
+      state.userID = payload;
+    }
+  },
+  getters:{
+    getUserData: state => {
+      return state.userDataArray;
+    },
+    getServer: state => {
+      return state.server;
+    },
+    getRoomID: state => {
+      return state.roomId;
+    },
+    getRole: state => {
+      return state.role;
+    },
+    getUsername: state => {
+      return state.username;
+    },
+    getUserID: state => {
+      return state.userID;
+    }
+
+
+  }
+})
+
+
 Vue.component('loading',{ template: '<div><H6>Loading!</H6>></div>'})
 
 const routes = [
@@ -43,7 +108,16 @@ const routes = [
     // route level code-splitting
     // this generates a separate chunk (about.[hash].js) for this route
     // which is lazy-loaded when the route is visited.
-    component: () => import('../views/Meeting.vue')
+    component: () => import('../views/Meeting.vue'),
+    beforeEnter: (to,from,next) =>{
+      if(to.params.isPush){
+        next()
+      }
+      else{
+        next(false)
+        location.reload();
+      }
+    }
   }
 ]
 

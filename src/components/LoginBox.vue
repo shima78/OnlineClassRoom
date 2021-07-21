@@ -61,17 +61,20 @@ export default {
         else{
           this.usid = data;
           this.role = data.role;
-          socket.emit('joinRoom', {username: this.username, room: this.roomID , isCreator: false});
-
+          socket.emit('joinRoom', {username: this.username, room: this.roomID});
+          this.$store.commit('setRoomID',this.roomID);
+          this.$store.commit('setRole',this.role);
+          this.$store.commit('setUsername',this.username);
 
           this.SERVER.on("roomUsers",(data) => {
-            console.log("incoming data: in login: ", data);
+
             console.log("\n\nusernameList obtained by server in login:", data.users);
             this.userArray = data.users;
+            this.$store.commit('updateUsers',data.users);
           });
 
 
-          router.push({name: "Meeting", params: {socket: this.SERVER, token: "1",userDataArray: this.userArray,usid:this.usid}});
+          router.push({name: "Meeting", params:{isPush:true}});
           console.log("" +
               "we have:" +
               this.usid + '\n\n' + "also: " +this.role)

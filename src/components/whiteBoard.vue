@@ -107,7 +107,7 @@ export default {
   height: 100%;
 }
 #white-board-control{
-
+  padding: 5px;
   box-sizing: border-box;
   height: 120px;
   display: flex;

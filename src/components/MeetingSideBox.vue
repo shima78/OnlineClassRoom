@@ -62,7 +62,7 @@
                   <i class="material-icons">add</i>
                 </button>
               </div>
-            <button id="question-send-button" class="pink-button">Ask</button>
+            <button id="question-send-button" class="pink-button" @click="askQuestion">Ask</button>
             </div>
         </div>
         <div id="question-box" class="side-shadow-container">
@@ -101,8 +101,15 @@ export default {
         chatEntryText: null,
         questionEntryText: null,
         messagesArray: new Array(),
-        userArray: this.$route.params.userDataArray,
-        questionHardship: {currentValue:1,checkBoxBind:[1]}
+        userArray: null,
+        questionHardship: {currentValue:1,checkBoxBind:[1]}/*,
+        question: {
+          questioner: null,
+          time: null,
+          questionText: null,
+          answers : new Array(),
+          QUUID
+        }*/
 
 
     }
@@ -110,11 +117,14 @@ export default {
   },
   methods:{
     init: function () {
+
+      this.userArray= this.$store.state.userDataArray;
       this.chatButton = document.getElementById("chat-button");
       this.listButton = document.getElementById("list-button");
       this.questionButton = document.getElementById("question-button");
-      console.log("routevar:",this.$route.params.userDataArray)
-      this.SERVER = this.$route.params.socket;
+      console.log("userArray:",this.$store.getters.getUserData)
+      this.SERVER = this.$store.getters.getServer;
+
 
       console.log("side box has the socket:", this.$route.params.socket)
       console.log("side b0x has userlist", this.userArray);
@@ -132,6 +142,7 @@ export default {
           console.log("incoming data:", data);
           console.log("\n\nusernameList obtained by server:" + data.users);
           this.userArray = data.users;
+          this.$store.commit('updateUsers',data.users);
         });
 
 
@@ -177,6 +188,9 @@ export default {
         console.log("checkbox" + this.questionHardship.checkBoxBind)
 
       }
+    },
+    askQuestion: function (){
+      this.SERVER.emit()
     }
   },
   mounted() {
