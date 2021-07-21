@@ -7,7 +7,7 @@
       </div>
 
       <div id="board-container">
-
+          <white-board></white-board>
 
       </div>
 
@@ -26,10 +26,12 @@
 <script>
 import MeetingNavbar from "@/components/MeetingNavbar";
 import MeetingSideBox from "@/components/MeetingSideBox";
+import WhiteBoard from "@/components/whiteBoard";
 
 export default {
   name: "Meeting",
   components: {
+    WhiteBoard,
     MeetingSideBox,
     MeetingNavbar
   },

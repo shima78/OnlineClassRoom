@@ -107,7 +107,7 @@ p{
     inset -3px -3px 6px #ffffff;
 }
 
-.round-button  .material-icons{
+.round-button > .material-icons{
     color: #7389a9;
 
 }
@@ -115,6 +115,14 @@ p{
 .round-button:active > .material-icons{
     color: #ff7c74;
 
+}
+
+.round-button > .material-icons-outlined{
+    color: #7389a9;
+}
+
+.round-button:active > .material-icons-outlined{
+    color: #ff7c74;
 }
 
 

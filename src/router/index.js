@@ -3,7 +3,11 @@ import VueRouter from 'vue-router'
 import Home from '../views/Home.vue'
 import App from "@/App";
 import vuescroll from 'vuescroll';
+import VSwatches from 'vue-swatches';
 
+// Import the styles too, typically in App.vue or main.js
+import 'vue-swatches/dist/vue-swatches.css'
+Vue.use(VSwatches);
 Vue.use(VueRouter);
 Vue.use(vuescroll, {
   ops: {

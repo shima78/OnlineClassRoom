@@ -13,11 +13,11 @@
         {{time}}
       </label>
       <div style="display: flex; justify-content: space-around; align-items: center; box-sizing: border-box;">
-        <button id="answer-score-inc-low" class="round-button inc-button">
+        <button id="thickness-inc-low" class="round-button inc-button">
           <i class="material-icons">remove</i>
         </button>
         <input type="text" class="score-input-bar">
-        <button id="answer-score-inc-high" class="round-button inc-button">
+        <button id="thickness-inc-high" class="round-button inc-button">
           <i class="material-icons">add</i>
         </button>
       </div>
@@ -119,7 +119,7 @@ export default {
 
 
 }
-#answer-score-inc-high, #answer-score-inc-low{
+#thickness-inc-high, #thickness-inc-low{
   width: 16px;
   height: 16px;
 }
