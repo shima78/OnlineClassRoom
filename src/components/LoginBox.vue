@@ -23,71 +23,69 @@ import io from 'socket.io-client';
 // eslint-disable-next-line no-unused-vars
 import uuid from "uuid";
 import router from "@/router";
+// eslint-disable-next-line no-unused-vars
+import {store} from "@/store/store";
+// eslint-disable-next-line no-unused-vars
+import { mapGetters, mapActions } from 'vuex';
+
 
 
 export default {
   name: "LoginBox",
   components: {
-
   },
   data(){
     return {
+      parent: this,
       username: "",
       password: "",
-      roomID:null,
+      roomID: null,
       SERVER: null,
       address: 'ws://localhost:3000',
       role: null,
       usid: null,//unique socket id,
       userArray: new Array()
-
     }
   },
   methods: {
 
-    loginInit: function (){
+    ...mapActions(['updateUsersData']),
+    loginInit:  async function() {
 
-          this.SERVER = io(this.address);
-          const socket = this.SERVER;
+      this.SERVER = await io(this.address);
+      const socket = this.SERVER;
+      this.$store.commit('setServer', socket);
 
+      socket.emit('login', {name: this.username, pass: this.password, room: this.roomID})
 
-      socket.emit('login',{name: this.username,pass:this.password, room: this.roomID})
-
-      socket.on("loginRes",(data)=>{
-        console.log(data)
-        if(data==400){
+      await socket.on("loginRes", (data) => {
+        console.log("login", data)
+        if (data == 400) {
           console.log("wrong") //login data handling
-        }
-        else{
+        } else {
           this.usid = data;
-          this.role = data.role;
           socket.emit('joinRoom', {username: this.username, room: this.roomID});
-          this.$store.commit('setRoomID',this.roomID);
-          this.$store.commit('setRole',this.role);
-          this.$store.commit('setUsername',this.username);
+          this.$store.commit('setRoomID', this.roomID);
 
-          this.SERVER.on("roomUsers",(data) => {
+          this.$store.commit('setUsername', this.username);
 
-            console.log("\n\nusernameList obtained by server in login:", data.users);
-            this.userArray = data.users;
-            this.$store.commit('updateUsers',data.users);
+
+
+          this.SERVER.on("roomUsers",  (userData) =>{
+              console.log('ROOMUSERS IS ACTUALLY RUNNING',userData.users);
+              this.updateUsersData(userData.users);
           });
 
 
-          router.push({name: "Meeting", params:{isPush:true}});
-          console.log("" +
-              "we have:" +
-              this.usid + '\n\n' + "also: " +this.role)
+          router.push({name: "Meeting", params: {isPush: true}});
+
         }
       })
       //Login pass then socket
-
-
-
-
-
     }
+
   }
+
 }
 </script>
 <style src="../style/loginRadio.css"></style>

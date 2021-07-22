@@ -3,8 +3,8 @@
       <label class="username-label">
         {{username}}
       </label>
-    <label class="role-label" v-if="role">
-      Owner
+    <label class="role-label">
+      {{ joinTime }}
     </label>
   </div>
 </template>
@@ -19,7 +19,7 @@ export default {
   },
   props:{
     username: String,
-    role: Boolean
+    joinTime: String
   }
 }
 </script>

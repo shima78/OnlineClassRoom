@@ -5,7 +5,7 @@
         <button class="round-button upload-button" >
           <label>PDF</label>
         </button>
-        <button class="round-button upload-button" @click="sharePic">
+        <button class="round-button upload-button">
           <label>Picture</label>
         </button>
       </div>
@@ -64,7 +64,9 @@
 
     </div>
 
-    <canvas id="white-board-canvas"></canvas>
+    <canvas id="white-board-canvas" @mousedown="mouseDown">
+
+    </canvas>
   </div>
 
 </template>
@@ -81,8 +83,21 @@ export default {
 
     return {
       color: '#7389a9',
-      thickness : 100,
-      swatchStyle: { boxShadow: '2px 2px 4px #bec3c9, -2px -2px 4px #ffffff'}
+      thickness : 5,
+      swatchStyle: { boxShadow: '2px 2px 4px #bec3c9, -2px -2px 4px #ffffff'},
+      canvasContext: null,
+      canvas: null,
+      offset: {
+        left: 0,
+        top: 0
+      },
+      click: {
+        x: new Array(),
+        y: new Array(),
+        drag: new Array()
+      },
+      paint: null,
+      strokeStyle: 'red'
 
 
 
@@ -92,9 +107,54 @@ export default {
     VSwatches
   },
   methods:{
-    sharePic(){
-      
+    addClick: function (x,y,dragging){
+      if(x) {
+        this.click.x.push(x);
+        this.click.y.push(y)
+        this.click.drag.push(dragging)
+      }
+    },
+    drawOnCanvas: function (){
+      this.canvasContext.strokeStyle = this.strokeStyle;
+      this.canvasContext.lineJoin = 'round';
+      this.canvasContext.lineWidth = this.thickness;
+
+      for(let i=0; i < this.click.x.length; i++){
+        this.canvasContext.beginPath();
+        if(this.click.drag[i] && i){
+          this.canvasContext.moveTo(this.click.x[i-1],this.click.y[i-1]);
+
+        }
+        else{
+          this.canvasContext.moveTo(this.click.x[i] - 1,this.click.y[i]);
+        }
+
+        this.canvasContext.lineTo(this.click.x[i],this.click.y[i]);
+        this.canvasContext.closePath();
+        this.canvasContext.stroke();
+      }
+    },
+
+    init: function (){
+      this.canvas = document.getElementById('white-board-canvas');
+      this.canvasContext = this.canvas.getContext("2d");
+      this.canvasContext.fillStyle = this.color;
+
+
+
+    },
+    mouseDown: function (event){
+      let MouseX = event.pageX - this.offset.left;
+      let MouseY = event.pageY - this.offset.top;
+      this.paint = true;
+      this.addClick(MouseX,MouseY);
+      this.drawOnCanvas();
+      console.log("mouseDown");
     }
+
+  },
+  mounted() {
+    this.init();
   }
 }
 </script>

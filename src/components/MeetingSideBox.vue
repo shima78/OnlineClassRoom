@@ -31,8 +31,8 @@
         
         <div id="attend-list-box" class="side-shadow-container">
               <vue-scroll>
-                <template v-for="userOBJ in this.userArray">
-                  <user-bubble :key="userOBJ.index" :username="userOBJ.username" :role="userOBJ.role"></user-bubble>
+                <template v-for="userOBJ in userInfo[0]">
+                  <user-bubble :key="userOBJ.index" :username="userOBJ.username" :join-time="userOBJ.joinTime"></user-bubble>
                 </template>
               </vue-scroll>
         </div>
@@ -67,7 +67,7 @@
         </div>
         <div id="question-box" class="side-shadow-container">
           <vue-scroll>
-            <question-bubble answer-count="123" time="12:16" level="5" question-index="1" question-text="How many people did mongols kill?How many people did mongols kill?How many people did mongols kill?How many people did mongols kill?How many people did mongols kill?How many people did mongols kill?How many people did mongols kill?How many people did mongols kill?How many people did mongols kill?How many people did mongols kill?How many people did mongols kill?How many people did mongols kill?"></question-bubble>
+            <question-bubble answer-count="123" time="12:16" :level=this.questionHardship.currentValue question-index="1" question-text="How many people did mongols kill?How many people did mongols kill?How many people did mongols kill?How many people did mongols kill?How many people did mongols kill?How many people did mongols kill?How many people did mongols kill?How many people did mongols kill?How many people did mongols kill?How many people did mongols kill?How many people did mongols kill?How many people did mongols kill?"></question-bubble>
           </vue-scroll>
         </div>
 
@@ -86,6 +86,8 @@ import ChatBubble from "@/components/chatBubble";
 import UserBubble from "@/components/userbubble";
 import QuestionBubble from "@/components/questionBubble";
 import AnswerBubble from "@/components/answerBubble";
+// eslint-disable-next-line no-unused-vars
+import {mapActions, mapGetters} from "vuex";
 
 export default {
   name: "MeetingSideBox",
@@ -97,11 +99,10 @@ export default {
         listButton : null,
         questionButton : null,
         selected: 1,
-        SERVER: null,
+
         chatEntryText: null,
         questionEntryText: null,
         messagesArray: new Array(),
-        userArray: null,
         questionHardship: {currentValue:1,checkBoxBind:[1]}/*,
         question: {
           questioner: null,
@@ -116,18 +117,22 @@ export default {
 
   },
   methods:{
+    ...mapActions(['updateUsersData']),
     init: function () {
 
-      this.userArray= this.$store.state.userDataArray;
+
+
+
       this.chatButton = document.getElementById("chat-button");
       this.listButton = document.getElementById("list-button");
       this.questionButton = document.getElementById("question-button");
-      console.log("userArray:",this.$store.getters.getUserData)
-      this.SERVER = this.$store.getters.getServer;
+      console.log("userArray:",)
+      console.log("userArrayComputed", this.userInfo);
 
 
-      console.log("side box has the socket:", this.$route.params.socket)
-      console.log("side b0x has userlist", this.userArray);
+
+
+
       this.SERVER.on("message", (message) => {
         let today = new Date();
         this.messagesArray.push({
@@ -138,11 +143,9 @@ export default {
         });
 
 
-        this.SERVER.on("roomUsers", (data) => {
-          console.log("incoming data:", data);
-          console.log("\n\nusernameList obtained by server:" + data.users);
-          this.userArray = data.users;
-          this.$store.commit('updateUsers',data.users);
+        this.SERVER.on("roomUsers", (userdata) => {
+
+          this.updateUsersData(userdata.users);
         });
 
 
@@ -195,7 +198,16 @@ export default {
   },
   mounted() {
     this.init();
+    console.log("userInfo init",this.userInfo)
 
+  },
+  computed :{
+    userInfo(){
+      return this.$store.getters.getUserData;
+    },
+    SERVER(){
+      return this.$store.getters.getServer;
+    }
   }
 }
 </script>
