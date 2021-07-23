@@ -64,7 +64,7 @@
 
     </div>
 
-    <canvas id="white-board-canvas" @mousedown="mouseDown">
+    <canvas id="white-board-canvas" @mousedown="mouseDown" @mousemove="mouseMove" @mouseup="mouseup" @mouseleave="mouseleave">
 
     </canvas>
   </div>
@@ -82,7 +82,7 @@ export default {
   data(){
 
     return {
-      color: '#7389a9',
+      color:'red',
       thickness : 5,
       swatchStyle: { boxShadow: '2px 2px 4px #bec3c9, -2px -2px 4px #ffffff'},
       canvasContext: null,
@@ -108,13 +108,16 @@ export default {
   },
   methods:{
     addClick: function (x,y,dragging){
+      console.log("addClick",x,y,dragging);
       if(x) {
         this.click.x.push(x);
-        this.click.y.push(y)
-        this.click.drag.push(dragging)
+        this.click.y.push(y);
+        this.click.drag.push(dragging);
       }
-    },
+      },
     drawOnCanvas: function (){
+
+      console.log("this is drawing!");
       this.canvasContext.strokeStyle = this.strokeStyle;
       this.canvasContext.lineJoin = 'round';
       this.canvasContext.lineWidth = this.thickness;
@@ -123,10 +126,11 @@ export default {
         this.canvasContext.beginPath();
         if(this.click.drag[i] && i){
           this.canvasContext.moveTo(this.click.x[i-1],this.click.y[i-1]);
-
+          console.log('first IF')
         }
         else{
           this.canvasContext.moveTo(this.click.x[i] - 1,this.click.y[i]);
+          console.log('second IF')
         }
 
         this.canvasContext.lineTo(this.click.x[i],this.click.y[i]);
@@ -141,17 +145,42 @@ export default {
       this.canvasContext.fillStyle = this.color;
 
 
-
     },
     mouseDown: function (event){
       let MouseX = event.pageX - this.offset.left;
       let MouseY = event.pageY - this.offset.top;
+      console.log('mousy',MouseY,'mouseX',MouseX)
       this.paint = true;
-      this.addClick(MouseX,MouseY);
+      this.addClick(event.pageX - this.offset.left,event.pageY - this.offset.top);
       this.drawOnCanvas();
       console.log("mouseDown");
-    }
+    },
+    mouseMove: function (event){
+      if(this.paint){
+        this.addClick(event.pageX - this.offset.left,event.pageY - this.offset.top,true);
+        this.drawOnCanvas();
+      }
+    },
+    // eslint-disable-next-line no-unused-vars
+    mouseup: function (event){
+      this.paint = false;
+      this.ClearDrawCoordinates();
+      console.log('mouseUp')
+    },
 
+    mouseleave: function (){
+      this.paint = false;
+      this.ClearDrawCoordinates();
+      console.log('mouseLeave')
+    },
+
+    ClearDrawCoordinates: function (){
+      console.log('clearCord')
+
+      this.click.x = new Array();
+      this.click.y = new Array();
+      this.click.drag = new Array();
+    },
   },
   mounted() {
     this.init();
