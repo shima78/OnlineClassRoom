@@ -2,17 +2,17 @@
   <div id="white-board-wrapper">
     <div id="white-board-control">
       <div id="upload-ctrl-group" class="ctrl-group">
-
-          <button class="round-button pdf-button" style="grid-column: 1; grid-row: 1;" >
+          <button class="round-button pdf-button" style="grid-column: 1; grid-row: 1;" @click="pdfDiv.style.zIndex = 3; canvas.style.zIndex = 1;" >
             <label>PDF</label>
           </button>
-          <button class="round-button pdf-button" style="grid-column: 2; grid-row: 1;">
+          <button class="round-button pdf-button" style="grid-column: 2; grid-row: 1;" >
             <i class="material-icons">file_upload</i>
           </button>
-
-
-        <button class="round-button upload-button" style="grid-row: 2; grid-column: 1/3; width: 95px;">
-          <label>Picture</label>
+        <button class="round-button" style="grid-column: 1; grid-row: 2;" @click="canvas.style.zIndex = 3; pdfDiv.style.zIndex = 1;">
+          <i class="material-icons">cast_for_education</i>
+        </button>
+        <button class="round-button" style="grid-row: 2; grid-column: 2;">
+          <i class="material-icons">insert_photo</i>
         </button>
       </div>
 
@@ -69,10 +69,12 @@
       </div>
 
     </div>
-    <div id="pdf-view-wrapper" v-if="this.tab.pdf"></div>
-    <canvas id="white-board-canvas"  v-if="tab.whiteBoard" @mousedown="mouseDown" @mousemove="mouseMove" @mouseup="mouseup" @mouseleave="mouseleave">
+    <div id="wrapper" style="display: grid; grid-template-rows: 1fr; grid-template-columns: 1fr; height: calc(100% - 120px); box-sizing: border-box;">
+      <div id="pdf-view-wrapper" style="z-index: 1; grid-row: 1; grid-column: 1;"></div>
+      <canvas id="white-board-canvas" @mousedown="mouseDown" @mousemove="mouseMove" @mouseup="mouseup" @mouseleave="mouseleave" style="z-index: 2; grid-row: 1; grid-column: 1;">
+      </canvas>
+    </div>
 
-    </canvas>
   </div>
 
 </template>
@@ -108,7 +110,9 @@ export default {
       tab: {
         pdf: 0,
         whiteBoard: 1,
-      }
+      },
+      canvasHeightHold: null,
+      pdfDiv: null
 
 
 
@@ -152,7 +156,7 @@ export default {
     },
 
     init: function (){
-
+      this.pdfDiv = document.getElementById('pdf-view-wrapper');
       this.canvas = document.getElementById('white-board-canvas');
       this.canvasContext = this.canvas.getContext("2d");
       this.canvasContext.fillStyle = 'blue';
@@ -163,7 +167,6 @@ export default {
       this.canvas.width = Math.floor(this.canvas.offsetWidth*scale);
       this.canvas.height = Math.floor(this.canvas.offsetHeight*scale);
       this.canvasContext.scale(scale,scale);
-
 
 
 
@@ -234,15 +237,23 @@ export default {
     },
     clearAll: function (){
       this.canvasContext.clearRect(0, 0, this.canvas.width, this.canvas.height);
-    }
+    },
+    setCanvasOffset: function (){
+      console.log('width',this.canvas.height,this.canvas.width);
+      this.offset.top = 0.31473 * this.canvas.height;
+      this.offset.left = 0.025* this.canvas.width;
+      console.log("offsets", this.offset.top,this.offset.left);
+
+      let scale = window.devicePixelRatio;
+      this.canvas.width = Math.floor(this.canvas.offsetWidth*scale);
+      this.canvas.height = Math.floor(this.canvas.offsetHeight*scale);
+      this.canvasContext.scale(scale,scale);
+    },
 
   },
   mounted() {
     this.init();
-    console.log('width',this.canvas.offsetWidth,this.canvas.width);
-    this.offset.top = 0.31473 * this.canvas.height;
-    this.offset.left = 0.208 * this.canvas.width;
-    console.log("offsets", this.offset.top,this.offset.left);
+    this.setCanvasOffset();
   }
 }
 </script>
@@ -267,7 +278,7 @@ export default {
 #white-board-canvas{
   box-sizing: border-box;
   width: 100%;
-  height: calc(100% - 120px);
+  height: calc(100%);
   border-radius: 24px;
   border: 8px solid #e0e5ec;
   background-color: #e0e5ec;
@@ -297,19 +308,13 @@ export default {
   align-items: center;
 
 }
-.upload-button{
-  width: 80px;
 
-}
 
 .upload-button > label{
   font-weight: bold;
 }
 
-.pdf-button{
-  width: 40px;
-  height: 40px;
-}
+
 .pdf-button >label{
   font-weight: bold;
 }
@@ -368,6 +373,18 @@ export default {
 #thickness-inc-high, #thickness-inc-low{
   width: 20px;
   height: 20px;
+}
+
+#pdf-view-wrapper{
+  background-color: #7389a9;
+  box-sizing: border-box;
+  width: 100%;
+  height: calc(100%);
+  border-radius: 24px;
+  border: 8px solid #e0e5ec;
+
+  box-shadow: inset 3px 3px 6px #bec3c9,
+  inset -3px -3px 6px #ffffff;
 }
 
 
