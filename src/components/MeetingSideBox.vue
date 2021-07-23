@@ -66,14 +66,21 @@
             </div>
         </div>
         <div id="question-box" class="side-shadow-container">
+
           <vue-scroll>
-            <question-bubble answer-count="123" time="12:16" :level=this.questionHardship.currentValue question-index="1" question-text="How many people did mongols kill?How many people did mongols kill?How many people did mongols kill?How many people did mongols kill?How many people did mongols kill?How many people did mongols kill?How many people did mongols kill?How many people did mongols kill?How many people did mongols kill?How many people did mongols kill?How many people did mongols kill?How many people did mongols kill?"></question-bubble>
+            <template v-for="questionOBJ in this.questionArray">
+              <question-bubble :key="questionOBJ.index" :question-index="questionOBJ.index" :question-text="questionOBJ.questionMessage" :time="questionOBJ.time" :answer-count="questionOBJ.answers.length" :level="questionOBJ.level"></question-bubble>
+            </template>
           </vue-scroll>
+
         </div>
 
         <div id="answer-box" class="side-shadow-container">
-          <answer-bubble username="username" score="20.00" time="16:20" answer-message="Mongols killed 12,560,000 people."></answer-bubble>
-
+          <vue-scroll>
+            <template v-for="answerOBJ in this.currentAnswersArray">
+              <answer-bubble :key="answerOBJ.index" :username="answerOBJ.username" :answer-message="answerOBJ.text" :time="answerOBJ.time" :score="answerOBJ.score"></answer-bubble>
+            </template>
+          </vue-scroll>
         </div>
       </div>
 
@@ -95,24 +102,17 @@ export default {
   components: {AnswerBubble, QuestionBubble, UserBubble, ChatBubble},
   data() {
     return {
-        chatButton : null,
-        listButton : null,
-        questionButton : null,
-        selected: 1,
+      chatButton: null,
+      listButton: null,
+      questionButton: null,
+      selected: 1,
 
-        chatEntryText: null,
-        questionEntryText: null,
-        messagesArray: new Array(),
-        questionHardship: {currentValue:1,checkBoxBind:[1]}/*,
-        question: {
-          questioner: null,
-          time: null,
-          questionText: null,
-          answers : new Array(),
-          QUUID
-        }*/
-
-
+      chatEntryText: null,
+      questionEntryText: null,
+      messagesArray: new Array(),
+      questionHardship: {currentValue: 1, checkBoxBind: [1]},
+      questionArray: new Array(),
+      currentAnswersArray: new Array()
     }
 
   },

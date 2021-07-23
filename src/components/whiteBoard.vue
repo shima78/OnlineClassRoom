@@ -2,10 +2,16 @@
   <div id="white-board-wrapper">
     <div id="white-board-control">
       <div id="upload-ctrl-group" class="ctrl-group">
-        <button class="round-button upload-button" >
-          <label>PDF</label>
-        </button>
-        <button class="round-button upload-button">
+
+          <button class="round-button pdf-button" style="grid-column: 1; grid-row: 1;" >
+            <label>PDF</label>
+          </button>
+          <button class="round-button pdf-button" style="grid-column: 2; grid-row: 1;">
+            <i class="material-icons">file_upload</i>
+          </button>
+
+
+        <button class="round-button upload-button" style="grid-row: 2; grid-column: 1/3; width: 95px;">
           <label>Picture</label>
         </button>
       </div>
@@ -29,12 +35,12 @@
 
       <div id="line-redo-ctrl-group" class="ctrl-group">
         <button class="round-button">
-          <i class="material-icons">phonelink_erase</i>
+          <i class="material-icons" @click="eraseMode">phonelink_erase</i>
         </button>
-        <button class="round-button">
+        <button class="round-button" @click="pendMode">
           <i class="material-icons-outlined">draw</i>
         </button>
-        <button class="round-button">
+        <button class="round-button" @click="clearAll">
           <i class="material-icons">restart_alt</i>
         </button>
         <button class="round-button">
@@ -44,13 +50,13 @@
       </div>
 
       <div id="pen-thickness-ctrl-group" class="ctrl-group">
-        <label class="thickness-label">A</label>
+        <label class="thickness-label" id="thickness-label-a">A</label>
         <div style="display: flex; flex-direction: row; justify-content: space-between; align-items: center; width: 100%">
-          <button id="thickness-inc-low" class="round-button inc-button">
+          <button id="thickness-inc-low" class="round-button inc-button" @click="thicknessDec">
           <i class="material-icons">remove</i>
         </button>
 
-          <button id="thickness-inc-high" class="round-button inc-button">
+          <button id="thickness-inc-high" class="round-button inc-button" @click="thicknessInc">
             <i class="material-icons">add</i>
           </button></div>
 
@@ -63,8 +69,8 @@
       </div>
 
     </div>
-
-    <canvas id="white-board-canvas" @mousedown="mouseDown" @mousemove="mouseMove" @mouseup="mouseup" @mouseleave="mouseleave">
+    <div id="pdf-view-wrapper" v-if="this.tab.pdf"></div>
+    <canvas id="white-board-canvas"  v-if="tab.whiteBoard" @mousedown="mouseDown" @mousemove="mouseMove" @mouseup="mouseup" @mouseleave="mouseleave">
 
     </canvas>
   </div>
@@ -82,8 +88,9 @@ export default {
   data(){
 
     return {
-      color:'red',
-      thickness : 5,
+      color: 'rgb(61,85,110)',
+      colorHold: 'rgb(61,85,110)',
+      thickness : 4,
       swatchStyle: { boxShadow: '2px 2px 4px #bec3c9, -2px -2px 4px #ffffff'},
       canvasContext: null,
       canvas: null,
@@ -96,8 +103,13 @@ export default {
         y: new Array(),
         drag: new Array()
       },
-      paint: null,
-      strokeStyle: 'red'
+      paint: false,
+      strokeStyle: 'rgb(5,4,5)',
+      tab: {
+        pdf: 0,
+        whiteBoard: 1,
+      }
+
 
 
 
@@ -108,7 +120,7 @@ export default {
   },
   methods:{
     addClick: function (x,y,dragging){
-      console.log("addClick",x,y,dragging);
+
       if(x) {
         this.click.x.push(x);
         this.click.y.push(y);
@@ -117,8 +129,8 @@ export default {
       },
     drawOnCanvas: function (){
 
-      console.log("this is drawing!");
-      this.canvasContext.strokeStyle = this.strokeStyle;
+
+      this.canvasContext.strokeStyle = this.color;
       this.canvasContext.lineJoin = 'round';
       this.canvasContext.lineWidth = this.thickness;
 
@@ -126,11 +138,11 @@ export default {
         this.canvasContext.beginPath();
         if(this.click.drag[i] && i){
           this.canvasContext.moveTo(this.click.x[i-1],this.click.y[i-1]);
-          console.log('first IF')
+
         }
         else{
           this.canvasContext.moveTo(this.click.x[i] - 1,this.click.y[i]);
-          console.log('second IF')
+
         }
 
         this.canvasContext.lineTo(this.click.x[i],this.click.y[i]);
@@ -140,20 +152,33 @@ export default {
     },
 
     init: function (){
+
       this.canvas = document.getElementById('white-board-canvas');
       this.canvasContext = this.canvas.getContext("2d");
-      this.canvasContext.fillStyle = this.color;
+      this.canvasContext.fillStyle = 'blue';
+
+
+
+      let scale = window.devicePixelRatio;
+      this.canvas.width = Math.floor(this.canvas.offsetWidth*scale);
+      this.canvas.height = Math.floor(this.canvas.offsetHeight*scale);
+      this.canvasContext.scale(scale,scale);
+
+
+
 
 
     },
     mouseDown: function (event){
+      // eslint-disable-next-line no-unused-vars
       let MouseX = event.pageX - this.offset.left;
+      // eslint-disable-next-line no-unused-vars
       let MouseY = event.pageY - this.offset.top;
-      console.log('mousy',MouseY,'mouseX',MouseX)
+
       this.paint = true;
       this.addClick(event.pageX - this.offset.left,event.pageY - this.offset.top);
       this.drawOnCanvas();
-      console.log("mouseDown");
+
     },
     mouseMove: function (event){
       if(this.paint){
@@ -165,25 +190,59 @@ export default {
     mouseup: function (event){
       this.paint = false;
       this.ClearDrawCoordinates();
-      console.log('mouseUp')
+
     },
 
     mouseleave: function (){
       this.paint = false;
       this.ClearDrawCoordinates();
-      console.log('mouseLeave')
+
     },
 
     ClearDrawCoordinates: function (){
-      console.log('clearCord')
+
 
       this.click.x = new Array();
       this.click.y = new Array();
       this.click.drag = new Array();
     },
+
+
+
+      thicknessInc:  function (){
+        if(this.thickness < 9){
+          this.thickness += 1;
+          document.getElementById('thickness-label-a').style.fontWeight = (this.thickness * 100).toString();
+
+
+        }
+      },
+    thicknessDec: function (){
+        if(this.thickness > 1){
+          this.thickness -= 1;
+          document.getElementById('thickness-label-a').style.fontWeight = (this.thickness * 100).toString();
+
+        }
+      },
+
+    eraseMode: function (){
+      this.colorHold = this.color;
+      this.color = '#e0e5ec'
+    },
+    pendMode: function (){
+      this.color = this.colorHold;
+    },
+    clearAll: function (){
+      this.canvasContext.clearRect(0, 0, this.canvas.width, this.canvas.height);
+    }
+
   },
   mounted() {
     this.init();
+    console.log('width',this.canvas.offsetWidth,this.canvas.width);
+    this.offset.top = 0.31473 * this.canvas.height;
+    this.offset.left = 0.208 * this.canvas.width;
+    console.log("offsets", this.offset.top,this.offset.left);
   }
 }
 </script>
@@ -230,6 +289,13 @@ export default {
 }
 #upload-ctrl-group{
 
+  display: grid;
+  grid-template-rows: 55px 55px;
+  grid-template-columns: 55px 55px;
+
+  justify-items: center;
+  align-items: center;
+
 }
 .upload-button{
   width: 80px;
@@ -239,6 +305,15 @@ export default {
 .upload-button > label{
   font-weight: bold;
 }
+
+.pdf-button{
+  width: 40px;
+  height: 40px;
+}
+.pdf-button >label{
+  font-weight: bold;
+}
+
 
 #shape-ctrl-group{
   display: grid;

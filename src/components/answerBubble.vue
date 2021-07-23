@@ -41,7 +41,7 @@ export default {
     answerMessage: String,
     time: String,
     score: Number,
-    role: String
+
   }
 }
 </script>
