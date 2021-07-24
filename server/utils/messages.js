@@ -1,6 +1,6 @@
 const moment = require('moment')
 let all = []
-function formatMessages(username, text, room){
+function formatMessage(username, text, room){
     const msg =    {
         room,
         username,
@@ -19,6 +19,6 @@ function getRoomMessages(roomId){
 
 
 module.exports = {
-    formatMessages,
+    formatMessage,
     getRoomMessages
 };
