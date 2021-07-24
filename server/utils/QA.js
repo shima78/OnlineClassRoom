@@ -23,6 +23,13 @@ function getquestionById(qid){
     return index
 }
 
+
+function getquestionAnswers(qid){
+    const index = allQuestions.find(q=> q.id === qid);
+
+    return allQuestions[index]['answers']
+}
+
 function changDifficulty(qid,d){
     // q.difficulty = d
     const index = getquestionById(qid)

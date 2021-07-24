@@ -12,7 +12,7 @@
       <div class="question-lower-bar">
         <label class="level-label">Level {{level}}</label>
         <div class="question-time-ans-box">
-          {{answerCount}} A<br>
+            5 A<br>
           {{time}}
         </div>
       </div>
@@ -32,7 +32,6 @@ export default {
     questionIndex: Number,
     questionText: String,
     time: String,
-    answerCount: Number,
     level: Number
   }
 }

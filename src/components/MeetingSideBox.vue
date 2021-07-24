@@ -1,90 +1,93 @@
 <template>
-    <div id="side-box" class="box">
-        <div id="tab-buttons" class="radio-wrapper">
-          <button id="chat-button" class="tab-button" name="tab1" value="chat" v-on:click=" selected = 1">
-            <i class="material-icons">chat</i>
-          </button>
-          <button id="list-button" class="tab-button" name="tab2" value="attend" v-on:click="selected = 2">
-            <i class="material-icons">format_list_bulleted</i>
-          </button>
-          <button id="question-button" class="tab-button" name="tab3" value="question" v-on:click="selected = 3">
-            <i class="material-icons">quiz</i>
-          </button>
-        </div>
-      <div id="chatList" class="side-box-v-container" v-if="selected === 1">
-          <div id="chat-message-box" class="side-shadow-container">
-            <vue-scroll>
-              <template v-for="messageOBJ in this.messagesArray">
-                  <chat-bubble :key="messageOBJ.index" :username="messageOBJ.username" :message="messageOBJ.message" :time="messageOBJ.time"></chat-bubble>
-              </template>
-            </vue-scroll>
-          </div>
-
-          <div id="chatMessageEntry" >
-              <input id="chatMessageInput" type="text" class="input-bar" v-model="chatEntryText">
-              <button id="send-button" class="round-button pink-button" @click="sendMessage">
-                <i class="material-icons">send</i>
-              </button>
-          </div>
-      </div>
-      <div id="attendList" class="side-box-v-container" v-if="selected === 2">
-        
-        <div id="attend-list-box" class="side-shadow-container">
-              <vue-scroll>
-                <template v-for="userOBJ in userInfo[0]">
-                  <user-bubble :key="userOBJ.index" :username="userOBJ.username" :join-time="userOBJ.joinTime"></user-bubble>
-                </template>
-              </vue-scroll>
-        </div>
-      </div>
-      <div id="question-list" class="side-box-v-container" v-if="selected === 3">
-        <div id="question-entry" class="side-shadow-container">
-          <div style="width: 100%; box-sizing: border-box;">
-         <!-- <div class="question-label-wrapper">
-            <label class="question-label">
-              Question
-            </label>
-          </div> -->
-            <textarea id="question-entry-input" class="input-bar scrollable" rows="6" >
-            </textarea>
-          </div >
-            <div id="question-input-action-wrapper">
-              <div style="display: flex; flex-direction: row;justify-content: space-between; align-items: center">
-                <button id="question-hard-inc-low" class="round-button inc-button"   @click="questionHardshipDec" >
-                  <i class="material-icons">remove</i>
-                </button>
-              <input type="checkbox" class="slider-check-box" v-model="this.questionHardship.checkBoxBind" disabled="true" value=1>
-              <input type="checkbox" class="slider-check-box" v-model="this.questionHardship.checkBoxBind" disabled="true" value=2>
-              <input type="checkbox" class="slider-check-box" v-model="this.questionHardship.checkBoxBind" disabled="true" value=3>
-              <input type="checkbox" class="slider-check-box" v-model="this.questionHardship.checkBoxBind" disabled="true" value=4>
-              <input type="checkbox" class="slider-check-box" v-model="this.questionHardship.checkBoxBind" disabled="true" value=5>
-                <button id="question-hard-inc-high" class="round-button inc-button"   @click="questionHardshipInc">
-                  <i class="material-icons">add</i>
-                </button>
-              </div>
-            <button id="question-send-button" class="pink-button" @click="askQuestion">Ask</button>
-            </div>
-        </div>
-        <div id="question-box" class="side-shadow-container">
-
-          <vue-scroll>
-            <template v-for="questionOBJ in this.questionArray">
-              <question-bubble :key="questionOBJ.index" :question-index="questionOBJ.index" :question-text="questionOBJ.questionMessage" :time="questionOBJ.time" :answer-count="questionOBJ.answers.length" :level="questionOBJ.level"></question-bubble>
-            </template>
-          </vue-scroll>
-
-        </div>
-
-        <div id="answer-box" class="side-shadow-container">
-          <vue-scroll>
-            <template v-for="answerOBJ in this.currentAnswersArray">
-              <answer-bubble :key="answerOBJ.index" :username="answerOBJ.username" :answer-message="answerOBJ.text" :time="answerOBJ.time" :score="answerOBJ.score"></answer-bubble>
-            </template>
-          </vue-scroll>
-        </div>
-      </div>
-
+  <div id="side-box" class="box">
+    <div id="tab-buttons" class="radio-wrapper">
+      <button id="chat-button" class="tab-button" name="tab1" value="chat" v-on:click=" selected = 1">
+        <i class="material-icons">chat</i>
+      </button>
+      <button id="list-button" class="tab-button" name="tab2" value="attend" v-on:click="selected = 2">
+        <i class="material-icons">format_list_bulleted</i>
+      </button>
+      <button id="question-button" class="tab-button" name="tab3" value="question" v-on:click="selected = 3">
+        <i class="material-icons">quiz</i>
+      </button>
     </div>
+    <div id="chatList" class="side-box-v-container" v-if="selected === 1">
+      <div id="chat-message-box" class="side-shadow-container">
+        <vue-scroll>
+          <template v-for="messageOBJ in this.messagesArray">
+            <chat-bubble :key="messageOBJ.index" :username="messageOBJ.username" :message="messageOBJ.message" :time="messageOBJ.time"></chat-bubble>
+          </template>
+        </vue-scroll>
+      </div>
+
+      <div id="chatMessageEntry" >
+        <input id="chatMessageInput" type="text" class="input-bar" v-model="chatEntryText">
+        <button id="send-button" class="round-button pink-button" @click="sendMessage">
+          <i class="material-icons">send</i>
+        </button>
+      </div>
+    </div>
+    <div id="attendList" class="side-box-v-container" v-if="selected === 2">
+
+      <div id="attend-list-box" class="side-shadow-container">
+        <vue-scroll>
+          <template v-for="userOBJ in userInfo[0]">
+            <user-bubble :key="userOBJ.index" :username="userOBJ.username"
+                         :join-time="userOBJ.joinTime" :status="userOBJ.online"></user-bubble>
+          </template>
+        </vue-scroll>
+      </div>
+    </div>
+    <div id="question-list" class="side-box-v-container" v-if="selected === 3">
+      <div id="question-entry" class="side-shadow-container">
+        <div style="width: 100%; box-sizing: border-box;">
+          <!-- <div class="question-label-wrapper">
+             <label class="question-label">
+               Question
+             </label>
+           </div> -->
+          <textarea id="question-entry-input" class="input-bar scrollable" rows="6" v-model="questionEntryText">
+            </textarea>
+        </div >
+        <div id="question-input-action-wrapper">
+          <div style="display: flex; flex-direction: row;justify-content: space-between; align-items: center">
+            <button id="question-hard-inc-low" class="round-button inc-button"   @click="decDifficulty" >
+              <i class="material-icons">remove</i>
+            </button>
+            <input type="checkbox" class="slider-check-box" v-model="this.questionDifficulty.checkBoxBind" disabled="true" value=1>
+            <input type="checkbox" class="slider-check-box" v-model="this.questionDifficulty.checkBoxBind" disabled="true" value=2>
+            <input type="checkbox" class="slider-check-box" v-model="this.questionDifficulty.checkBoxBind" disabled="true" value=3>
+            <input type="checkbox" class="slider-check-box" v-model="this.questionDifficulty.checkBoxBind" disabled="true" value=4>
+            <input type="checkbox" class="slider-check-box" v-model="this.questionDifficulty.checkBoxBind" disabled="true" value=5>
+            <button id="question-hard-inc-high" class="round-button inc-button"   @click="incDifficulty">
+              <i class="material-icons">add</i>
+            </button>
+          </div>
+          <button id="question-send-button" class="pink-button" @click="askQuestion">Ask</button>
+        </div>
+      </div>
+      <div id="question-box" class="side-shadow-container">
+
+        <vue-scroll>
+          <template v-for="questionOBJ in this.questionArray[0]">
+            <question-bubble :key="questionOBJ.index" :question-index="questionOBJ.id" :question-text="questionOBJ.text"
+                             :time="questionOBJ.time" :level="questionOBJ.difficulty">
+            </question-bubble>
+          </template>
+        </vue-scroll>
+
+      </div>
+
+      <div id="answer-box" class="side-shadow-container">
+        <vue-scroll>
+          <template v-for="answerOBJ in this.currentAnswersArray">
+            <answer-bubble :key="answerOBJ.index" :username="answerOBJ.username" :answer-message="answerOBJ.text" :time="answerOBJ.time" :score="answerOBJ.score"></answer-bubble>
+          </template>
+        </vue-scroll>
+      </div>
+    </div>
+
+  </div>
 </template>
 
 <script>
@@ -110,7 +113,7 @@ export default {
       chatEntryText: null,
       questionEntryText: null,
       messagesArray: new Array(),
-      questionHardship: {currentValue: 1, checkBoxBind: [1]},
+      questionDifficulty: {currentValue: 1, checkBoxBind: [1]},
       questionArray: new Array(),
       currentAnswersArray: new Array()
     }
@@ -120,18 +123,11 @@ export default {
     ...mapActions(['updateUsersData']),
     init: function () {
 
-
-
-
       this.chatButton = document.getElementById("chat-button");
       this.listButton = document.getElementById("list-button");
       this.questionButton = document.getElementById("question-button");
       console.log("userArray:",)
       console.log("userArrayComputed", this.userInfo);
-
-
-
-
 
       this.SERVER.on("message", (message) => {
         let today = new Date();
@@ -142,12 +138,18 @@ export default {
           index: this.messagesArray.length
         });
 
-
         this.SERVER.on("roomUsers", (userdata) => {
 
           this.updateUsersData(userdata.users);
         });
 
+        //broadcast questions
+        this.SERVER.on('newQuestion', (newQuestion) => {
+          this.questionArray = newQuestion
+          console.log("new Questions",newQuestion, this.questionArray)
+          var parsed = JSON.parse(JSON.stringify(this.questionArray));
+          console.log("Q array0 : ", parsed)
+        });
 
       });
 
@@ -159,41 +161,44 @@ export default {
         return;
       }
       else{
-      console.log(this.chatEntryText)
-      /*  this.messagesArray.push({
-          username: "placeHolder",
-          message: this.entryText,
-          time: today.getHours()+":"+today.getMinutes(),
-          index: this.messagesArray.length
-        });*/
+        console.log(this.chatEntryText)
 
         this.SERVER.emit("chatMessage",this.chatEntryText);
       }
 
     },
 
-    questionHardshipInc:  function (){
-      if(this.questionHardship.currentValue < 5){
+    incDifficulty:  function (){
+      if(this.questionDifficulty.currentValue < 5){
 
-        this.questionHardship.currentValue += 1;
-        this.questionHardship.checkBoxBind.push(this.questionHardship.currentValue);
-        console.log("checkbox" + this.questionHardship.checkBoxBind)
+        this.questionDifficulty.currentValue += 1;
+        this.questionDifficulty.checkBoxBind.push(this.questionDifficulty.currentValue);
+        console.log("checkbox" + this.questionDifficulty.checkBoxBind)
 
 
       }
     },
-    questionHardshipDec: function (){
-      if(this.questionHardship.currentValue > 1){
+    decDifficulty: function (){
+      if(this.questionDifficulty.currentValue > 1){
 
-        this.questionHardship.currentValue -= 1;
+        this.questionDifficulty.currentValue -= 1;
 
-        this.questionHardship.checkBoxBind.pop();
-        console.log("checkbox" + this.questionHardship.checkBoxBind)
+        this.questionDifficulty.checkBoxBind.pop();
+        console.log("checkbox" + this.questionDifficulty.checkBoxBind)
 
       }
     },
     askQuestion: function (){
-      this.SERVER.emit()
+      //TODO
+      if(this.questionEntryText =="") {
+        return;
+      }
+      else{
+        console.log("chat text", this.questionEntryText)
+        var q = {
+          text: this.questionEntryText,difficulty: this.questionDifficulty.currentValue}
+        this.SERVER.emit('chatQuestions',q);
+      }
     }
   },
   mounted() {
@@ -213,47 +218,47 @@ export default {
 </script>
 <style src="../style/neuMeet.css"></style>
 <style scoped>
-  #side-box{
-    width: 450px;
-    height: 100%;
-    max-height: 100%;
-    max-width: 100%;
-    padding: 0;
+#side-box{
+  width: 450px;
+  height: 100%;
+  max-height: 100%;
+  max-width: 100%;
+  padding: 0;
 
-    display: grid;
-    grid-template-columns: 1fr;
-    grid-template-rows: 60px  1fr ;
-
-
-
-  }
-
-  .side-box-v-container{
-    display: grid;
-    margin: 20px 10px 10px;
-    border-radius: 24px;
-  }
+  display: grid;
+  grid-template-columns: 1fr;
+  grid-template-rows: 60px  1fr ;
 
 
+
+}
+
+.side-box-v-container{
+  display: grid;
+  margin: 20px 10px 10px;
+  border-radius: 24px;
+}
 
 
 
 
 
-  #question-button{
-    grid-row: 1;
-    grid-column: 3;
-  }
 
-  #list-button{
-    grid-row: 1;
-    grid-column: 2;
-  }
 
-  #chat-button{
-    grid-row: 1;
-    grid-column: 1;
-  }
+#question-button{
+  grid-row: 1;
+  grid-column: 3;
+}
+
+#list-button{
+  grid-row: 1;
+  grid-column: 2;
+}
+
+#chat-button{
+  grid-row: 1;
+  grid-column: 1;
+}
 
 
 
@@ -285,12 +290,12 @@ export default {
 
 }
 .pink-button:active{
-    background-color: #e0e5ec;
-    box-shadow:  inset 3px 3px 6px #bec3c9,
-    inset -3px -3px 6px #ffffff;
-    margin-right: 8px;
-    border-radius: 100px;
-    color: #ff7c74;
+  background-color: #e0e5ec;
+  box-shadow:  inset 3px 3px 6px #bec3c9,
+  inset -3px -3px 6px #ffffff;
+  margin-right: 8px;
+  border-radius: 100px;
+  color: #ff7c74;
 }
 #send-button:active{
 
@@ -307,157 +312,157 @@ export default {
 #send-button:active > i{
   color: #ff7c74;
 }
-  .input-bar{
+.input-bar{
 
 
-    font-family: "Poppins",sans-serif;
-    font-size: 14px;
-    font-weight: 500;
-    color: #7389a9;
+  font-family: "Poppins",sans-serif;
+  font-size: 14px;
+  font-weight: 500;
+  color: #7389a9;
 
-    margin-right: 10px;
-    margin-left: 10px;
+  margin-right: 10px;
+  margin-left: 10px;
 
-    border-radius: 18px;
-    padding-left: 12px;
-    padding-right: 12px;
+  border-radius: 18px;
+  padding-left: 12px;
+  padding-right: 12px;
 
-    border-width: 0px;
-    background-color: #e0e5ec;
-    box-shadow:  inset 4px 4px 8px #c5cad0,
-    inset -4px -4px 8px #fbffff;
+  border-width: 0px;
+  background-color: #e0e5ec;
+  box-shadow:  inset 4px 4px 8px #c5cad0,
+  inset -4px -4px 8px #fbffff;
 
-    -webkit-appearance: none;
-    outline: none;
-
-
-  }
+  -webkit-appearance: none;
+  outline: none;
 
 
-
-  #question-list{
-    grid-template-columns: auto;
-    grid-template-rows: 190px 1fr 1fr;
-  }
-
-  #question-entry{
-
-    display: flex;
-    flex-direction: column;
-    align-items: start;
-    justify-content: space-between;
-    padding-right: 0px;
-    padding-left: 0px;
-    padding-bottom: 10px;
-    border-radius: 0px;
-    box-shadow: none;
-  }
-
-  #question-entry-input{
-    box-sizing: border-box;
-    width: 100%;
-    padding-top: 10px;
-    padding-bottom: 10px;
-    margin: 0px;
-    border-radius: 24px;
+}
 
 
 
+#question-list{
+  grid-template-columns: auto;
+  grid-template-rows: 190px 1fr 1fr;
+}
 
+#question-entry{
 
-  }
+  display: flex;
+  flex-direction: column;
+  align-items: start;
+  justify-content: space-between;
+  padding-right: 0px;
+  padding-left: 0px;
+  padding-bottom: 10px;
+  border-radius: 0px;
+  box-shadow: none;
+}
 
-  #question-input-action-wrapper{
-    width: 100%;
-    display: flex;
-    flex-direction: row;
-    justify-content: space-between;
-    align-items: center;
-    margin: 5px 0px 5px 0px;
-  }
-
-  #question-send-button{
-
-    height: 30px;
-    border-radius: 18px;
-    margin-right: 6px;
-    padding-left: 8px;
-    padding-right: 8px;
-    border: none;
-    outline: none;
-    color: white;
-    font-family: "Poppins",sans-serif;
-    font-size: 14px;
-    font-weight: bold;
-
-
-  }
-
-  #question-send-button:active{
-    color: #ff7c74;
-  }
+#question-entry-input{
+  box-sizing: border-box;
+  width: 100%;
+  padding-top: 10px;
+  padding-bottom: 10px;
+  margin: 0px;
+  border-radius: 24px;
 
 
 
 
-  .side-box-v-container::-webkit-scrollbar {
-    display: none;
-  }
 
-  .side-shadow-container::-webkit-scrollbar {
-    display: none;
-  }
-  .side-box-v-container{
+}
 
-    overflow-y: scroll;
-    -ms-overflow-style: none;  /* IE and Edge */
-    scrollbar-width: none;  /* Firefox */
-  }
+#question-input-action-wrapper{
+  width: 100%;
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  align-items: center;
+  margin: 5px 0px 5px 0px;
+}
 
-  .side-shadow-container{
+#question-send-button{
 
-    overflow-y: scroll;
-    display: flex;
-    flex-direction: column-reverse;
-
-    -ms-overflow-style: none;  /* IE and Edge */
-    scrollbar-width: none;  /* Firefox */
-
-
-    border-radius: 24px;
-    background-color: #e0e5ec;
-    margin-right: 10px;
-    margin-left: 10px;
-    margin-bottom: 10px;
-    min-height: 20px;
-
-    box-shadow:  inset 4px 4px 8px #c5cad0,
-    inset -4px -4px 8px #fbffff;
+  height: 30px;
+  border-radius: 18px;
+  margin-right: 6px;
+  padding-left: 8px;
+  padding-right: 8px;
+  border: none;
+  outline: none;
+  color: white;
+  font-family: "Poppins",sans-serif;
+  font-size: 14px;
+  font-weight: bold;
 
 
-  }
+}
+
+#question-send-button:active{
+  color: #ff7c74;
+}
 
 
-  /*.question-label{
-    font-size: 16px;
-    color: #e0e5ec;
-    font-weight: bolder;
-  }
-  .question-label-wrapper{
-    box-sizing: border-box;
-    width: 100%;
-    height: 30px;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    background-color: #ff7c74;
 
 
-    border-radius: 12px 12px 0px 0px;
-    padding: 4px 8px 4px 8px;
+.side-box-v-container::-webkit-scrollbar {
+  display: none;
+}
+
+.side-shadow-container::-webkit-scrollbar {
+  display: none;
+}
+.side-box-v-container{
+
+  overflow-y: scroll;
+  -ms-overflow-style: none;  /* IE and Edge */
+  scrollbar-width: none;  /* Firefox */
+}
+
+.side-shadow-container{
+
+  overflow-y: scroll;
+  display: flex;
+  flex-direction: column-reverse;
+
+  -ms-overflow-style: none;  /* IE and Edge */
+  scrollbar-width: none;  /* Firefox */
 
 
-  }*/
+  border-radius: 24px;
+  background-color: #e0e5ec;
+  margin-right: 10px;
+  margin-left: 10px;
+  margin-bottom: 10px;
+  min-height: 20px;
+
+  box-shadow:  inset 4px 4px 8px #c5cad0,
+  inset -4px -4px 8px #fbffff;
+
+
+}
+
+
+/*.question-label{
+  font-size: 16px;
+  color: #e0e5ec;
+  font-weight: bolder;
+}
+.question-label-wrapper{
+  box-sizing: border-box;
+  width: 100%;
+  height: 30px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background-color: #ff7c74;
+
+
+  border-radius: 12px 12px 0px 0px;
+  padding: 4px 8px 4px 8px;
+
+
+}*/
 
 
 

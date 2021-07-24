@@ -18,12 +18,12 @@ function getCurrentUser(id){
 }
 
 function userLeave(id){
-    const index = users.find(user=> user.socketID ===id);
-    // const usr  = users[index]
-    if (index!= -1){
-        users[index].online = false
-        users[index].leaveTime =  moment().format('h:mm a')
-        return getRoomUsers( users[index].room);
+    var  usr = users.find(user=> user.socketID ===id);
+    if (usr!== undefined){
+        // console.log(users[index])
+        usr["online"] = false
+        usr["leaveTime"] =  moment().format('h:mm a')
+        return getRoomUsers( usr["room"]);
     }
 
 }

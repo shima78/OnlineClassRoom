@@ -7,7 +7,7 @@
           </div>
 
           <div id="exit">
-            <button id="exit-button" class="round-button">
+            <button id="exit-button" class="round-button" @click="exit">
               <i class="material-icons">power_settings_new</i>
             </button>
           </div>
@@ -15,20 +15,30 @@
 </template>
 
 <script>
+import {mapActions} from "vuex";
 
 export default {
   name: "MeetingNavbar",
   components: {},
   data(){
     return{
-
+    server:this.$store.getters.getServer,
     }
   },
 
   methods: {
+  exit() {
+    this.server.emit('logOut')
+    this.$router.back()
 
   },
+    ...mapActions(['updateUsersData']),
+  },
   mounted() {
+    this.server.on("roomUsers", (userdata) => {
+
+      this.updateUsersData(userdata.users);
+    });
 
   }
 }

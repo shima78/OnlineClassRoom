@@ -1,5 +1,5 @@
 <template>
-  <div class="answer-bubble">
+  <div class="answer-bubble" v-if="status">
       <label class="username-label">
         {{username}}
       </label>
@@ -19,7 +19,8 @@ export default {
   },
   props:{
     username: String,
-    joinTime: String
+    joinTime: String,
+    status: Boolean
   }
 }
 </script>
