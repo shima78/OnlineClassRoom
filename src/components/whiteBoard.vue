@@ -5,15 +5,11 @@
           <button class="round-button pdf-button" style="grid-column: 1; grid-row: 1;" @click="pdfDiv.style.zIndex = 3; canvas.style.zIndex = 1;">
             <label>PDF</label>
           </button>
-          <button class="round-button pdf-button" style="grid-column: 2; grid-row: 1;">
-            <i class="material-icons">file_upload</i>
-          </button>
+          <input class="round-button pdf-button custom-file-input" id="pdf-upload-button" style="grid-column: 2; grid-row: 1;" type="file">
         <button class="round-button" style="grid-column: 1; grid-row: 2;" @click="canvas.style.zIndex = 3; pdfDiv.style.zIndex = 1;">
           <i class="material-icons">cast_for_education</i>
         </button>
-        <button class="round-button" style="grid-row: 2; grid-column: 2;">
-          <i class="material-icons">insert_photo</i>
-        </button>
+        <input class="round-button custom-file-input" id="photo-upload-button" style="grid-row: 2; grid-column: 2;" type="file">
       </div>
 
       <div id="shape-ctrl-group" class="ctrl-group">
@@ -21,13 +17,13 @@
           <button class="round-button">
             <i class="material-icons">post_add</i>
           </button>
-          <button class="round-button">
+          <button class="round-button" @click="drawCircle">
             <i class="material-icons-outlined">circle</i>
           </button>
-          <button class="round-button">
+          <button class="round-button" @click="drawLine">
           <i class="material-icons">horizontal_rule</i>
         </button>
-          <button class="round-button">
+          <button class="round-button" @click="drawRect">
             <i class="material-icons-outlined">crop_square</i>
           </button>
 
@@ -43,7 +39,7 @@
         <button class="round-button" @click="clearAll">
           <i class="material-icons">restart_alt</i>
         </button>
-        <button class="round-button">
+        <button class="round-button" @click="undo">
           <i class="material-icons-outlined">undo</i>
         </button>
 
@@ -83,6 +79,7 @@
 <script>
 // eslint-disable-next-line no-unused-vars
 import VSwatches from 'vue-swatches'
+import {mapGetters} from "vuex";
 // eslint-disable-next-line no-unused-vars
 
 
@@ -93,6 +90,7 @@ export default {
   data(){
 
     return {
+      server: null,
       color: 'rgb(61,85,110)',
       colorHold: 'rgb(61,85,110)',
       thickness : 4,
@@ -119,6 +117,16 @@ export default {
       noPdf:{
         value: 1,
         text: "Nothing is being shared,\nupload a PDF file first."
+      },
+      shapeClickMemory:{
+        initialPoint:{
+          x: null,
+          y: null
+        },
+        finalPoint:{
+          x: null,
+          y: null
+        }
       }
 
 
@@ -131,6 +139,7 @@ export default {
 
   },
   methods:{
+    ...mapGetters(['getServer']),
     addClick: function (x,y,dragging){
 
       if(x) {
@@ -159,9 +168,21 @@ export default {
         this.canvasContext.closePath();
         this.canvasContext.stroke();
       }
+
+      this.server.emit('draw-from-client', {
+        click: {
+          x: this.click.x,
+          y: this.click.y,
+          drag: this.click.drag
+        },
+        strokeStyle: this.strokeStyle,
+        lineWidth: this.lineWidth
+      });
     },
 
     init: function (){
+      this.server = this.$store.getters.getServer;
+
       this.pdfDiv = document.getElementById('pdf-view-wrapper');
       this.canvas = document.getElementById('white-board-canvas');
       this.canvasContext = this.canvas.getContext("2d");
@@ -174,6 +195,27 @@ export default {
       this.canvas.height = Math.floor(this.canvas.height*scale);
       this.canvasContext.scale(scale,scale);
 
+      //eventListeners
+
+      this.server.on("clear-the-canvas-from-server",() =>{
+        this.canvasContext.clearRect(0, 0, 2*this.canvas.width, 2*this.canvas.height);
+      });
+
+      this.server.on("draw-from-server",(recClick, penColor, penWidth) =>{
+        this.drawOnClientCanvas(recClick,penColor,penWidth);
+      })
+
+      this.server.on("circle-draw-from-server",(shapeClickMemory, penColor, penWidth) =>{
+        this.drawOnClientCanvas(shapeClickMemory,penColor,penWidth);
+      })
+      this.server.on("line-draw-from-server",(shapeClickMemory, penColor, penWidth) =>{
+        this.drawOnClientCanvas(shapeClickMemory,penColor,penWidth);
+      })
+      this.server.on("rect-draw-from-server",(shapeClickMemory, penColor, penWidth) =>{
+        this.drawOnClientCanvas(shapeClickMemory,penColor,penWidth);
+      })
+
+
 
 
 
@@ -183,6 +225,18 @@ export default {
       let MouseX = event.pageX - this.offset.left;
       // eslint-disable-next-line no-unused-vars
       let MouseY = event.pageY - this.offset.top;
+
+      this.shapeClickMemory = {
+        initialPoint: {
+          x: this.shapeClickMemory.finalPoint.x,
+          y: this.shapeClickMemory.finalPoint.y
+        },
+        finalPoint: {
+          x: event.pageX - this.offset.left,
+          y: event.pageY - this.offset.top
+        }
+      }
+
 
       this.paint = true;
       this.addClick(event.pageX - this.offset.left,event.pageY - this.offset.top);
@@ -209,7 +263,17 @@ export default {
     },
 
     ClearDrawCoordinates: function (){
-
+      if (this.click.x.length > 0) {
+        this.server.emit('maintain-history', {
+          click:{
+            x: this.click.x,
+            y: this.click.y,
+            drag: this.click.drag
+          },
+          strokeStyle: this.strokeStyle,
+          lineWidth: this.lineWidth
+        });
+      }
 
       this.click.x = new Array();
       this.click.y = new Array();
@@ -235,33 +299,150 @@ export default {
       },
 
     eraseMode: function (){
-      this.colorHold = this.color;
+      if(this.color != '#e0e5ec'){
+        this.colorHold = this.color;
+      }
       this.color = '#e0e5ec'
     },
     pendMode: function (){
       this.color = this.colorHold;
     },
     clearAll: function (){
+      this.server.emit('clear-the-canvas', {});
       this.canvasContext.clearRect(0, 0, 2*this.canvas.width, 2*this.canvas.height);
     },
     setCanvasOffset: function (){
 
-
       let positionRect = this.canvas.getBoundingClientRect();
       this.offset.top = positionRect.top;
       this.offset.left = positionRect.left;
-      console.log("offsets", this.offset.top,this.offset.left);
+
 
       let scale = window.devicePixelRatio;
       this.canvas.width = Math.floor(this.canvas.offsetWidth*scale);
       this.canvas.height = Math.floor(this.canvas.offsetHeight*scale);
       this.canvasContext.scale(scale,scale);
     },
+    drawLine: function (){
+      this.canvasContext.beginPath();
+      this.canvasContext.moveTo(this.shapeClickMemory.initialPoint.x,this.shapeClickMemory.initialPoint.y);
+      this.canvasContext.lineTo(this.shapeClickMemory.finalPoint.x,this.shapeClickMemory.finalPoint.y);
+      this.canvasContext.closePath();
+      this.canvasContext.stroke();
 
-  },
+      this.server.emit('draw-line-client', {
+        shapeClickMemory: this.shapeClickMemory,
+        strokeStyle: this.strokeStyle,
+        lineWidth: this.lineWidth
+      });
+
+    },
+
+    drawCircle: function (){
+      let deltaX = this.shapeClickMemory.finalPoint.x - this.shapeClickMemory.initialPoint.x;
+      let deltaY = this.shapeClickMemory.finalPoint.y - this.shapeClickMemory.initialPoint.y;
+      let radius = Math.sqrt((deltaX*deltaX) + (deltaY*deltaY))/2;
+      this.canvasContext.beginPath();
+      this.canvasContext.arc((this.shapeClickMemory.finalPoint.x+this.shapeClickMemory.initialPoint.x)/2,(this.shapeClickMemory.finalPoint.y+this.shapeClickMemory.initialPoint.y)/2,radius,0,2*Math.PI);
+      this.canvasContext.closePath();
+      this.canvasContext.stroke();
+
+      this.server.emit('draw-circle-client', {
+        shapeClickMemory: this.shapeClickMemory,
+        strokeStyle: this.strokeStyle,
+        lineWidth: this.lineWidth
+      });
+
+    },
+
+    drawRect: function (){
+      this.canvasContext.beginPath();
+      this.canvasContext.moveTo(this.shapeClickMemory.initialPoint.x,this.shapeClickMemory.initialPoint.y);
+      this.canvasContext.lineTo(this.shapeClickMemory.finalPoint.x,this.shapeClickMemory.initialPoint.y);
+      this.canvasContext.lineTo(this.shapeClickMemory.finalPoint.x,this.shapeClickMemory.finalPoint.y);
+      this.canvasContext.lineTo(this.shapeClickMemory.initialPoint.x,this.shapeClickMemory.finalPoint.y);
+      this.canvasContext.lineTo(this.shapeClickMemory.initialPoint.x,this.shapeClickMemory.initialPoint.y);
+      this.canvasContext.closePath();
+      this.canvasContext.stroke();
+
+      this.server.emit('draw-rect-client', {
+        shapeClickMemory: this.shapeClickMemory,
+        strokeStyle: this.strokeStyle,
+        lineWidth: this.lineWidth
+      });
+
+    },
+
+    drawOnClientCanvas: function (recClick, penColor, penWidth) {
+        this.canvasContext.strokeStyle = penColor;
+        this.canvasContext.lineJoin = "round";
+        this.canvasContext.lineWidth = penWidth;
+
+        for (let i = 0; i < recClick.x.length; i++) {
+          this.canvasContext.beginPath();
+          if (recClick.drag[i] && i) {
+            this.canvasContext.moveTo(recClick.x[i - 1], recClick.y[i - 1]);
+          } else {
+            this.canvasContext.moveTo(recClick.x[i] - 1, recClick.y[i]);
+          }
+          this.canvasContext.lineTo(recClick.x[i], recClick.y[i]);
+          this.canvasContext.closePath();
+          this.canvasContext.stroke();
+        }
+    },
+    //pass shapeMemory and line style
+    drawCircleClient: function (shapeClickMemory,penColor,penWidth){
+      this.canvasContext.strokeStyle = penColor;
+      this.canvasContext.lineWidth = penWidth;
+      let deltaX = shapeClickMemory.finalPoint.x - shapeClickMemory.initialPoint.x;
+      let deltaY = shapeClickMemory.finalPoint.y - shapeClickMemory.initialPoint.y;
+      let radius = Math.sqrt((deltaX*deltaX) + (deltaY*deltaY))/2;
+      this.canvasContext.beginPath();
+      this.canvasContext.arc((this.shapeClickMemory.finalPoint.x+this.shapeClickMemory.initialPoint.x)/2,(this.shapeClickMemory.finalPoint.y+this.shapeClickMemory.initialPoint.y)/2,radius,0,2*Math.PI);
+      this.canvasContext.closePath();
+      this.canvasContext.stroke();
+    },
+
+    drawRectClientL: function (shapeClickMemory,penColor,penWidth){
+      this.canvasContext.strokeStyle = penColor;
+      this.canvasContext.lineWidth = penWidth;
+      this.canvasContext.beginPath();
+      this.canvasContext.moveTo(shapeClickMemory.initialPoint.x,shapeClickMemory.initialPoint.y);
+      this.canvasContext.lineTo(shapeClickMemory.finalPoint.x,shapeClickMemory.initialPoint.y);
+      this.canvasContext.lineTo(shapeClickMemory.finalPoint.x,shapeClickMemory.finalPoint.y);
+      this.canvasContext.lineTo(shapeClickMemory.initialPoint.x,shapeClickMemory.finalPoint.y);
+      this.canvasContext.lineTo(shapeClickMemory.initialPoint.x,shapeClickMemory.initialPoint.y);
+      this.canvasContext.closePath();
+      this.canvasContext.stroke();
+
+    },
+
+    drawLineClient: function (shapeClickMemory,penColor,penWidth){
+      this.canvasContext.strokeStyle = penColor;
+      this.canvasContext.lineWidth = penWidth;
+
+      this.canvasContext.beginPath();
+      this.canvasContext.moveTo(shapeClickMemory.initialPoint.x,shapeClickMemory.initialPoint.y);
+      this.canvasContext.lineTo(shapeClickMemory.finalPoint.x,shapeClickMemory.finalPoint.y);
+      this.canvasContext.closePath();
+      this.canvasContext.stroke();
+
+    },
+    undo: function (){
+      this.server.emit('undo-canvas', {});
+    }
+
+
+
+
+
+
+
+},
   mounted() {
     this.init();
     this.setCanvasOffset();
+
 
   }
 }
@@ -298,6 +479,7 @@ export default {
   background-color: #e0e5ec;
   box-shadow: inset 3px 3px 6px #bec3c9,
   inset -3px -3px 6px #ffffff;
+  padding: 8px;
 
 }
 

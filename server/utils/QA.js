@@ -1,7 +1,7 @@
 const moment = require('moment')
 var idAuto = 0;
 var idAutoAns = 0
-var allQuestions  = [] 
+var allQuestions  = []
 function formatQuestions(username, text, room, difficulty){
     idAuto = idAuto +1
     var q = {
@@ -17,10 +17,18 @@ function formatQuestions(username, text, room, difficulty){
     return allQuestions.filter(q => q.room === room);
 }
 
- 
+
+
 function getquestionById(qid){
     const index = allQuestions.find(q=> q.id === qid);
     return index
+}
+
+
+function getquestionAnswers(qid){
+    const index = allQuestions.find(q=> q.id === qid);
+
+    return allQuestions[index]['answers']
 }
 
 function changDifficulty(qid,d){

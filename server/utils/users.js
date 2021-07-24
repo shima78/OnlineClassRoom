@@ -1,7 +1,7 @@
 const moment = require('moment')
 const users = [];
 function userJoin(socketID,username,room, role,userID ){
-    const user =  {socketID, 
+    const user =  {socketID,
         username,
         userID,
         room,
@@ -9,7 +9,7 @@ function userJoin(socketID,username,room, role,userID ){
         leaveTime: '',
         role,
         online : true
-     };
+    };
     users.push(user);
     return user
 }
@@ -18,17 +18,17 @@ function getCurrentUser(id){
 }
 
 function userLeave(id){
-    const index = users.find(user=> user.socketID ===id);
-    // const usr  = users[index]
-    if (index!= -1){
-        users[index].online = false
-        users[index].leaveTime =  moment().format('h:mm a')
-        return getRoomUsers( users[index].room);
+    var  usr = users.find(user=> user.socketID ===id);
+    if (usr!== undefined){
+        // console.log(users[index])
+        usr["online"] = false
+        usr["leaveTime"] =  moment().format('h:mm a')
+        return getRoomUsers( usr["room"]);
     }
 
 }
 function getRoomUsers(room){
-    
+
     return users.filter(user=> user.room === room);
 }
 module.exports = {

@@ -27,6 +27,7 @@ import router from "@/router";
 import {store} from "@/store/store";
 // eslint-disable-next-line no-unused-vars
 import { mapGetters, mapActions } from 'vuex';
+import jwt_decode from 'jwt-decode'
 
 
 
@@ -63,11 +64,13 @@ export default {
         if (data == 400) {
           console.log("wrong") //login data handling
         } else {
-          this.usid = data;
-          socket.emit('joinRoom', {username: this.username, room: this.roomID});
-          this.$store.commit('setRoomID', this.roomID);
+          let decoded = jwt_decode(data);
 
-          this.$store.commit('setUsername', this.username);
+          socket.emit('joinRoom', ({username: decoded.usr.username,room:this.roomID , role: decoded.usr.role,userID: decoded.usr.userID}));
+          this.$store.commit('setRoomID', decoded.usr.id);
+          this.$store.commit('setRole',decoded.usr.role)
+          this.$store.commit('setUsername', decoded.usr.username);
+          this.$store.commit('setUserID',decoded.usr.userID);
 
 
 

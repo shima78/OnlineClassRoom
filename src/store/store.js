@@ -13,8 +13,8 @@ export const store = new Vuex.Store({
         role: null,
         userID :null
     },mutations: {
-        addQuestion(state,payload){
-            state.questionArray.push(payload)
+        setQuestion(state,payload){
+            state.questionArray = new Array(payload);
         },
         setServer(state,payload){
             state.server = payload;
@@ -76,6 +76,11 @@ export const store = new Vuex.Store({
            commit('setUsersData',payload);
            //console.log('action happening',payload)
         },
+        updateQuestionData({ commit },payload){
+            commit('setQuestion',payload);
+        },
+
+
         addQuestion({commit} ,payload){
             commit('pushQuestion',payload);
         },
