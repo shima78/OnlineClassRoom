@@ -1,6 +1,8 @@
 <template>
   <div id="home-app" class="base">
       <div id="back-slide" class="base">
+        <div id="logo-icon-box">
+          <img src="../assets/logo/whiteLogo.png"></div>
         <div id="home-box" class="top">
          <LoginBox>
          </LoginBox>
@@ -137,6 +139,19 @@ export default {
   -20px -20px 60px #ff707c;
 
 
+}
+#logo-icon-box{
+  background-color: transparent;
+  position:fixed;
+  top: 12px;
+  left: 12px;
+  min-width: 100px;
+  min-height: 50px;
+
+}
+#logo-icon-box > img{
+  max-width: 200px;
+  max-height: 50px;
 }
 
 </style>

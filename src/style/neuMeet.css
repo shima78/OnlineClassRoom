@@ -125,6 +125,14 @@ p{
     color: #ff7c74;
 }
 
+.round-button:disabled > label{
+    color: #a2b1c6;
+}
+.round-button:disabled > i {
+    color: #a2b1c6;
+}
+
+
 
 input[type="range"]{
     -webkit-appearance: none;

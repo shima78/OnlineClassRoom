@@ -2,10 +2,10 @@
   <div id="white-board-wrapper">
     <div id="white-board-control">
       <div id="upload-ctrl-group" class="ctrl-group">
-          <button class="round-button pdf-button" style="grid-column: 1; grid-row: 1;" @click="pdfDiv.style.zIndex = 3; canvas.style.zIndex = 1;" >
+          <button class="round-button pdf-button" style="grid-column: 1; grid-row: 1;" @click="pdfDiv.style.zIndex = 3; canvas.style.zIndex = 1;">
             <label>PDF</label>
           </button>
-          <button class="round-button pdf-button" style="grid-column: 2; grid-row: 1;" >
+          <button class="round-button pdf-button" style="grid-column: 2; grid-row: 1;">
             <i class="material-icons">file_upload</i>
           </button>
         <button class="round-button" style="grid-column: 1; grid-row: 2;" @click="canvas.style.zIndex = 3; pdfDiv.style.zIndex = 1;">
@@ -64,13 +64,14 @@
 
       <div id="color-wheel-ctrl-group" class="ctrl-group">
         <v-swatches v-model="color" popover-x="left" inline background-color="#e0e5ec" row-length="8" :swatch-style=this.swatchStyle>
-
         </v-swatches>
       </div>
 
     </div>
     <div id="wrapper" style="display: grid; grid-template-rows: 1fr; grid-template-columns: 1fr; height: calc(100% - 120px); box-sizing: border-box;">
-      <div id="pdf-view-wrapper" style="z-index: 1; grid-row: 1; grid-column: 1;"></div>
+      <div id="pdf-view-wrapper" style="z-index: 1; grid-row: 1; grid-column: 1;">
+          <label v-if="noPdf.value" id="noPdfLabel">{{this.noPdf.text}}</label>
+      </div>
       <canvas id="white-board-canvas" @mousedown="mouseDown" @mousemove="mouseMove" @mouseup="mouseup" @mouseleave="mouseleave" style="z-index: 2; grid-row: 1; grid-column: 1;">
       </canvas>
     </div>
@@ -82,6 +83,8 @@
 <script>
 // eslint-disable-next-line no-unused-vars
 import VSwatches from 'vue-swatches'
+// eslint-disable-next-line no-unused-vars
+
 
 
 
@@ -112,7 +115,11 @@ export default {
         whiteBoard: 1,
       },
       canvasHeightHold: null,
-      pdfDiv: null
+      pdfDiv: null,
+      noPdf:{
+        value: 1,
+        text: "Nothing is being shared,\nupload a PDF file first."
+      }
 
 
 
@@ -121,6 +128,7 @@ export default {
   },
   components:{
     VSwatches
+
   },
   methods:{
     addClick: function (x,y,dragging){
@@ -132,8 +140,6 @@ export default {
       }
       },
     drawOnCanvas: function (){
-
-
       this.canvasContext.strokeStyle = this.color;
       this.canvasContext.lineJoin = 'round';
       this.canvasContext.lineWidth = this.thickness;
@@ -164,8 +170,8 @@ export default {
 
 
       let scale = window.devicePixelRatio;
-      this.canvas.width = Math.floor(this.canvas.offsetWidth*scale);
-      this.canvas.height = Math.floor(this.canvas.offsetHeight*scale);
+      this.canvas.width = Math.floor(this.canvas.width*scale);
+      this.canvas.height = Math.floor(this.canvas.height*scale);
       this.canvasContext.scale(scale,scale);
 
 
@@ -236,12 +242,14 @@ export default {
       this.color = this.colorHold;
     },
     clearAll: function (){
-      this.canvasContext.clearRect(0, 0, this.canvas.width, this.canvas.height);
+      this.canvasContext.clearRect(0, 0, 2*this.canvas.width, 2*this.canvas.height);
     },
     setCanvasOffset: function (){
-      console.log('width',this.canvas.height,this.canvas.width);
-      this.offset.top = 0.31473 * this.canvas.height;
-      this.offset.left = 0.025* this.canvas.width;
+
+
+      let positionRect = this.canvas.getBoundingClientRect();
+      this.offset.top = positionRect.top;
+      this.offset.left = positionRect.left;
       console.log("offsets", this.offset.top,this.offset.left);
 
       let scale = window.devicePixelRatio;
@@ -254,11 +262,17 @@ export default {
   mounted() {
     this.init();
     this.setCanvasOffset();
+
   }
 }
 </script>
 <style src="../style/neuMeet.css"></style>
 <style scoped>
+#wrapper{
+  height: 100%;
+  width: 100%;
+  box-sizing: border-box;
+}
 #white-board-wrapper{
   border-radius: 24px;
   box-sizing: border-box;
@@ -376,15 +390,26 @@ export default {
 }
 
 #pdf-view-wrapper{
-  background-color: #7389a9;
+  background-color: #e0e5ec;
+  display: flex;
+  align-items: center;
+  justify-content: center;
   box-sizing: border-box;
   width: 100%;
   height: calc(100%);
   border-radius: 24px;
   border: 8px solid #e0e5ec;
+  max-height: inherit;
 
   box-shadow: inset 3px 3px 6px #bec3c9,
   inset -3px -3px 6px #ffffff;
+}
+
+#noPdfLabel{
+  font-size: 24px;
+
+
+  font-style: italic;
 }
 
 

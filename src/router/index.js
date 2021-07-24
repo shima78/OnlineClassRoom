@@ -10,6 +10,7 @@ import 'vue-swatches/dist/vue-swatches.css'
 
 Vue.use(VSwatches);
 Vue.use(VueRouter);
+
 Vue.use(vuescroll, {
   ops: {
     rail:{
