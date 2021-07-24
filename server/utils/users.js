@@ -21,6 +21,7 @@ function userLeave(id){
     var  usr = users.find(user=> user.socketID ===id);
     if (usr!== undefined){
         // console.log(users[index])
+        console.log(usr["username"],"has left")
         usr["online"] = false
         usr["leaveTime"] =  moment().format('h:mm a')
         return getRoomUsers( usr["room"]);
