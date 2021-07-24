@@ -1,7 +1,7 @@
 // const path = require('path');
 const http = require('http');
 const socketio = require('socket.io');
-const {formatMessage, getRoomMessages} = require('./utils/messages');
+const { formatMessage, getRoomMessages} = require('./utils/messages');
 const {userJoin,  getCurrentUser, userLeave, getRoomUsers} = require('./utils/users');
 const {formatQuestions,accept,formatAnswers,setScore,getQuestionAnswers,getRoomQuestions} = require('./utils/QA');
 const botName = 'admin';
@@ -118,7 +118,7 @@ io.on('connection',socket =>{
         //to emit all the clinets in general we can use io.emit
         if (user) {
             io.to(user.room).emit('message',formatMessage(botName,`${user.username} has 
-            left the chat`));
+            left the chat`, user.room));
         }
     });
 
@@ -143,7 +143,7 @@ io.on('connection',socket =>{
         //to emit all the clinets in general we can use io.emit
         if (user) {
             io.to(user.room).emit('message',formatMessage(botName,`${user.username} has 
-            left the chat`));
+            left the chat`, user.room));
         }
     });
 
