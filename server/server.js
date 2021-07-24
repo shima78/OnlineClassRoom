@@ -18,7 +18,7 @@ const app = express();
 //we need a server that we can access
 const server = http.createServer(app);
 let drawingHistory = [];
-
+let broadcaster;
 const io = socketio(server,	{cors: {origin: "*"}});
 //Run when a client connects
 io.on('connection',socket =>{
@@ -118,7 +118,7 @@ io.on('connection',socket =>{
                 users: await getRoomUsers(user.room),
                 messages: await getRoomMessages(user.room)
             };
-            io.to(user.room).emit('exportData',exportData);
+            socket.emit('exportData',exportData);
         }
     });
 
@@ -143,7 +143,7 @@ io.on('connection',socket =>{
                 history: []
             });
         }
-        var drawingHistoryItem = _.find(drawingHistory, function (item) {
+        const drawingHistoryItem = _.find(drawingHistory, function (item) {
             return item.id === socket.id;
         });
         drawingHistoryItem.history.push({
@@ -161,7 +161,7 @@ io.on('connection',socket =>{
             });
 
 
-            var undoData = _.last(drawingHistoryItem[0].history)
+            const undoData = _.last(drawingHistoryItem[0].history);
 
             drawingHistoryItem[0].history.splice(-1);
             io.emit('clear-the-canvas-from-server', {});
@@ -171,7 +171,7 @@ io.on('connection',socket =>{
                     io.emit('draw-from-server', historyItem.data);
                 });
             });
-
+            //test
             // if (undoData) {
             //     undoData.data.strokeStyle = "#c3c3c3";
             //     undoData.data.lineWidth = 8;
@@ -180,6 +180,36 @@ io.on('connection',socket =>{
         }
 
     });
+
+    //share image
+    io.sockets.on('connection',function(socket){
+        socket.on('user image',function(image){
+            io.sockets.emit('addimage', 'PhotoOne' , image);
+        });
+    });
+
+    // //webRTC
+    // socket.on("broadcaster", () => {
+    //     broadcaster = socket.id;
+    //     socket.broadcast.emit("broadcaster");
+    // });
+    // socket.on("watcher", () => {
+    //     socket.to(broadcaster).emit("watcher", socket.id);
+    // });
+    //
+    // //events
+    // socket.on("offer", (id, message) => {
+    //     socket.to(id).emit("offer", socket.id, message);
+    // });
+    // socket.on("answer", (id, message) => {
+    //     socket.to(id).emit("answer", socket.id, message);
+    // });
+    // socket.on("candidate", (id, message) => {
+    //     socket.to(id).emit("candidate", socket.id, message);
+    // });
+
+
+
 
 
     //user Leave

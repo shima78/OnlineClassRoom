@@ -11,33 +11,65 @@
               <i class="material-icons">power_settings_new</i>
             </button>
           </div>
+
+          <div id="export" v-if=" true" >
+            <button id="export-button" class="round-button" @click="exportData">
+              export users
+            </button>
+          </div>
     </div>
 </template>
 
 <script>
 import {mapActions} from "vuex";
-
+import * as Papa from 'papaparse';
 export default {
   name: "MeetingNavbar",
   components: {},
   data(){
     return{
     server:this.$store.getters.getServer,
+      userRole: this.$store.getters.getRole
     }
   },
 
   methods: {
-  exit() {
-    this.server.emit('logOut')
-    this.$router.back()
+    exportData(){
+        this.server.emit('export')
+    },
 
-  },
-    ...mapActions(['updateUsersData']),
-  },
+    exit() {
+      this.server.emit('logOut')
+      this.$router.back()
+
+    },
+      ...mapActions(['updateUsersData']),
+
+    },
+
   mounted() {
+    console.log("role",this.userRole)
     this.server.on("roomUsers", (userdata) => {
 
       this.updateUsersData(userdata.users);
+    });
+
+    this.server.on("exportData", (data) => {
+
+      // console.log(data)
+      let text = Papa.unparse(data['users']);
+
+      let filename = 'cats.csv';
+      let element = document.createElement('a');
+      element.setAttribute('href', 'data:text/csv;charset=utf-8,' + encodeURIComponent(text));
+      element.setAttribute('download', filename);
+
+      element.style.display = 'none';
+      document.body.appendChild(element);
+
+      element.click();
+      document.body.removeChild(element);
+
     });
 
   }
