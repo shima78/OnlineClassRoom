@@ -47,7 +47,7 @@ io.on('connection',socket =>{
         const user = await userJoin(socket.id, username, room, role, userID);
         //room is room ID
         if (room !== undefined){
-            // console.log(user);
+                        // console.log(user);
             socket.join(user.room);
         }
 
@@ -124,8 +124,9 @@ io.on('connection',socket =>{
 
 
 
-    // canvas
+   // canvas
     socket.on('draw-from-client', function (data) {
+        console.log("client draw data",data)
         io.emit('draw-from-server', data);
     });
 
@@ -172,11 +173,11 @@ io.on('connection',socket =>{
                 });
             });
 
-            // if (undoData) {
-            //     undoData.data.strokeStyle = "#c3c3c3";
-            //     undoData.data.lineWidth = 8;
-            //     io.emit('draw-from-server', undoData.data);
-            // }
+            if (undoData) {
+                undoData.data.strokeStyle = "#c3c3c3";
+                undoData.data.lineWidth = 8;
+                io.emit('draw-from-server', undoData.data);
+             }
         }
 
     });

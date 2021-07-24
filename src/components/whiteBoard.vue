@@ -1,4 +1,4 @@
-<template>
+fe<template>
   <div id="white-board-wrapper">
     <div id="white-board-control">
       <div id="upload-ctrl-group" class="ctrl-group">
@@ -9,7 +9,7 @@
         <button class="round-button" style="grid-column: 1; grid-row: 2;" @click="canvas.style.zIndex = 3; pdfDiv.style.zIndex = 1;">
           <i class="material-icons">cast_for_education</i>
         </button>
-        <input class="round-button custom-file-input" id="photo-upload-button" style="grid-row: 2; grid-column: 2;" type="file">
+        <input class="round-button custom-file-input" id="photo-upload-button" style="grid-row: 2; grid-column: 2;" type="file" @change="uploadImage">
       </div>
 
       <div id="shape-ctrl-group" class="ctrl-group">
@@ -169,15 +169,15 @@ export default {
         this.canvasContext.stroke();
       }
 
-      this.server.emit('draw-from-client', {
+      this.server.emit('draw-from-client', ({
         click: {
           x: this.click.x,
           y: this.click.y,
           drag: this.click.drag
         },
-        strokeStyle: this.strokeStyle,
+        strokeStyle: this.color,
         lineWidth: this.lineWidth
-      });
+      }));
     },
 
     init: function (){
@@ -270,7 +270,7 @@ export default {
             y: this.click.y,
             drag: this.click.drag
           },
-          strokeStyle: this.strokeStyle,
+          strokeStyle: this.color,
           lineWidth: this.lineWidth
         });
       }
@@ -332,7 +332,7 @@ export default {
 
       this.server.emit('draw-line-client', {
         shapeClickMemory: this.shapeClickMemory,
-        strokeStyle: this.strokeStyle,
+        strokeStyle: this.color,
         lineWidth: this.lineWidth
       });
 
@@ -349,7 +349,7 @@ export default {
 
       this.server.emit('draw-circle-client', {
         shapeClickMemory: this.shapeClickMemory,
-        strokeStyle: this.strokeStyle,
+        strokeStyle: this.color,
         lineWidth: this.lineWidth
       });
 
@@ -367,25 +367,26 @@ export default {
 
       this.server.emit('draw-rect-client', {
         shapeClickMemory: this.shapeClickMemory,
-        strokeStyle: this.strokeStyle,
+        strokeStyle: this.color,
         lineWidth: this.lineWidth
       });
 
     },
 
-    drawOnClientCanvas: function (recClick, penColor, penWidth) {
-        this.canvasContext.strokeStyle = penColor;
+    drawOnClientCanvas: function (data) {
+      console.log("clientCanvasRunning!!!",)
+        this.canvasContext.strokeStyle = data.color;
         this.canvasContext.lineJoin = "round";
-        this.canvasContext.lineWidth = penWidth;
+        this.canvasContext.lineWidth = data.lineWidth;
 
-        for (let i = 0; i < recClick.x.length; i++) {
+        for (let i = 0; i < data.click.x.length; i++) {
           this.canvasContext.beginPath();
-          if (recClick.drag[i] && i) {
-            this.canvasContext.moveTo(recClick.x[i - 1], recClick.y[i - 1]);
+          if (data.click.drag[i] && i) {
+            this.canvasContext.moveTo(data.click.x[i - 1], data.click.y[i - 1]);
           } else {
-            this.canvasContext.moveTo(recClick.x[i] - 1, recClick.y[i]);
+            this.canvasContext.moveTo(data.click.x[i] - 1, data.click.y[i]);
           }
-          this.canvasContext.lineTo(recClick.x[i], recClick.y[i]);
+          this.canvasContext.lineTo(data.click.x[i], data.click.y[i]);
           this.canvasContext.closePath();
           this.canvasContext.stroke();
         }
@@ -430,6 +431,15 @@ export default {
     },
     undo: function (){
       this.server.emit('undo-canvas', {});
+    },
+    uploadImage: function (event){
+      console.log("imageUp running");
+      let file = event.originalEvent.files[0];
+      let reader = new FileReader();
+      reader.onload = function (e){
+        this.server.emit('userImage',e.target.result)
+      };
+      reader.readAsDataURL(file);
     }
 
 

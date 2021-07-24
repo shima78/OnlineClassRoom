@@ -1,7 +1,7 @@
 const moment = require('moment')
 var idAuto = 0;
 var idAutoAns = 0
-var allQuestions  = []
+var allQuestions  = [] 
 function formatQuestions(username, text, room, difficulty){
     idAuto = idAuto +1
     var q = {
@@ -17,18 +17,21 @@ function formatQuestions(username, text, room, difficulty){
     return allQuestions.filter(q => q.room === room);
 }
 
-
-
+ 
 function getquestionById(qid){
     const index = allQuestions.find(q=> q.id === qid);
     return index
 }
 
 
-function getquestionAnswers(qid){
+function getQuestionAnswers(qid){
     const index = allQuestions.find(q=> q.id === qid);
 
     return allQuestions[index]['answers']
+}
+
+function  getRoomQuestions(roomId){
+    return allQuestions.filter(q => q.room === roomId);
 }
 
 function changDifficulty(qid,d){
@@ -53,7 +56,7 @@ function formatAnswers(username, text, qid){
     };
     const index = getquestionById(qid)
     allQuestions[index].answers.push(ans);
-    var room = allQuestions[index].room
+    const room = allQuestions[index].room;
     return allQuestions.filter(q => q.room === room);
 }
 
@@ -72,7 +75,7 @@ function accept(qid,ansid,isAcc){
     const indexq = getquestionById(qid)
     const indexAns = allQuestions[indexq].answers.find( a=> a.id === ansid);
     allQuestions[indexq].answers[indexAns].isAccepted = isAcc
-    var room = allQuestions[indexq].room
+    const room = allQuestions[indexq].room;
     return allQuestions.filter(q => q.room === room);
 }
 
@@ -83,5 +86,7 @@ module.exports = {
     changDifficulty,
     formatAnswers,
     accept,
-    setScore
+    setScore,
+    getQuestionAnswers,
+    getRoomQuestions
 }
