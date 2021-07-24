@@ -1,9 +1,9 @@
 // const path = require('path');
 const http = require('http');
 const socketio = require('socket.io');
-const formatMessage = require('./utils/messages');
+const {formatMessage, getRoomMessages} = require('./utils/messages');
 const {userJoin,  getCurrentUser, userLeave, getRoomUsers} = require('./utils/users');
-const {formatQuestions,accept,formatAnswers,setScore} = require('./utils/QA');
+const {formatQuestions,accept,formatAnswers,setScore,getQuestionAnswers,getRoomQuestions} = require('./utils/QA');
 const botName = 'admin';
 const PORT  = 3000;
 let express = require("express");
@@ -50,12 +50,12 @@ io.on('connection',socket =>{
         }
 
         // Welcome current user   change event name
-        socket.emit('message', formatMessage(botName, 'Welcome to ChatCord!'));
+        socket.emit('message', formatMessage(botName, 'Welcome to ChatCord!',user.room));
 
         // Broadcast when a user connects
         socket.broadcast.to(user.room)
             .emit('message',
-                formatMessage(botName, `${user.username} has joined the chat`)
+                formatMessage(botName, `${user.username} has joined the chat`,user.room)
             );
 
         io.to(user.room).emit('roomUsers',{
@@ -71,7 +71,7 @@ io.on('connection',socket =>{
     socket.on('chatMessage',msg => {
         const user = getCurrentUser(socket.id)
         //show this message to everone
-        io.to(user.room).emit('message',formatMessage(user.username,msg));
+        io.to(user.room).emit('message',formatMessage(user.username,msg, user.room));
     });
 
 
@@ -112,18 +112,6 @@ io.on('connection',socket =>{
         io.to(user.room).emit('newAccept', accept(qid,ansid,isAcc));
     })
 
-    //white board
-    socket.on('drawing', function(obj) {
-        socket.emit('drawing', obj);
-        socket.broadcast.emit('drawing', obj);
-    });
-
-    socket.on('clearAll', function(obj) {
-        socket.emit('clearAll', obj);
-        socket.broadcast.emit('clearAll', obj);
-    });
-
-
     socket.on('logOut', () =>{
         const user = userLeave(socket.id);
         console.log(user)
@@ -132,11 +120,22 @@ io.on('connection',socket =>{
             io.to(user.room).emit('message',formatMessage(botName,`${user.username} has 
             left the chat`));
         }
-        io.to(user.room).emit('roomUsers',{
-            room : user.room,
-            users : getRoomUsers(user.room)
-        })
     });
+
+    socket.on('export', async () =>{
+        const user = await getCurrentUser(socket.id)
+        console.log(user)
+        if (user) {
+            const exportData = {
+                questions: await getRoomQuestions(user.room),
+                users: await getRoomUsers(user.room),
+                messages: await getRoomMessages(user.room)
+            };
+            io.to(user.room).emit('exportData',exportData);
+        }
+    });
+
+
 
     socket.on('disconnect', () =>{
         const user = userLeave(socket.id);
@@ -146,10 +145,6 @@ io.on('connection',socket =>{
             io.to(user.room).emit('message',formatMessage(botName,`${user.username} has 
             left the chat`));
         }
-        io.to(user.room).emit('roomUsers',{
-            room : user.room,
-            users : getRoomUsers(user.room)
-        })
     });
 
 })

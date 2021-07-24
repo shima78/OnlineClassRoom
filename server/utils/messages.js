@@ -1,9 +1,24 @@
 const moment = require('moment')
-function formatMessages(username, text){
-    return {
+let all = []
+function formatMessages(username, text, room){
+    const msg =    {
+        room,
         username,
         text,
         time:moment().format('h:mm a')
     };
+    all.push(msg)
+    return msg
+
 }
-module.exports = formatMessages;
+
+function getRoomMessages(roomId){
+
+    return all.filter(message=> message.room === roomId);
+}
+
+
+module.exports = {
+    formatMessages,
+    getRoomMessages
+};
