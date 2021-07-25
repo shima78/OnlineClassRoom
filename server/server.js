@@ -4,7 +4,7 @@ const  _ = require('lodash');
 const socketio = require('socket.io');
 const { formatMessage, getRoomMessages} = require('./utils/messages');
 const {userJoin,  getCurrentUser, userLeave, getRoomUsers} = require('./utils/users');
-const {formatQuestions,accept,formatAnswers,setScore,getQuestionAnswers,getRoomQuestions} = require('./utils/QA');
+const {formatQuestions,accept,formatAnswers,setScore,getQuestionAnswers,getExportData,getRoomQuestions} = require('./utils/QA');
 const botName = 'admin';
 const PORT  = 3000;
 let express = require("express");
@@ -31,7 +31,7 @@ io.on('connection',socket =>{
 
         if(result.length){
             const usr = result[0]
-           // console.log(usr)
+           console.log(usr)
             jwt.sign({usr}, 'secretkey', { expiresIn: '2h' }, (err, token) => {
                 socket.emit('loginRes',token)
             });
@@ -114,7 +114,7 @@ io.on('connection',socket =>{
         //console.log(user)
         if (user) {
             const exportData = {
-                questions: await getRoomQuestions(user.room),
+                questions: await getExportData(user.room),
                 users: await getRoomUsers(user.room),
                 messages: await getRoomMessages(user.room)
             };
@@ -154,6 +154,8 @@ io.on('connection',socket =>{
         drawingHistoryItem.history.push({
             data: data
         });
+        //console.log('drawingHistory',drawingHistoryItem.history)
+
     });
         //TODO fix undo
     socket.on('undo-canvas', async function (data) {
@@ -174,15 +176,34 @@ io.on('connection',socket =>{
 
             drawingHistory.forEach(function (item) {
                 item.history.forEach(function (historyItem) {
-                    io.emit('draw-from-server', historyItem.data);
-                    //console.log("history",historyItem.data)
+                    if(historyItem.data.shapeProperties != false){
+                        if(historyItem.data.shapeProperties =='rect'){
+                            io.emit('rect-draw-from-server',historyItem.data)
+                        }
+
+                        else if(historyItem.data.shapeProperties =='circle'){
+                            io.emit('circle-draw-from-server',historyItem.data)
+                        }
+
+                        else if(historyItem.data.shapeProperties == 'line'){
+                            io.emit('line-draw-from-server',historyItem.data)
+                        }
+                    }
+                    else{
+                        io.emit('draw-from-server', historyItem.data);
+
+                    }
+
+
                 });
             });
 
             if (undoData) {
-                undoData.data.strokeStyle = 'transparent';
-                undoData.data.lineWidth = data.lineWidth;
-                io.emit('draw-from-server', undoData.data);
+                if(!undoData.data.shapeProperties) {
+                    undoData.data.strokeStyle = 'transparent';
+                    undoData.data.lineWidth = data.lineWidth;
+                    io.emit('draw-from-server', undoData.data);
+                }
              }
         }
 

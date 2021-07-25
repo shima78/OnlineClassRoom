@@ -16,7 +16,27 @@ function formatQuestions(username, text, room, difficulty){
     allQuestions.push(q)
     return allQuestions.filter(q => q.room === room);
 }
+function getExportData(room){
+    const data = []
+    const qArray = allQuestions.filter(q => q.room === room);
+    qArray.forEach(async function (q){
+        const answers = q.answers;
+        await answers.forEach( function (answer) {
+            const d = {
+                username: answer.username,
+                text: answer.text,
+                time: answer.time,
+                score: answer.score,
+                isAccepted : answer.isAccepted,
+                id : answer.id,
+                question: q.text
+            }
+            data.push(d)
+        })
+    })
+    return data
 
+}
  
 function getquestionById(qid){
     const index = allQuestions.find(q=> q.id === qid);
@@ -88,5 +108,6 @@ module.exports = {
     accept,
     setScore,
     getQuestionAnswers,
-    getRoomQuestions
+    getRoomQuestions,
+    getExportData
 }

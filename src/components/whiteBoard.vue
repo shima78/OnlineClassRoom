@@ -206,15 +206,15 @@ export default {
       })
 
       this.server.on("circle-draw-from-server",({shapeClickMemory, strokeStyle, lineWidth}) =>{
-        console.log('getting circle from server',{shapeClickMemory, strokeStyle, lineWidth})
+
         this.drawCircleClient({shapeClickMemory, strokeStyle, lineWidth});
       })
       this.server.on("line-draw-from-server",({shapeClickMemory, strokeStyle, lineWidth}) =>{
-        console.log('getting line from server',{shapeClickMemory,strokeStyle,lineWidth})
+
         this.drawLineClient({shapeClickMemory,strokeStyle,lineWidth});
       })
       this.server.on("rect-draw-from-server",({shapeClickMemory, strokeStyle, lineWidth}) =>{
-        console.log('getting rect from server',{shapeClickMemory, strokeStyle, lineWidth})
+
         this.drawRectClientL({shapeClickMemory,strokeStyle,lineWidth});
       })
 
@@ -275,7 +275,8 @@ export default {
             drag: this.click.drag
           },
           strokeStyle: this.color,
-          lineWidth: this.thickness
+          lineWidth: this.thickness,
+          shapeProperties: false
         });
       }
 
@@ -316,7 +317,6 @@ export default {
       this.canvasContext.clearRect(0, 0, 2*this.canvas.width, 2*this.canvas.height);
     },
     setCanvasOffset: function (){
-
       let positionRect = this.canvas.getBoundingClientRect();
       this.offset.top = positionRect.top;
       this.offset.left = positionRect.left;
@@ -340,6 +340,13 @@ export default {
         lineWidth: this.thickness
       });
 
+     this.server.emit('maintain-history', {
+       shapeClickMemory: this.shapeClickMemory,
+       shapeProperties: 'line',
+        strokeStyle: this.color,
+        lineWidth: this.thickness
+      });
+
     },
 
     drawCircle: function (){
@@ -353,6 +360,13 @@ export default {
 
       this.server.emit('draw-circle-client', {
         shapeClickMemory: this.shapeClickMemory,
+        strokeStyle: this.color,
+        lineWidth: this.thickness
+      });
+
+      this.server.emit('maintain-history', {
+        shapeClickMemory: this.shapeClickMemory,
+        shapeProperties: 'circle',
         strokeStyle: this.color,
         lineWidth: this.thickness
       });
@@ -375,10 +389,18 @@ export default {
         lineWidth: this.thickness
       });
 
+      this.server.emit('maintain-history', {
+        shapeClickMemory: this.shapeClickMemory,
+        shapeProperties: 'rect',
+        strokeStyle: this.color,
+        lineWidth: this.thickness
+      });
+
 
     },
 
     drawOnClientCanvas: function (data) {
+
         this.canvasContext.strokeStyle = data.strokeStyle;
         this.canvasContext.lineJoin = "round";
         this.canvasContext.lineWidth = data.lineWidth;
@@ -399,7 +421,6 @@ export default {
     drawCircleClient: function ({shapeClickMemory,strokeStyle,lineWidth}){
       this.canvasContext.strokeStyle = strokeStyle;
       this.canvasContext.lineWidth = lineWidth;
-      console.log("circle",shapeClickMemory)
 
       let deltaX = shapeClickMemory.finalPoint.x - shapeClickMemory.initialPoint.x;
       let deltaY = shapeClickMemory.finalPoint.y - shapeClickMemory.initialPoint.y;
@@ -424,10 +445,11 @@ export default {
       this.canvasContext.closePath();
       this.canvasContext.stroke();
 
+
     },
 
     drawLineClient: function ({shapeClickMemory,strokeStyle,lineWidth}){
-        console.log("drawLinerunning:",{shapeClickMemory,strokeStyle,lineWidth})
+
       this.canvasContext.strokeStyle = strokeStyle;
       this.canvasContext.lineWidth = lineWidth;
 
@@ -436,6 +458,10 @@ export default {
       this.canvasContext.lineTo(shapeClickMemory.finalPoint.x,shapeClickMemory.finalPoint.y);
       this.canvasContext.closePath();
       this.canvasContext.stroke();
+
+
+    },
+    maintainShapeHistory: function (){
 
     },
     undo: function (){

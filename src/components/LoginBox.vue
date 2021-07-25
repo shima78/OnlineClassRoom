@@ -65,10 +65,11 @@ export default {
           console.log("wrong") //login data handling
         } else {
           let decoded = jwt_decode(data);
-
-          socket.emit('joinRoom', ({username: decoded.usr.username,room:this.roomID , role: decoded.usr.role,userID: decoded.usr.userID}));
+          console.log(decoded)
+          socket.emit('joinRoom', ({username: decoded.usr.username,room:this.roomID , role: decoded.usr.userRole,userID: decoded.usr.userID}));
+          console.log('login data',{username: decoded.usr.username,room:this.roomID , role: decoded.usr.userRole,userID: decoded.usr.userID})
           this.$store.commit('setRoomID', decoded.usr.id);
-          this.$store.commit('setRole',decoded.usr.role)
+          this.$store.commit('setRole',decoded.usr.userRole)
           this.$store.commit('setUsername', decoded.usr.username);
           this.$store.commit('setUserID',decoded.usr.userID);
 

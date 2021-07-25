@@ -31,7 +31,7 @@
 
       <div id="attend-list-box" class="side-shadow-container">
         <vue-scroll>
-          <template v-for="userOBJ in userInfo[0]">
+          <template v-for="userOBJ in userInfo[0].filter(user => user.online == true)">
             <user-bubble :key="userOBJ.index" :username="userOBJ.username"
                          :join-time="userOBJ.joinTime" :status="userOBJ.online"></user-bubble>
           </template>

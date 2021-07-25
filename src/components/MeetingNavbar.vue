@@ -6,9 +6,13 @@
             <input type="range" id="volume-slider" class="slider">
           </div>
 
-          <div id="exit">
+          <div id="exit-export">
             <button id="exit-button" class="round-button">
               <i class="material-icons">power_settings_new</i>
+            </button>
+
+            <button id="export-button" class="round-button" @click="output" :disabled="role === 'std'" v-if="role === 'owner'">
+              <label>Export</label>
             </button>
           </div>
     </div>
@@ -16,19 +20,78 @@
 
 <script>
 
+
+import {mapActions, mapGetters} from "vuex";
+import * as Papa from 'papaparse';
 export default {
   name: "MeetingNavbar",
-  components: {},
+  components: {
+
+  },
   data(){
     return{
-
+        server: null,
+        role: null,
     }
   },
 
   methods: {
+    ...mapGetters(['getServer','getRole']),
+    ...mapActions(['updateUsersData']),
+
+    output: function (){
+      this.server.emit('export')
+
+    },
+    exit: function (){
+      this.server.emit('logOut');
+      this.$router.back();
+
+    },
+    init: function (){
+      this.server.on("roomUsers", (userdata) => {
+        this.updateUsersData(userdata.users);
+      });
+
+      this.server.on("exportData", (data) => {
+        // console.log(data)
+        let usersText = Papa.unparse(data['users']);
+        let usersFilename = 'users.csv';
+        let element = document.createElement('a');
+        element.setAttribute('href', 'data:text/csv;charset=utf-8,' + encodeURIComponent(usersText));
+        element.setAttribute('download', usersFilename);
+        element.style.display = 'none';
+        document.body.appendChild(element);
+        element.click();
+        document.body.removeChild(element);
+        let questionsText = Papa.unparse(data['questions']);
+        let questionsFilename = 'questions.csv';
+        // let element = document.createElement('a');
+        element.setAttribute('href', 'data:text/csv;charset=utf-8,' + encodeURIComponent(questionsText));
+        element.setAttribute('download', questionsFilename);
+        element.style.display = 'none';
+        document.body.appendChild(element);
+        element.click();
+        document.body.removeChild(element);
+        let messagesText = Papa.unparse(data['messages']);
+        let messagesFilename = 'messages.csv';
+        // let element = document.createElement('a');
+        element.setAttribute('href', 'data:text/csv;charset=utf-8,' + encodeURIComponent(messagesText));
+        element.setAttribute('download', messagesFilename);
+        element.style.display = 'none';
+        document.body.appendChild(element);
+        element.click();
+        document.body.removeChild(element);
+      });
+    }
+
+
 
   },
   mounted() {
+      this.server =  this.$store.getters.getServer;
+      this.role = this.$store.getters.getRole;
+      this.init();
 
   }
 }
@@ -63,16 +126,17 @@ export default {
 }
 
 
-#exit{
+#exit-export{
+  flex-direction: row-reverse;
   display: flex;
-  justify-content: space-around;
+  justify-content: space-between;
   align-content: center;
   align-items: center;
 }
 #exit-button{
 
-
-  margin-right: -2px;
+  margin-left: 15px;
+  margin-right: -1px;
 }
 
 
@@ -96,6 +160,15 @@ export default {
 
 #microphone:after{
   content: "\e029";
+}
+
+#export-button{
+  width: 80px;
+}
+
+#export-button > label{
+  font-weight: bold;
+  font-size: 14px;
 }
 
 
