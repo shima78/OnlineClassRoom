@@ -1,4 +1,4 @@
-fe<template>
+<template>
   <div id="white-board-wrapper">
     <div id="white-board-control">
       <div id="upload-ctrl-group" class="ctrl-group">
@@ -176,7 +176,7 @@ export default {
           drag: this.click.drag
         },
         strokeStyle: this.color,
-        lineWidth: this.lineWidth
+        lineWidth: this.thickness
       }));
     },
 
@@ -201,18 +201,21 @@ export default {
         this.canvasContext.clearRect(0, 0, 2*this.canvas.width, 2*this.canvas.height);
       });
 
-      this.server.on("draw-from-server",(recClick, penColor, penWidth) =>{
-        this.drawOnClientCanvas(recClick,penColor,penWidth);
+      this.server.on("draw-from-server",(data) =>{
+        this.drawOnClientCanvas(data);
       })
 
-      this.server.on("circle-draw-from-server",(shapeClickMemory, penColor, penWidth) =>{
-        this.drawOnClientCanvas(shapeClickMemory,penColor,penWidth);
+      this.server.on("circle-draw-from-server",({shapeClickMemory, strokeStyle, lineWidth}) =>{
+        console.log('getting circle from server',{shapeClickMemory, strokeStyle, lineWidth})
+        this.drawCircleClient({shapeClickMemory, strokeStyle, lineWidth});
       })
-      this.server.on("line-draw-from-server",(shapeClickMemory, penColor, penWidth) =>{
-        this.drawOnClientCanvas(shapeClickMemory,penColor,penWidth);
+      this.server.on("line-draw-from-server",({shapeClickMemory, strokeStyle, lineWidth}) =>{
+        console.log('getting line from server',{shapeClickMemory,strokeStyle,lineWidth})
+        this.drawLineClient({shapeClickMemory,strokeStyle,lineWidth});
       })
-      this.server.on("rect-draw-from-server",(shapeClickMemory, penColor, penWidth) =>{
-        this.drawOnClientCanvas(shapeClickMemory,penColor,penWidth);
+      this.server.on("rect-draw-from-server",({shapeClickMemory, strokeStyle, lineWidth}) =>{
+        console.log('getting rect from server',{shapeClickMemory, strokeStyle, lineWidth})
+        this.drawRectClientL({shapeClickMemory,strokeStyle,lineWidth});
       })
 
 
@@ -264,6 +267,7 @@ export default {
 
     ClearDrawCoordinates: function (){
       if (this.click.x.length > 0) {
+
         this.server.emit('maintain-history', {
           click:{
             x: this.click.x,
@@ -271,7 +275,7 @@ export default {
             drag: this.click.drag
           },
           strokeStyle: this.color,
-          lineWidth: this.lineWidth
+          lineWidth: this.thickness
         });
       }
 
@@ -333,7 +337,7 @@ export default {
       this.server.emit('draw-line-client', {
         shapeClickMemory: this.shapeClickMemory,
         strokeStyle: this.color,
-        lineWidth: this.lineWidth
+        lineWidth: this.thickness
       });
 
     },
@@ -350,7 +354,7 @@ export default {
       this.server.emit('draw-circle-client', {
         shapeClickMemory: this.shapeClickMemory,
         strokeStyle: this.color,
-        lineWidth: this.lineWidth
+        lineWidth: this.thickness
       });
 
     },
@@ -368,14 +372,14 @@ export default {
       this.server.emit('draw-rect-client', {
         shapeClickMemory: this.shapeClickMemory,
         strokeStyle: this.color,
-        lineWidth: this.lineWidth
+        lineWidth: this.thickness
       });
+
 
     },
 
     drawOnClientCanvas: function (data) {
-      console.log("clientCanvasRunning!!!",)
-        this.canvasContext.strokeStyle = data.color;
+        this.canvasContext.strokeStyle = data.strokeStyle;
         this.canvasContext.lineJoin = "round";
         this.canvasContext.lineWidth = data.lineWidth;
 
@@ -392,21 +396,25 @@ export default {
         }
     },
     //pass shapeMemory and line style
-    drawCircleClient: function (shapeClickMemory,penColor,penWidth){
-      this.canvasContext.strokeStyle = penColor;
-      this.canvasContext.lineWidth = penWidth;
+    drawCircleClient: function ({shapeClickMemory,strokeStyle,lineWidth}){
+      this.canvasContext.strokeStyle = strokeStyle;
+      this.canvasContext.lineWidth = lineWidth;
+      console.log("circle",shapeClickMemory)
+
       let deltaX = shapeClickMemory.finalPoint.x - shapeClickMemory.initialPoint.x;
       let deltaY = shapeClickMemory.finalPoint.y - shapeClickMemory.initialPoint.y;
       let radius = Math.sqrt((deltaX*deltaX) + (deltaY*deltaY))/2;
+
       this.canvasContext.beginPath();
-      this.canvasContext.arc((this.shapeClickMemory.finalPoint.x+this.shapeClickMemory.initialPoint.x)/2,(this.shapeClickMemory.finalPoint.y+this.shapeClickMemory.initialPoint.y)/2,radius,0,2*Math.PI);
+
+      this.canvasContext.arc((shapeClickMemory.finalPoint.x+shapeClickMemory.initialPoint.x)/2,(shapeClickMemory.finalPoint.y+shapeClickMemory.initialPoint.y)/2,radius,0,2*Math.PI);
       this.canvasContext.closePath();
       this.canvasContext.stroke();
     },
 
-    drawRectClientL: function (shapeClickMemory,penColor,penWidth){
-      this.canvasContext.strokeStyle = penColor;
-      this.canvasContext.lineWidth = penWidth;
+    drawRectClientL: function ({shapeClickMemory,strokeStyle,lineWidth}){
+      this.canvasContext.strokeStyle = strokeStyle;
+      this.canvasContext.lineWidth = lineWidth;
       this.canvasContext.beginPath();
       this.canvasContext.moveTo(shapeClickMemory.initialPoint.x,shapeClickMemory.initialPoint.y);
       this.canvasContext.lineTo(shapeClickMemory.finalPoint.x,shapeClickMemory.initialPoint.y);
@@ -418,9 +426,10 @@ export default {
 
     },
 
-    drawLineClient: function (shapeClickMemory,penColor,penWidth){
-      this.canvasContext.strokeStyle = penColor;
-      this.canvasContext.lineWidth = penWidth;
+    drawLineClient: function ({shapeClickMemory,strokeStyle,lineWidth}){
+        console.log("drawLinerunning:",{shapeClickMemory,strokeStyle,lineWidth})
+      this.canvasContext.strokeStyle = strokeStyle;
+      this.canvasContext.lineWidth = lineWidth;
 
       this.canvasContext.beginPath();
       this.canvasContext.moveTo(shapeClickMemory.initialPoint.x,shapeClickMemory.initialPoint.y);
@@ -432,14 +441,17 @@ export default {
     undo: function (){
       this.server.emit('undo-canvas', {});
     },
-    uploadImage: function (event){
+    uploadImage: function (){
       console.log("imageUp running");
-      let file = event.originalEvent.files[0];
-      let reader = new FileReader();
-      reader.onload = function (e){
-        this.server.emit('userImage',e.target.result)
+      const reader = new FileReader();
+      reader.onload = function() {
+        const base64 = this.result.replace(/.*base64,/, '');
+        this.server().emit('image', base64);
       };
-      reader.readAsDataURL(file);
+      reader.readAsDataURL(this.files[0]);
+
+
+
     }
 
 

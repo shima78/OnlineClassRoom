@@ -23,15 +23,15 @@ const io = socketio(server,	{cors: {origin: "*"}});
 //Run when a client connects
 io.on('connection',socket =>{
 
-    console.log("connected");
+    //console.log("connected");
 
     socket.on('login', async ({name, pass, room}) => {
         const result = await userDB.getUser(name,pass, room)
-        console.log(result)
+       // console.log(result)
 
         if(result.length){
             const usr = result[0]
-            console.log(usr)
+           // console.log(usr)
             jwt.sign({usr}, 'secretkey', { expiresIn: '2h' }, (err, token) => {
                 socket.emit('loginRes',token)
             });
@@ -64,7 +64,7 @@ io.on('connection',socket =>{
             room : user.room,
             users :await getRoomUsers(user.room)
         })
-        console.log('running join room')
+        //console.log('running join room')
     });
 
     //listen for chatMessage
@@ -76,9 +76,9 @@ io.on('connection',socket =>{
     //listen for Questions
     socket.on('chatQuestions',async ({text , difficulty}) => {
         const user = await getCurrentUser(socket.id);
-        console.log('current user', user)
+        //console.log('current user', user)
         var arr  = await formatQuestions(user.username, text, user.room, difficulty)
-        console.log(arr)
+        //console.log(arr)
         io.to(user.room).emit('newQuestion',arr);
     })
 
@@ -111,7 +111,7 @@ io.on('connection',socket =>{
 
     socket.on('export', async () =>{
         const user = await getCurrentUser(socket.id)
-        console.log(user)
+        //console.log(user)
         if (user) {
             const exportData = {
                 questions: await getRoomQuestions(user.room),
@@ -124,18 +124,22 @@ io.on('connection',socket =>{
 
 
 
+    //TODO fix drawingLEAKS
    // canvas
-    socket.on('draw-from-client', function (data) {
-        console.log("client draw data",data)
+    socket.on('draw-from-client', async function (data) {
+        const user = await getCurrentUser(socket.id);
+        //console.log("client draw data",data)
         io.emit('draw-from-server', data);
     });
 
-    socket.on('clear-the-canvas', function (data) {
+    socket.on('clear-the-canvas', async function (data) {
+        const user = await getCurrentUser(socket.id);
         drawingHistory = [];
         io.emit('clear-the-canvas-from-server', data);
     });
 
     socket.on('maintain-history', function (data) {
+        //console.log('maintain-data-in:',data)
         if (!_.some(drawingHistory, {
             "id": socket.id
         })) {
@@ -151,8 +155,9 @@ io.on('connection',socket =>{
             data: data
         });
     });
-
-    socket.on('undo-canvas', function (data) {
+        //TODO fix undo
+    socket.on('undo-canvas', async function (data) {
+        const user = await getCurrentUser(socket.id);
         if (_.some(drawingHistory, {
             "id": socket.id
         })) {
@@ -170,17 +175,36 @@ io.on('connection',socket =>{
             drawingHistory.forEach(function (item) {
                 item.history.forEach(function (historyItem) {
                     io.emit('draw-from-server', historyItem.data);
+                    //console.log("history",historyItem.data)
                 });
             });
 
             if (undoData) {
-                undoData.data.strokeStyle = "#c3c3c3";
-                undoData.data.lineWidth = 8;
+                undoData.data.strokeStyle = 'transparent';
+                undoData.data.lineWidth = data.lineWidth;
                 io.emit('draw-from-server', undoData.data);
              }
         }
 
     });
+
+    socket.on('draw-circle-client',(data) =>{
+        console.log('drawCircle')
+        io.emit('circle-draw-from-server',data);
+    });
+
+    socket.on('draw-rect-client',(data) =>{
+        console.log('drawrect')
+        io.emit('rect-draw-from-server',data);
+    });
+
+    socket.on('draw-line-client',(data) =>{
+        console.log('drawline')
+        io.emit('line-draw-from-server',data);
+    });
+
+
+
 
 
     //user Leave
