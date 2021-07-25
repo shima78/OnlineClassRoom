@@ -284,3 +284,8 @@ input[type=range]:focus::-webkit-slider-runnable-track {
     content: '\e251';
 }
 
+::placeholder { /* Chrome, Firefox, Opera, Safari 10.1+ */
+    color: #a2b1c6;
+    opacity: 1; /* Firefox */
+}
+

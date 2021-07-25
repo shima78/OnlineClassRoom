@@ -51,6 +51,7 @@
         </div >
         <div id="question-input-action-wrapper">
           <div style="display: flex; flex-direction: row;justify-content: space-between; align-items: center">
+            <template v-if="role === 'owner'">
             <button id="question-hard-inc-low" class="round-button inc-button"   @click="decDifficulty" >
               <i class="material-icons">remove</i>
             </button>
@@ -62,8 +63,12 @@
             <button id="question-hard-inc-high" class="round-button inc-button"   @click="incDifficulty">
               <i class="material-icons">add</i>
             </button>
+            </template>
+            <input v-if="role === 'std'" type="text" class="input-bar" v-model="answerText" style="height: 30px;" placeholder="Question Number" >
           </div>
-          <button id="question-send-button" class="pink-button" @click="askQuestion"> Ask </button>
+          <button id="question-send-button" class="pink-button" @click="askQuestion" v-if="role === 'owner'"> Ask </button>
+          <button id="answer-send-button" class="pink-button" @click="answerQuestion" v-if="role === 'std'"> Answer </button>
+
         </div>
       </div>
       <div id="question-box" class="side-shadow-container">
@@ -112,16 +117,19 @@ export default {
       messagesArray: new Array(),
       questionDifficulty: {currentValue: 1, checkBoxBind: [1]},
       questionArray: new Array(),
-      currentAnswersArray: new Array()
+      currentAnswersArray: new Array(),
+      role: null,
+      answerText: null
     }
   },
   methods:{
     ...mapActions(['updateUsersData']),
+    ...mapGetters(['getRole']),
     init: function () {
 
 
       //login inti
-
+      this.role = this.$store.getters.getRole;
       this.chatButton = document.getElementById("chat-button");
       this.listButton = document.getElementById("list-button");
       this.questionButton = document.getElementById("question-button");
@@ -183,6 +191,20 @@ export default {
         }
         //sending Question!
         this.SERVER.emit('chatQuestions',questionSendData);
+      }
+    },
+    answerQuestion: function (){
+      if(this.questionEntryText =="") {
+        console.log('empty text')
+        return;
+      }else{
+        console.log('sending answer to server')
+        let answerData = {
+
+        }
+        //sending Question!
+        this.SERVER.emit('chatQuestions',answerData);
+
       }
     }
   },
@@ -317,6 +339,7 @@ export default {
   margin: 5px 0px 5px 0px;
 }
 #question-send-button{
+  width: 68px;
   height: 30px;
   border-radius: 18px;
   margin-right: 6px;
@@ -332,6 +355,31 @@ export default {
 #question-send-button:active{
   color: #ff7c74;
 }
+#answer-send-button{
+  width: 68px;
+  height: 30px;
+  border-radius: 18px;
+  margin-right: 6px;
+  padding-left: 8px;
+  padding-right: 8px;
+  border: none;
+  outline: none;
+  color: white;
+  font-family: "Poppins",sans-serif;
+  font-size: 14px;
+  font-weight: bold;
+
+}
+
+#answer-send-button:active{
+  color: #ff7c74;
+}
+#answer-send-button:active > label{
+  color: white;
+}
+
+
+
 .side-box-v-container::-webkit-scrollbar {
   display: none;
 }

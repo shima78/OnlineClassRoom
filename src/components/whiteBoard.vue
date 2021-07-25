@@ -66,6 +66,7 @@
     </div>
     <div id="wrapper" style="display: grid; grid-template-rows: 1fr; grid-template-columns: 1fr; height: calc(100% - 120px); box-sizing: border-box;">
       <div id="pdf-view-wrapper" style="z-index: 1; grid-row: 1; grid-column: 1;">
+
           <label v-if="noPdf.value" id="noPdfLabel">{{this.noPdf.text}}</label>
       </div>
       <canvas id="white-board-canvas" @mousedown="mouseDown" @mousemove="mouseMove" @mouseup="mouseup" @mouseleave="mouseleave" style="z-index: 2; grid-row: 1; grid-column: 1;">
@@ -80,6 +81,7 @@
 // eslint-disable-next-line no-unused-vars
 import VSwatches from 'vue-swatches'
 import {mapGetters} from "vuex";
+
 // eslint-disable-next-line no-unused-vars
 
 
@@ -115,7 +117,7 @@ export default {
       canvasHeightHold: null,
       pdfDiv: null,
       noPdf:{
-        value: 1,
+        value: 0,
         text: "Nothing is being shared,\nupload a PDF file first."
       },
       shapeClickMemory:{
@@ -135,6 +137,7 @@ export default {
     }
   },
   components:{
+
     VSwatches
 
   },
