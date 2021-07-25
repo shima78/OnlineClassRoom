@@ -12,12 +12,13 @@
             </button>
           </div>
 
-          <div id="export" v-if=" true" >
-            <button id="export-button" class="round-button" @click="exportData">
+          <div id="export-users" v-if=" true" >
+            <button id="export-users-button" class="round-button" @click="exportData">
               export users
             </button>
           </div>
-    </div>
+
+      </div>
 </template>
 
 <script>
@@ -57,17 +58,45 @@ export default {
     this.server.on("exportData", (data) => {
 
       // console.log(data)
-      let text = Papa.unparse(data['users']);
-
-      let filename = 'cats.csv';
+      let usersText = Papa.unparse(data['users']);
+      let usersFilename = 'users.csv';
       let element = document.createElement('a');
-      element.setAttribute('href', 'data:text/csv;charset=utf-8,' + encodeURIComponent(text));
-      element.setAttribute('download', filename);
+
+      element.setAttribute('href', 'data:text/csv;charset=utf-8,' + encodeURIComponent(usersText));
+      element.setAttribute('download', usersFilename);
 
       element.style.display = 'none';
       document.body.appendChild(element);
-
       element.click();
+
+      document.body.removeChild(element);
+
+
+
+      let questionsText = Papa.unparse(data['questions']);
+      let questionsFilename = 'questions.csv';
+      // let element = document.createElement('a');
+
+      element.setAttribute('href', 'data:text/csv;charset=utf-8,' + encodeURIComponent(questionsText));
+      element.setAttribute('download', questionsFilename);
+
+      element.style.display = 'none';
+      document.body.appendChild(element);
+      element.click();
+
+      document.body.removeChild(element);
+
+      let messagesText = Papa.unparse(data['messages']);
+      let messagesFilename = 'messages.csv';
+      // let element = document.createElement('a');
+
+      element.setAttribute('href', 'data:text/csv;charset=utf-8,' + encodeURIComponent(messagesText));
+      element.setAttribute('download', messagesFilename);
+
+      element.style.display = 'none';
+      document.body.appendChild(element);
+      element.click();
+
       document.body.removeChild(element);
 
     });

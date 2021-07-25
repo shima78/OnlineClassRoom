@@ -4,7 +4,7 @@ const  _ = require('lodash');
 const socketio = require('socket.io');
 const { formatMessage, getRoomMessages} = require('./utils/messages');
 const {userJoin,  getCurrentUser, userLeave, getRoomUsers} = require('./utils/users');
-const {formatQuestions,accept,formatAnswers,setScore,getQuestionAnswers,getRoomQuestions} = require('./utils/QA');
+const {formatQuestions,accept,formatAnswers,setScore,getQuestionAnswers,getExportData,getRoomQuestions} = require('./utils/QA');
 const botName = 'admin';
 const PORT  = 3000;
 let express = require("express");
@@ -114,7 +114,7 @@ io.on('connection',socket =>{
         console.log(user)
         if (user) {
             const exportData = {
-                questions: await getRoomQuestions(user.room),
+                questions: await getExportData(user.room),
                 users: await getRoomUsers(user.room),
                 messages: await getRoomMessages(user.room)
             };
