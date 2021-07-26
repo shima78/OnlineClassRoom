@@ -1,15 +1,15 @@
 <template>
   <div class="question-bubble">
-    <div class="question-label-wrapper">
+    <div class="question-label-wrapper" style="min-width: 100%;">
       <label class="question-label"> Question {{questionIndex}}</label>
-      <button class="round-button question-bubble-round-button">view answers</button>
+      <button class="round-button question-bubble-round-button" @click="getAnswers">view answers</button>
     </div>
 
-    <div class="question-body-wrapper">
+    <div class="question-body-wrapper" style="min-width: 100%; box-sizing: border-box;">
       <p class="question-p">
         {{questionText}}
       </p>
-      <div class="question-lower-bar">
+      <div class="question-lower-bar" style="width: 100%;">
         <label class="level-label">Level {{level}}</label>
         <div class="question-time-ans-box">
             5 A<br>
@@ -21,11 +21,15 @@
 </template>
 
 <script>
+import {mapActions, mapGetters} from "vuex";
+
 export default {
   name: "questionBubble",
   data(){
     return{
-
+        qid: null,
+      serve: null,
+      answerArray: new Array()
     }
   },
   props:{
@@ -33,6 +37,25 @@ export default {
     questionText: String,
     time: String,
     level: Number
+  },
+  mounted() {
+    this.qid = this.questionIndex;
+    this.server = this.$store.getters.getServer;
+    this.server.on("answersArray", (data) => {
+      this.updateCurrentAnswers(data);
+
+
+    });
+
+  },
+  methods:{
+    ...mapGetters(['getServer']),
+    ...mapActions(['updateCurrentAnswers']),
+    getAnswers: function (){
+
+      this.server.emit('getAnswers',this.qid)
+    }
+
   }
 }
 </script>
@@ -50,6 +73,7 @@ export default {
   flex-direction: column;
   align-items: start;
   justify-content: flex-start;
+  box-sizing: border-box;
   margin: 12px 14px 12px 14px;
 
 
@@ -135,6 +159,7 @@ export default {
 }
 .question-lower-bar{
   display: flex;
+  box-sizing: border-box;
   justify-content: space-between;
   align-items: center;
 }

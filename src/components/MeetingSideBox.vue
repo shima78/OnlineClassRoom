@@ -31,7 +31,7 @@
 
       <div id="attend-list-box" class="side-shadow-container">
         <vue-scroll>
-          <template v-for="userOBJ in userInfo[0]">
+          <template v-for="userOBJ in userInfo[0].filter(user => user.online == true)">
             <user-bubble :key="userOBJ.index" :username="userOBJ.username"
                          :join-time="userOBJ.joinTime" :status="userOBJ.online"></user-bubble>
           </template>
@@ -51,6 +51,7 @@
         </div >
         <div id="question-input-action-wrapper">
           <div style="display: flex; flex-direction: row;justify-content: space-between; align-items: center">
+            <template v-if="role === 'owner'">
             <button id="question-hard-inc-low" class="round-button inc-button"   @click="decDifficulty" >
               <i class="material-icons">remove</i>
             </button>
@@ -62,16 +63,20 @@
             <button id="question-hard-inc-high" class="round-button inc-button"   @click="incDifficulty">
               <i class="material-icons">add</i>
             </button>
+            </template>
+            <input v-if="role === 'std'" type="text" class="input-bar" v-model="qid" style="height: 30px;" placeholder="Question Number" >
           </div>
-          <button id="question-send-button" class="pink-button" @click="askQuestion">Ask</button>
+          <button id="question-send-button" class="pink-button" @click="askQuestion" v-if="role === 'owner'"> Ask </button>
+          <button id="answer-send-button" class="pink-button" @click="answerQuestion" v-if="role === 'std'"> Answer </button>
+
         </div>
       </div>
       <div id="question-box" class="side-shadow-container">
 
         <vue-scroll>
-          <template v-for="questionOBJ in this.questionArray[0]">
+          <template v-for="questionOBJ in this.questionArray">
             <question-bubble :key="questionOBJ.index" :question-index="questionOBJ.id" :question-text="questionOBJ.text"
-                             :time="questionOBJ.time" :level="questionOBJ.difficulty">
+                             :time="questionOBJ.time" :level="questionOBJ.difficulty" :answer-count="questionOBJ.answers.length">
             </question-bubble>
           </template>
         </vue-scroll>
@@ -80,8 +85,13 @@
 
       <div id="answer-box" class="side-shadow-container">
         <vue-scroll>
-          <template v-for="answerOBJ in this.currentAnswersArray">
-            <answer-bubble :key="answerOBJ.index" :username="answerOBJ.username" :answer-message="answerOBJ.text" :time="answerOBJ.time" :score="answerOBJ.score"></answer-bubble>
+          <template v-for="object in currentAnswers[0]">
+            <answer-bubble :key="object.index" :answer-message="object.text"
+                           :username="object.username" :qid="parseInt(object.qid)"
+                           :time="object.time" :score="object.score"
+                           :accept="object.isAccepted" :answer-i-d="object.id"
+
+            ></answer-bubble>
           </template>
         </vue-scroll>
       </div>
@@ -91,14 +101,12 @@
 </template>
 
 <script>
-
 import ChatBubble from "@/components/chatBubble";
 import UserBubble from "@/components/userbubble";
 import QuestionBubble from "@/components/questionBubble";
 import AnswerBubble from "@/components/answerBubble";
 // eslint-disable-next-line no-unused-vars
 import {mapActions, mapGetters} from "vuex";
-
 export default {
   name: "MeetingSideBox",
   // eslint-disable-next-line vue/no-unused-components
@@ -109,26 +117,34 @@ export default {
       listButton: null,
       questionButton: null,
       selected: 1,
-
       chatEntryText: null,
-      questionEntryText: null,
+      questionEntryText: "",
       messagesArray: new Array(),
       questionDifficulty: {currentValue: 1, checkBoxBind: [1]},
       questionArray: new Array(),
-      currentAnswersArray: new Array()
+      answerArray: null,
+      role: null,
+      qid: null,
+      username: null,
+      currentAnswerIndex: null
     }
-
   },
   methods:{
     ...mapActions(['updateUsersData']),
+    ...mapGetters(['getRole','getUsername',"getUserData"]),
     init: function () {
+    console.log('currentQuestion:',this.questionArray,this.$store.getters.getCurrentAnswerArrayIndex)
 
+      //login inti
+      this.answerArray =  this.questionArray.map(q => q.answers);
+      this.currentAnswerIndex = this.$store.getters.getCurrentAnswerArrayIndex;
+      this.username = this.$store.getters.getUsername;
+      this.role = this.$store.getters.getRole;
       this.chatButton = document.getElementById("chat-button");
       this.listButton = document.getElementById("list-button");
       this.questionButton = document.getElementById("question-button");
-      console.log("userArray:",)
-      console.log("userArrayComputed", this.userInfo);
 
+      //events
       this.SERVER.on("message", (message) => {
         let today = new Date();
         this.messagesArray.push({
@@ -138,73 +154,95 @@ export default {
           index: this.messagesArray.length
         });
 
-        this.SERVER.on("roomUsers", (userdata) => {
-
+      });
+      this.SERVER.on("roomUsers", (userdata) => {
           this.updateUsersData(userdata.users);
         });
 
-        //broadcast questions
-        this.SERVER.on('newQuestion', (newQuestion) => {
-          this.questionArray = newQuestion
-          console.log("new Questions",newQuestion, this.questionArray)
-          var parsed = JSON.parse(JSON.stringify(this.questionArray));
-          console.log("Q array0 : ", parsed)
-        });
+      //getting question!!
+      this.SERVER.on("newQuestion", (newQuestion) => {
+          this.questionArray = newQuestion;
 
       });
 
+      //get answers back
+      this.SERVER.on("answer",(answerData) =>{
+
+            this.questionArray = answerData;
+
+      })
+
+      //answerAccept
+      this.SERVER.on("newAccept",(acceptData)=>{
+        this.updateUsersData(acceptData)
+      })
+
+      //answerScore
+      this.SERVER.on("newScore",(scoreData)=>{
+        console.log('NewscoreData',scoreData)
+        this.updateUsersData(scoreData)
+      })
 
     },
     sendMessage : function (){
-
       if(this.chatEntryText =="") {
         return;
       }
       else{
         console.log(this.chatEntryText)
-
         this.SERVER.emit("chatMessage",this.chatEntryText);
       }
-
     },
-
     incDifficulty:  function (){
       if(this.questionDifficulty.currentValue < 5){
-
         this.questionDifficulty.currentValue += 1;
         this.questionDifficulty.checkBoxBind.push(this.questionDifficulty.currentValue);
         console.log("checkbox" + this.questionDifficulty.checkBoxBind)
-
-
       }
     },
     decDifficulty: function (){
       if(this.questionDifficulty.currentValue > 1){
-
         this.questionDifficulty.currentValue -= 1;
-
         this.questionDifficulty.checkBoxBind.pop();
         console.log("checkbox" + this.questionDifficulty.checkBoxBind)
-
       }
     },
     askQuestion: function (){
       //TODO
-      if(this.questionEntryText =="") {
+      if(this.questionEntryText == "") {
+        console.log('empty text')
         return;
       }
       else{
-        console.log("chat text", this.questionEntryText)
-        var q = {
-          text: this.questionEntryText,difficulty: this.questionDifficulty.currentValue}
-        this.SERVER.emit('chatQuestions',q);
+
+        let questionSendData = {
+          text: this.questionEntryText,
+          difficulty: this.questionDifficulty.currentValue
+        }
+        console.log('sending question to server',questionSendData)
+        //sending Question!
+        this.SERVER.emit('chatQuestions',questionSendData);
+      }
+    },
+    answerQuestion: function (){
+      if(this.questionEntryText == "") {
+        console.log('empty text')
+        return;
+      }else{
+        console.log('sending answer to server')
+        let answerData = {
+            username: this.username,
+            text: this.questionEntryText,
+            qid: this.qid
+        }
+        //sending Answers!
+        this.SERVER.emit('chatAnswer',answerData);
+
       }
     }
   },
   mounted() {
     this.init();
-    console.log("userInfo init",this.userInfo)
-
   },
   computed :{
     userInfo(){
@@ -212,7 +250,11 @@ export default {
     },
     SERVER(){
       return this.$store.getters.getServer;
+    },
+    currentAnswers(){
+      return this.$store.getters.getCurrentAnswerArray;
     }
+
   }
 }
 </script>
@@ -224,70 +266,47 @@ export default {
   max-height: 100%;
   max-width: 100%;
   padding: 0;
-
   display: grid;
   grid-template-columns: 1fr;
   grid-template-rows: 60px  1fr ;
-
-
-
 }
-
 .side-box-v-container{
   display: grid;
   margin: 20px 10px 10px;
   border-radius: 24px;
 }
-
-
-
-
-
-
-
 #question-button{
   grid-row: 1;
   grid-column: 3;
 }
-
 #list-button{
   grid-row: 1;
   grid-column: 2;
 }
-
 #chat-button{
   grid-row: 1;
   grid-column: 1;
 }
-
-
-
 #chatList{
   grid-template-columns: 100%;
   grid-template-rows: 1fr 60px;
 }
-
 #chatMessageEntry{
   display: flex;
   justify-content: space-between;
   align-items: center;
-
 }
-
 #chatMessageInput{
   border-radius: 24px;
   width: calc(100% - 60px);
   height: 40px;
 }
-
-
 .pink-button{
   background-color: #ff7c74;
   box-shadow:  3px 3px 6px #bec3c9,
   -3px -3px 6px #ffffff;
   margin-right: 8px;
   border-radius: 100px;
-
 }
 .pink-button:active{
   background-color: #e0e5ec;
@@ -298,55 +317,38 @@ export default {
   color: #ff7c74;
 }
 #send-button:active{
-
   background: #e0e5ec;
   box-shadow: inset 3px 3px 6px #bec3c9,
   inset -3px -3px 6px #ffffff;
-
 }
-
 #send-button > i{
   color: #e0e5ec;
 }
-
 #send-button:active > i{
   color: #ff7c74;
 }
 .input-bar{
-
-
   font-family: "Poppins",sans-serif;
   font-size: 14px;
   font-weight: 500;
   color: #7389a9;
-
   margin-right: 10px;
   margin-left: 10px;
-
   border-radius: 18px;
   padding-left: 12px;
   padding-right: 12px;
-
   border-width: 0px;
   background-color: #e0e5ec;
   box-shadow:  inset 4px 4px 8px #c5cad0,
   inset -4px -4px 8px #fbffff;
-
   -webkit-appearance: none;
   outline: none;
-
-
 }
-
-
-
 #question-list{
   grid-template-columns: auto;
   grid-template-rows: 190px 1fr 1fr;
 }
-
 #question-entry{
-
   display: flex;
   flex-direction: column;
   align-items: start;
@@ -357,7 +359,6 @@ export default {
   border-radius: 0px;
   box-shadow: none;
 }
-
 #question-entry-input{
   box-sizing: border-box;
   width: 100%;
@@ -365,13 +366,7 @@ export default {
   padding-bottom: 10px;
   margin: 0px;
   border-radius: 24px;
-
-
-
-
-
 }
-
 #question-input-action-wrapper{
   width: 100%;
   display: flex;
@@ -380,9 +375,25 @@ export default {
   align-items: center;
   margin: 5px 0px 5px 0px;
 }
-
 #question-send-button{
-
+  width: 68px;
+  height: 30px;
+  border-radius: 18px;
+  margin-right: 6px;
+  padding-left: 8px;
+  padding-right: 8px;
+  border: none;
+  outline: none;
+  color: white;
+  font-family: "Poppins",sans-serif;
+  font-size: 14px;
+  font-weight: bold;
+}
+#question-send-button:active{
+  color: #ff7c74;
+}
+#answer-send-button{
+  width: 68px;
   height: 30px;
   border-radius: 18px;
   margin-right: 6px;
@@ -395,54 +406,43 @@ export default {
   font-size: 14px;
   font-weight: bold;
 
-
 }
 
-#question-send-button:active{
+#answer-send-button:active{
   color: #ff7c74;
 }
-
+#answer-send-button:active > label{
+  color: white;
+}
 
 
 
 .side-box-v-container::-webkit-scrollbar {
   display: none;
 }
-
 .side-shadow-container::-webkit-scrollbar {
   display: none;
 }
 .side-box-v-container{
-
   overflow-y: scroll;
   -ms-overflow-style: none;  /* IE and Edge */
   scrollbar-width: none;  /* Firefox */
 }
-
 .side-shadow-container{
-
   overflow-y: scroll;
   display: flex;
   flex-direction: column-reverse;
-
   -ms-overflow-style: none;  /* IE and Edge */
   scrollbar-width: none;  /* Firefox */
-
-
   border-radius: 24px;
   background-color: #e0e5ec;
   margin-right: 10px;
   margin-left: 10px;
   margin-bottom: 10px;
   min-height: 20px;
-
   box-shadow:  inset 4px 4px 8px #c5cad0,
   inset -4px -4px 8px #fbffff;
-
-
 }
-
-
 /*.question-label{
   font-size: 16px;
   color: #e0e5ec;
@@ -456,16 +456,7 @@ export default {
   justify-content: center;
   align-items: center;
   background-color: #ff7c74;
-
-
   border-radius: 12px 12px 0px 0px;
   padding: 4px 8px 4px 8px;
-
-
 }*/
-
-
-
-
-
 </style>

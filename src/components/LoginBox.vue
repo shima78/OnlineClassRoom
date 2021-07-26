@@ -27,6 +27,7 @@ import router from "@/router";
 import {store} from "@/store/store";
 // eslint-disable-next-line no-unused-vars
 import { mapGetters, mapActions } from 'vuex';
+import jwt_decode from 'jwt-decode'
 
 
 
@@ -55,19 +56,22 @@ export default {
       this.SERVER = await io(this.address);
       const socket = this.SERVER;
       this.$store.commit('setServer', socket);
-
-      socket.emit('login', {name: this.username, pass: this.password, room: this.roomID})
+      console.log('login data: ',{name: this.username, pass: this.password, room: this.roomID})
+      socket.emit('login', {name: this.username, pass: this.password, room: parseInt(this.roomID)})
 
       await socket.on("loginRes", (data) => {
         console.log("login", data)
         if (data == 400) {
           console.log("wrong") //login data handling
         } else {
-          this.usid = data;
-          socket.emit('joinRoom', {username: this.username, room: this.roomID});
-          this.$store.commit('setRoomID', this.roomID);
-
-          this.$store.commit('setUsername', this.username);
+          let decoded = jwt_decode(data);
+          console.log(decoded)
+          socket.emit('joinRoom', ({username: decoded.usr.username,room:this.roomID , role: decoded.usr.userRole,userID: decoded.usr.userID}));
+          console.log('login data',{username: decoded.usr.username,room:this.roomID , role: decoded.usr.userRole,userID: decoded.usr.userID})
+          this.$store.commit('setRoomID', decoded.usr.id);
+          this.$store.commit('setRole',decoded.usr.userRole)
+          this.$store.commit('setUsername', decoded.usr.username);
+          this.$store.commit('setUserID',decoded.usr.userID);
 
 
 

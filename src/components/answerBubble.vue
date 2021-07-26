@@ -1,9 +1,49 @@
 <template>
   <div class="answer-bubble">
+    <div class="top-wrapper">
     <div class="username-label-wrapper">
       <label class="username-label">
         {{username}}
       </label>
+    </div>
+    <div id="accept-reject-wrapper">
+      <template  v-if="role === 'owner'">
+        <button class="accept-reject-button" @click="rejectAnswer" >
+          <i class="material-icons">cancel</i>
+          <label>
+            Reject
+          </label>
+        </button>
+        <button class="accept-reject-button" @click="acceptAnswer">
+          <label>
+            Accept
+          </label>
+          <i class="material-icons">check_circle</i>
+        </button>
+      </template>
+
+      <template v-if="role === 'std'">
+        <button class="accept-reject-button" :disabled="true" v-if="accept === false">
+          <label>
+            Rejected
+          </label>
+          <i class="material-icons">cancel</i>
+        </button>
+        <button class="accept-reject-button" :disabled="true" v-if="accept === true">
+          <label>
+            Accepted
+          </label>
+          <i class="material-icons">check_circle</i>
+        </button>
+        <button class="accept-reject-button" :disabled="true" v-if="accept === null">
+          <label>
+            Not checked
+          </label>
+          <i class="material-icons">remove_circle</i>
+        </button>
+      </template>
+
+    </div>
     </div>
     <p class="answer-p">
       {{answerMessage}}
@@ -12,12 +52,15 @@
       <label class="time-label">
         {{time}}
       </label>
-      <div style="display: flex; justify-content: space-around; align-items: center; box-sizing: border-box;">
-        <button id="thickness-inc-low" class="round-button inc-button">
+      <label v-if="role === 'std'">
+        <input type="number" class="score-input-bar" style="text-align: center" v-model="score" :disabled="true">
+      </label>
+      <div style="display: flex; justify-content: space-around; align-items: center; box-sizing: border-box;" v-if="role === 'owner'">
+        <button id="score-inc-low" class="round-button inc-button" @click="decScore">
           <i class="material-icons">remove</i>
         </button>
-        <input type="text" class="score-input-bar">
-        <button id="thickness-inc-high" class="round-button inc-button">
+        <input type="text" class="score-input-bar" v-model="inputScore" style="text-align: center">
+        <button id="score-inc-high" class="round-button inc-button" @click="incScore" >
           <i class="material-icons">add</i>
         </button>
       </div>
@@ -29,10 +72,16 @@
 </template>
 
 <script>
+import {mapGetters} from "vuex";
+
 export default {
   name: "answerBubble",
   data(){
     return{
+      inputScore: 0,
+      role: null,
+      server: null,
+      outPutScore: 0
 
     }
   },
@@ -40,7 +89,54 @@ export default {
     username: String,
     answerMessage: String,
     time: String,
-    score: Number,
+    accept: Boolean,
+    answerID: Number,
+    qid: Number,
+    score: Number
+  },
+  methods:{
+    incScore: function (){
+      if(this.inputScore < 20){
+        this.inputScore += 0.5;
+      }
+    },
+    decScore: function (){
+      if(this.inputScore > 0){
+        this.inputScore -= 0.5;
+      }
+    },
+    ...mapGetters(['getServer',"getRole"]),
+
+    init: function (){
+
+      this.server = this.getServer();
+      this.role =  this.getRole();
+
+      this.outPutScore = this.score;
+      this.inputScore = this.score;
+      console.log('outPutscore',this.outPutScore)
+
+    },
+
+    acceptAnswer: function () {
+      this.server.emit('accept',{qid: this.qid,ansid: this.answerID,isAcc: true})
+      this.server.emit('getAnswers',this.qid);
+      this.scoreQuestion();
+    },
+    rejectAnswer: function (){
+      this.server.emit('accept',{qid: this.qid,ansid: this.answerID,isAcc: false})
+      this.scoreQuestion()
+
+    },
+    scoreQuestion: function (){
+      this.server.emit('setScore',{qid: this.qid,ansid: this.answerID,score: parseInt(this.inputScore)})
+      console.log('settingScore')
+    }
+
+  },
+  mounted() {
+
+    this.init();
 
   }
 }
@@ -72,7 +168,7 @@ export default {
   margin-left: 4px;
   margin-right: 1px;
 
-  overflow-wrap: normal;
+   overflow-wrap: anywhere;
 }
 .time-label{
   font-size: 10px;
@@ -83,6 +179,7 @@ export default {
   font-size: 14px;
   color: #e0e5ec;
   font-weight: bold;
+  text-overflow: ellipsis;
 }
 .username-label-wrapper{
   display: flex;
@@ -91,6 +188,7 @@ export default {
   background-image: linear-gradient(145deg, #ff7c74, #d86861);;
   border-radius: 12px;
   padding: 4px 8px 4px 8px;
+  max-width: 60%;
 }
 
 .score-input-bar{
@@ -119,10 +217,87 @@ export default {
 
 
 }
-#thickness-inc-high, #thickness-inc-low{
+#score-inc-high, #score-inc-low{
   width: 16px;
   height: 16px;
 }
+
+#accept-reject-wrapper{
+  min-height: 24px;
+  max-height: 24px;
+  width: 140px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+
+
+  box-shadow:   2px 2px 4px #bec3c9,
+   -2px -2px 4px #ffffff;
+  border-radius: 24px;
+}
+
+.accept-reject-button {
+  height: 22px;
+  width: 100%;
+  margin: 2px;
+  background-color: #e0e5ec;
+  outline: none;
+  border: none;
+  border-radius: 24px;
+
+  display: flex;
+  flex-direction: row;
+  justify-content: space-evenly;
+  align-items: center;
+}
+
+.accept-reject-button > label{
+  font-size: 12px;
+  font-weight: 400;
+  margin-left: 3px;
+  margin-right: 3px;
+}
+
+.accept-reject-button > i{
+  font-size: 16px;
+  color: #7389a9;
+}
+
+.accept-reject-button:active{
+  box-shadow:  inset 1px 1px 2px #bec3c9,
+  inset -1px -1px 2px #ffffff;
+
+}
+
+.accept-reject-button:active > i{
+  color: #ff7c74;
+
+}
+
+
+.accept-reject-button:disabled >i{
+  color: #ff7c74;
+}
+.accept-reject-button:disabled:active{
+  box-shadow: none;
+}
+.accept-reject-button:disabled:active >i{
+  box-shadow: none;
+}
+
+.accept-reject-button:active > i{
+  color: #ff7c74;
+
+}
+
+
+.top-wrapper{
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  width: 100%;
+}
+
 
 
 </style>
