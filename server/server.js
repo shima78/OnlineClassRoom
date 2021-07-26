@@ -128,18 +128,17 @@ io.on('connection',socket =>{
 
 
 
-    //TODO fix drawingLEAKS
-   // canvas
+
     socket.on('draw-from-client', async function (data) {
-        const user = await getCurrentUser(socket.id);
+        const user = getCurrentUser(socket.id)
         //console.log("client draw data",data)
-        io.emit('draw-from-server', data);
+        io.to(user.room).emit('draw-from-server', data);
     });
 
     socket.on('clear-the-canvas', async function (data) {
-        const user = await getCurrentUser(socket.id);
+        const user = getCurrentUser(socket.id)
         drawingHistory = [];
-        io.emit('clear-the-canvas-from-server', data);
+        io.to(user.room).emit('clear-the-canvas-from-server', data);
     });
 
     socket.on('maintain-history', function (data) {
@@ -163,7 +162,7 @@ io.on('connection',socket =>{
     });
         //TODO fix undo
     socket.on('undo-canvas', async function (data) {
-        const user = await getCurrentUser(socket.id);
+        const user = getCurrentUser(socket.id)
         if (_.some(drawingHistory, {
             "id": socket.id
         })) {
@@ -176,25 +175,25 @@ io.on('connection',socket =>{
             var undoData = _.last(drawingHistoryItem[0].history)
 
             drawingHistoryItem[0].history.splice(-1);
-            io.emit('clear-the-canvas-from-server', {});
+            io.to(user.room).emit('clear-the-canvas-from-server', {});
 
             drawingHistory.forEach(function (item) {
                 item.history.forEach(function (historyItem) {
                     if(historyItem.data.shapeProperties != false){
                         if(historyItem.data.shapeProperties =='rect'){
-                            io.emit('rect-draw-from-server',historyItem.data)
+                            io.to(user.room).emit('rect-draw-from-server',historyItem.data)
                         }
 
                         else if(historyItem.data.shapeProperties =='circle'){
-                            io.emit('circle-draw-from-server',historyItem.data)
+                            io.to(user.room).emit('circle-draw-from-server',historyItem.data)
                         }
 
                         else if(historyItem.data.shapeProperties == 'line'){
-                            io.emit('line-draw-from-server',historyItem.data)
+                            io.to(user.room).emit('line-draw-from-server',historyItem.data)
                         }
                     }
                     else{
-                        io.emit('draw-from-server', historyItem.data);
+                        io.to(user.room).emit('draw-from-server', historyItem.data);
 
                     }
 
@@ -206,7 +205,7 @@ io.on('connection',socket =>{
                 if(!undoData.data.shapeProperties) {
                     undoData.data.strokeStyle = 'transparent';
                     undoData.data.lineWidth = data.lineWidth;
-                    io.emit('draw-from-server', undoData.data);
+                    io.to(user.room).emit('draw-from-server', undoData.data);
                 }
              }
         }
@@ -214,18 +213,21 @@ io.on('connection',socket =>{
     });
 
     socket.on('draw-circle-client',(data) =>{
+        const user = getCurrentUser(socket.id)
         console.log('drawCircle')
-        io.emit('circle-draw-from-server',data);
+        io.to(user.room).emit('circle-draw-from-server',data);
     });
 
     socket.on('draw-rect-client',(data) =>{
+        const user = getCurrentUser(socket.id)
         console.log('drawrect')
-        io.emit('rect-draw-from-server',data);
+        io.to(user.room).emit('rect-draw-from-server',data);
     });
 
     socket.on('draw-line-client',(data) =>{
+        const user = getCurrentUser(socket.id)
         console.log('drawline')
-        io.emit('line-draw-from-server',data);
+        io.to(user.room).emit('line-draw-from-server',data);
     });
 
 

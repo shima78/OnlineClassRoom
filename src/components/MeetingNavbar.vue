@@ -7,7 +7,7 @@
           </div>
 
           <div id="exit-export">
-            <button id="exit-button" class="round-button">
+            <button id="exit-button" class="round-button" @click="exit">
               <i class="material-icons">power_settings_new</i>
             </button>
 

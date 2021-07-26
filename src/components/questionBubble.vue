@@ -44,7 +44,7 @@ export default {
     this.server = this.$store.getters.getServer;
     this.server.on("answersArray", (data) => {
       this.updateCurrentAnswers(data);
-      console.log('getting asnwerArray',data)
+
 
     });
 
@@ -53,7 +53,7 @@ export default {
     ...mapGetters(['getServer']),
     ...mapActions(['updateCurrentAnswers']),
     getAnswers: function (){
-      console.log('sending get ans')
+
       this.server.emit('getAnswers',this.qid)
     }
 

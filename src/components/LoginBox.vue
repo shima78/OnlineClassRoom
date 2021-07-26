@@ -56,8 +56,8 @@ export default {
       this.SERVER = await io(this.address);
       const socket = this.SERVER;
       this.$store.commit('setServer', socket);
-
-      socket.emit('login', {name: this.username, pass: this.password, room: this.roomID})
+      console.log('login data: ',{name: this.username, pass: this.password, room: this.roomID})
+      socket.emit('login', {name: this.username, pass: this.password, room: parseInt(this.roomID)})
 
       await socket.on("loginRes", (data) => {
         console.log("login", data)

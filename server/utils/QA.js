@@ -47,7 +47,7 @@ function getquestionById(qid){
 
 function getQuestionAnswers(qid){
     const index = allQuestions.findIndex(q=> q.id === parseInt(qid));
-    console.log('index',index)
+
     return allQuestions[index]['answers']
 }
 
@@ -77,7 +77,7 @@ function formatAnswers(username, text, qid){
     };
 
     const index = getquestionById(parseInt(qid))
-    console.log('input',{username, text, qid},'index:',index,'allQ',allQuestions)
+
     allQuestions[index].answers.push(ans);
 
     const room = allQuestions[index].room;
@@ -89,7 +89,7 @@ function formatAnswers(username, text, qid){
 
 function setScore(qid,ansid,score){
     const indexq = getquestionById(qid)
-    const indexAns = allQuestions[indexq].answers.find( a=> a.id === ansid);
+    const indexAns = allQuestions[indexq].answers.findIndex( a=> a.id === ansid);
     allQuestions[indexq].answers[indexAns].score = score
     var room = allQuestions[indexq].room
     return allQuestions.filter(q => q.room === room);
@@ -97,7 +97,7 @@ function setScore(qid,ansid,score){
 }
 function accept(qid,ansid,isAcc){
     const indexq = getquestionById(qid)
-    const indexAns = allQuestions[indexq].answers.find( a=> a.id === ansid);
+    const indexAns = allQuestions[indexq].answers.findIndex( a=> a.id === ansid);
     allQuestions[indexq].answers[indexAns].isAccepted = isAcc
     const room = allQuestions[indexq].room;
     return allQuestions.filter(q => q.room === room);

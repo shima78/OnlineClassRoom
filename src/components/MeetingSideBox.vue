@@ -76,7 +76,7 @@
         <vue-scroll>
           <template v-for="questionOBJ in this.questionArray">
             <question-bubble :key="questionOBJ.index" :question-index="questionOBJ.id" :question-text="questionOBJ.text"
-                             :time="questionOBJ.time" :level="questionOBJ.difficulty">
+                             :time="questionOBJ.time" :level="questionOBJ.difficulty" :answer-count="questionOBJ.answers.length">
             </question-bubble>
           </template>
         </vue-scroll>
@@ -86,7 +86,12 @@
       <div id="answer-box" class="side-shadow-container">
         <vue-scroll>
           <template v-for="object in currentAnswers[0]">
-            <answer-bubble :key="object.index" :answer-message="object.text" :username="object.username" :time="object.time"></answer-bubble>
+            <answer-bubble :key="object.index" :answer-message="object.text"
+                           :username="object.username" :qid="parseInt(object.qid)"
+                           :time="object.time" :score="object.score"
+                           :accept="object.isAccepted" :answer-i-d="object.id"
+
+            ></answer-bubble>
           </template>
         </vue-scroll>
       </div>
@@ -162,9 +167,20 @@ export default {
 
       //get answers back
       this.SERVER.on("answer",(answerData) =>{
-        console.log('answerRESP:',answerData)
+
             this.questionArray = answerData;
 
+      })
+
+      //answerAccept
+      this.SERVER.on("newAccept",(acceptData)=>{
+        this.updateUsersData(acceptData)
+      })
+
+      //answerScore
+      this.SERVER.on("newScore",(scoreData)=>{
+        console.log('NewscoreData',scoreData)
+        this.updateUsersData(scoreData)
       })
 
     },
