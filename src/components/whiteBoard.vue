@@ -2,18 +2,26 @@
   <div id="white-board-wrapper">
     <div id="white-board-control">
       <div id="upload-ctrl-group" class="ctrl-group">
+
           <button class="round-button pdf-button" style="grid-column: 1; grid-row: 1;" @click="pdfDiv.style.zIndex = 3; canvas.style.zIndex = 1;">
             <label>PDF</label>
           </button>
+
           <button class="round-button pdf-button" style="grid-column: 2; grid-row: 1;">
-            <i class="material-icons">file_upload</i>
+            <i class="material-icons">
+              <file-upload/>file_upload
+            </i>
+
           </button>
+
         <button class="round-button" style="grid-column: 1; grid-row: 2;" @click="canvas.style.zIndex = 3; pdfDiv.style.zIndex = 1;">
           <i class="material-icons">cast_for_education</i>
         </button>
+
         <button class="round-button" style="grid-row: 2; grid-column: 2;">
           <i class="material-icons">insert_photo</i>
         </button>
+
       </div>
 
       <div id="shape-ctrl-group" class="ctrl-group">
@@ -73,6 +81,7 @@
           <label v-if="noPdf.value" id="noPdfLabel">{{this.noPdf.text}}</label>
       </div>
       <canvas id="white-board-canvas" @mousedown="mouseDown" @mousemove="mouseMove" @mouseup="mouseup" @mouseleave="mouseleave" style="z-index: 2; grid-row: 1; grid-column: 1;">
+
       </canvas>
     </div>
 
@@ -84,8 +93,8 @@
 // eslint-disable-next-line no-unused-vars
 import VSwatches from 'vue-swatches'
 // eslint-disable-next-line no-unused-vars
-
-
+import FileUpload from "./FileUpload";
+import {mapGetters} from "vuex";
 
 
 export default {
@@ -93,6 +102,7 @@ export default {
   data(){
 
     return {
+      server:this.$store.getters.getServer,
       color: 'rgb(61,85,110)',
       colorHold: 'rgb(61,85,110)',
       thickness : 4,
@@ -127,10 +137,12 @@ export default {
     }
   },
   components:{
+    FileUpload,
     VSwatches
 
   },
   methods:{
+    ...mapGetters(['getServer']),
     addClick: function (x,y,dragging){
 
       if(x) {
@@ -161,6 +173,7 @@ export default {
       }
     },
 
+
     init: function (){
       this.pdfDiv = document.getElementById('pdf-view-wrapper');
       this.canvas = document.getElementById('white-board-canvas');
@@ -174,6 +187,12 @@ export default {
       this.canvas.height = Math.floor(this.canvas.height*scale);
       this.canvasContext.scale(scale,scale);
 
+
+      this.server.on("bgURL",async (URL)=>{
+        // document.getElementById("image").src = URL
+        console.log(URL)
+        document.getElementById("white-board-canvas").style.backgroundImage = "url("+URL+")";
+      })
 
 
 

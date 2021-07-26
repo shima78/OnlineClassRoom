@@ -1,248 +1,216 @@
 // const path = require('path');
 const http = require('http');
-const  _ = require('lodash');
 const socketio = require('socket.io');
-const { formatMessage, getRoomMessages} = require('./utils/messages');
+const formatMessage = require('./utils/messages');
 const {userJoin,  getCurrentUser, userLeave, getRoomUsers} = require('./utils/users');
-const {formatQuestions,accept,formatAnswers,setScore,getQuestionAnswers,getExportData,getRoomQuestions} = require('./utils/QA');
+const {formatQuestions,accept,formatAnswers,setScore} = require('./utils/QA');
 const botName = 'admin';
 const PORT  = 3000;
 let express = require("express");
 const jwt = require('jsonwebtoken');
 const userDB = require('./db/user');
-// const _ = require("core-js");
+const fs = require("fs");
+const baseUrl = "http://localhost:3000/uploads/";
 //let multer  = require('multer');
 // eslint-disable-next-line no-unused-vars
 // const cors = require('cors');
 const app = express();
+
 //we need a server that we can access
 const server = http.createServer(app);
-let drawingHistory = [];
-let broadcaster;
+global.__basedir = __dirname
+
 const io = socketio(server,	{cors: {origin: "*"}});
 //Run when a client connects
+
+
+const fileFilter = (req, file, cb) => {
+    const allowedTypes = ["image/jpeg", "image/jpg", "image/png"];
+    if (!allowedTypes.includes(file.mimetype)) {
+        const error = new Error("Incorrect file");
+        error.code = "INCORRECT_FILETYPE";
+        return cb(error, false)
+    }
+    cb(null, true);
+}
+
+app.get("/files", (req, res) => {
+    const directoryPath = __basedir + "/uploads/";
+
+    fs.readdir(directoryPath, function (err, files) {
+        if (err) {
+            res.status(500).send({
+                message: "Unable to scan files!",
+            });
+        }
+
+        let fileInfos = [];
+
+        files.forEach((file) => {
+            fileInfos.push({
+                name: file,
+                url: baseUrl + file,
+            });
+        });
+
+        res.status(200).send(fileInfos);
+    });
+});
+
+app.get("/files/:name", (req, res) => {
+    const fileName = req.params.name;
+    const directoryPath = __basedir + "/uploads/";
+
+    res.download(directoryPath + fileName, fileName, (err) => {
+        if (err) {
+            res.status(500).send({
+                message: "Could not download the file. " + err,
+            });
+        }
+    });
+});
+
+
+
+
+
+//upload
+const upload = multer({
+    dest: './uploads',
+    fileFilter,
+    limits: {
+        fileSize: 5000000
+    }
+});
+app.post('/upload', upload.single('file'), (req, res) => {
+    res.json({ file: req.file });
+});
+
+app.use((err, req, res, next) => {
+    if (err.code === "INCORRECT_FILETYPE") {
+        res.status(422).json({ error: 'Only images are allowed' });
+        return;
+    }
+    if (err.code === "LIMIT_FILE_SIZE") {
+        res.status(422).json({ error: 'Allow file size is 500KB' });
+        return;
+    }
+});
+
+
+
 io.on('connection',socket =>{
 
     console.log("connected");
 
     socket.on('login', async ({name, pass, room}) => {
-        const result = await userDB.getUser(name,pass, room)
-        console.log(result)
+      const result = await userDB.getUser(name,pass, room)
+      console.log(result)
 
-        if(result.length){
-            const usr = result[0]
-            console.log(usr)
-            jwt.sign({usr}, 'secretkey', { expiresIn: '2h' }, (err, token) => {
-                socket.emit('loginRes',token)
-            });
+      if(result.length){
+          const usr = result[0]
+          console.log(usr)
+          jwt.sign({usr}, 'secretkey', { expiresIn: '2h' }, (err, token) => {
+              socket.emit('loginRes',token)
+          });
 
-        }
-        else{
-            socket.emit('loginRes',400)
-        }
+      }
+      else{
+          socket.emit('loginRes',400)
+           }
 
     })
 
-    socket.on('joinRoom', async ({username,room, role,userID })  => {
-        const user = await userJoin(socket.id, username, room, role, userID);
-        //room is room ID
-        if (room !== undefined){
-                        // console.log(user);
-            socket.join(user.room);
-        }
+    socket.on('joinRoom', ({ username, room ,isCreator})  => {  //room is room ID
+        const user = userJoin(socket.id, username, room, isCreator, socket.id);
+        console.log(user);
+        socket.join(user.room);
 
         // Welcome current user   change event name
-        socket.emit('message', await formatMessage(botName, 'Welcome to ChatCord!',user.room));
+        socket.emit('message', formatMessage(botName, 'Welcome to ChatCord!'));
 
         // Broadcast when a user connects
         socket.broadcast.to(user.room)
             .emit('message',
-                await formatMessage(botName, `${user.username} has joined the chat`,user.room)
+                formatMessage(botName, `${user.username} has joined the chat`)
             );
 
         io.to(user.room).emit('roomUsers',{
             room : user.room,
-            users :await getRoomUsers(user.room)
+            users : getRoomUsers(user.room)
         })
         console.log('running join room')
+
+
     });
 
     //listen for chatMessage
-    socket.on('chatMessage',async  msg => {
+    socket.on('chatMessage',msg => {
         const user = getCurrentUser(socket.id)
-        io.to(user.room).emit('message',await formatMessage(user.username,msg, user.room));
+        //show this message to everone
+        io.to(user.room).emit('message',formatMessage(user.username,msg));
     });
+
+
 
     //listen for Questions
-    socket.on('chatQuestions',async ({text , difficulty}) => {
-        const user = await getCurrentUser(socket.id);
-        console.log('current user', user)
-        var arr  = await formatQuestions(user.username, text, user.room, difficulty)
-        console.log(arr)
-        io.to(user.room).emit('newQuestion',arr);
+    socket.on('chatQuestions',({username, text, room}) => {
+        const user = getCurrentUser(socket.id);
+        //show this naswer to everone
+        io.to(user.room).emit('newQuestion',formatQuestions(username, text, room));
     })
 
     //listen for answers
-    socket.on('chatAnswer',async ({username, text, qid})=> {
-        const user = await getCurrentUser(socket.id);
-        io.to(user.room).emit('answer',await formatAnswers(username, text, qid));
+    socket.on('chatAnswer',({username, text, qid})=> {
+        const user = getCurrentUser(socket.id);
+        //show this naswer to everone
+        io.to(user.room).emit('answer',formatAnswers(username, text, qid));
     })
-    //listen for answers
-    socket.on('getAnswers',async (qid)=> {
-        const user = await getCurrentUser(socket.id);
-        io.to(user.room).emit('answer',);
-    })
-    //set score for answer
-    socket.on('setScore',async ({qid,ansid,score})=> {
-        const user = await getCurrentUser(socket.id);
-        //show this answer to everyone
+
+     //set score for answer
+    socket.on('setScore',({qid,ansid,score})=> {
+        const user = getCurrentUser(socket.id);
+        //show this answer to everone
         //instead of new score we can use answer!
-        io.to(user.room).emit('newScore', await setScore(qid,ansid,score));
+        io.to(user.room).emit('newScore', setScore(qid,ansid,score));
     })
-    //listen for answers
-    //AMIR: WHAT IS accept??
-    socket.on('accept', async ({qid,ansid,isAcc})=> {
-        const user = await getCurrentUser(socket.id);
-        //show this answer to everyone
-        io.to(user.room).emit('newAccept',await accept(qid,ansid,isAcc));
+        //listen for answers
+        //AMIR: WHAT IS accept??
+    socket.on('accept',({qid,ansid,isAcc})=> {
+    const user = getCurrentUser(socket.id);
+    //show this answer to everone
+    io.to(user.room).emit('newAccept', accept(qid,ansid,isAcc));
     })
 
+    //white board
+    socket.on('drawing', function(obj) {
+        socket.emit('drawing', obj);
+        socket.broadcast.emit('drawing', obj);
+      });
 
+      socket.on('clearAll', function(obj) {
+        socket.emit('clearAll', obj);
+        socket.broadcast.emit('clearAll', obj);
+      });
+    socket.on('upload',(filename)=>{
+        const user = getCurrentUser(socket.id);
+        io.to(user.room).emit('bgURL',"http://localhost:3000/uploads/"+filename);
+    })
 
-    socket.on('export', async () =>{
-        const user = await getCurrentUser(socket.id)
+    socket.on('disconnect', () =>{
+        const user = userLeave(socket.id);
         console.log(user)
+        //to emit all the clinets in general we can use io.emit
         if (user) {
-            const exportData = {
-                questions: await getExportData(user.room),
-                users: await getRoomUsers(user.room),
-                messages: await getRoomMessages(user.room)
-            };
-            socket.emit('exportData',exportData);
+            io.to(user.room).emit('message',formatMessage(botName,`${user.username} has 
+            left the chat`));
         }
+        io.to(user.room).emit('roomUsers',{
+            room : user.room,
+            users : getRoomUsers(user.room)
+        })
     });
 
-
-
-   // canvas
-    socket.on('draw-from-client', function (data) {
-        io.emit('draw-from-server', data);
-    });
-
-    socket.on('clear-the-canvas', function (data) {
-        drawingHistory = [];
-        io.emit('clear-the-canvas-from-server', data);
-    });
-
-    socket.on('maintain-history', function (data) {
-        if (!_.some(drawingHistory, {
-            "id": socket.id
-        })) {
-            drawingHistory.push({
-                id: socket.id,
-                history: []
-            });
-        }
-        const drawingHistoryItem = _.find(drawingHistory, function (item) {
-            return item.id === socket.id;
-        });
-        drawingHistoryItem.history.push({
-            data: data
-        });
-    });
-
-    socket.on('undo-canvas', function (data) {
-        if (_.some(drawingHistory, {
-            "id": socket.id
-        })) {
-
-            var drawingHistoryItem = _.filter(drawingHistory, function (item) {
-                return item.id === socket.id;
-            });
-
-
-            const undoData = _.last(drawingHistoryItem[0].history);
-
-            drawingHistoryItem[0].history.splice(-1);
-            io.emit('clear-the-canvas-from-server', {});
-
-            drawingHistory.forEach(function (item) {
-                item.history.forEach(function (historyItem) {
-                    io.emit('draw-from-server', historyItem.data);
-                });
-            });
-            //test
-            // if (undoData) {
-            //     undoData.data.strokeStyle = "#c3c3c3";
-            //     undoData.data.lineWidth = 8;
-            //     io.emit('draw-from-server', undoData.data);
-            // }
-        }
-
-    });
-
-    //share image
-    io.sockets.on('connection',function(socket){
-        socket.on('user image',function(image){
-            io.sockets.emit('addimage', 'PhotoOne' , image);
-        });
-    });
-
-    // //webRTC
-    // socket.on("broadcaster", () => {
-    //     broadcaster = socket.id;
-    //     socket.broadcast.emit("broadcaster");
-    // });
-    // socket.on("watcher", () => {
-    //     socket.to(broadcaster).emit("watcher", socket.id);
-    // });
-    //
-    // //events
-    // socket.on("offer", (id, message) => {
-    //     socket.to(id).emit("offer", socket.id, message);
-    // });
-    // socket.on("answer", (id, message) => {
-    //     socket.to(id).emit("answer", socket.id, message);
-    // });
-    // socket.on("candidate", (id, message) => {
-    //     socket.to(id).emit("candidate", socket.id, message);
-    // });
-
-
-
-
-
-    //user Leave
-    socket.on('logOut', async () => {
-        await userLeave(socket.id);
-        const currUser = await getCurrentUser(socket.id)
-        // console.log("this user left :", user)
-        //to emit all the clinets in general we can use io.emit
-        if (currUser) {
-            io.to(currUser.room).emit('message',await formatMessage(botName,`${currUser.username} has 
-            left the chat`, currUser.room));
-
-            io.to(currUser.room).emit('roomUsers', {
-                room: currUser.room,
-                users: await getRoomUsers(currUser.room)
-            })
-        }
-    })
-    socket.on('disconnect', async () =>{
-        await userLeave(socket.id);
-        const currUser = await getCurrentUser(socket.id)
-        // console.log("this user left :", user)
-        //to emit all the clinets in general we can use io.emit
-        if (currUser) {
-            io.to(currUser.room).emit('message',await formatMessage(botName,`${currUser.username} has 
-            left the chat`, currUser.room));
-
-            io.to(currUser.room).emit('roomUsers', {
-                room: currUser.room,
-                users: await getRoomUsers(currUser.room)
-            })
-        }
-    });
 
 })
 
