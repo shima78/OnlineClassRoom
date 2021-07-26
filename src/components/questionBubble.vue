@@ -2,7 +2,7 @@
   <div class="question-bubble">
     <div class="question-label-wrapper" style="min-width: 100%;">
       <label class="question-label"> Question {{questionIndex}}</label>
-      <button class="round-button question-bubble-round-button">view answers</button>
+      <button class="round-button question-bubble-round-button" @click="getAnswers">view answers</button>
     </div>
 
     <div class="question-body-wrapper" style="min-width: 100%; box-sizing: border-box;">
@@ -21,11 +21,15 @@
 </template>
 
 <script>
+import {mapActions, mapGetters} from "vuex";
+
 export default {
   name: "questionBubble",
   data(){
     return{
-        qid: null
+        qid: null,
+      serve: null,
+      answerArray: new Array()
     }
   },
   props:{
@@ -33,10 +37,26 @@ export default {
     questionText: String,
     time: String,
     answerCount: Number,
-    level: Number,
+    level: Number
   },
   mounted() {
     this.qid = this.questionIndex;
+    this.server = this.$store.getters.getServer;
+    this.server.on("answersArray", (data) => {
+      this.updateCurrentAnswers(data);
+      console.log('getting asnwerArray',data)
+
+    });
+
+  },
+  methods:{
+    ...mapGetters(['getServer']),
+    ...mapActions(['updateCurrentAnswers']),
+    getAnswers: function (){
+      console.log('sending get ans')
+      this.server.emit('getAnswers',this.qid)
+    }
+
   }
 }
 </script>

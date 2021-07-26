@@ -11,7 +11,9 @@ export const store = new Vuex.Store({
         username: null,
         roomId: null,
         role: null,
-        userID :null
+        userID :null,
+        currentAnswerArray:[],
+
     },mutations: {
         setQuestion(state,payload){
             state.questionArray = new Array(payload);
@@ -37,10 +39,10 @@ export const store = new Vuex.Store({
         pushQuestion(state,payload){
             state.questionArray.push(payload);
         },
-        pushAnswer(state,payload,questionID){
-            let askedQuestion = state.questionArray.find(element => element['qid'] === questionID);
-            askedQuestion.answers.push(payload);
+        setCurrentAnswerArray(state,payload){
+            state.currentAnswerArray = new Array(payload);
         }
+
     },
     getters:{
         getUserData: state => {
@@ -64,9 +66,12 @@ export const store = new Vuex.Store({
         getQuestionArray : state => {
             return state.questionArray;
         },
-        //getAnswerAllArray : state => {
-         //   return state.
-        //}
+        getAnswerAllArray : state => {
+            return state.currentAnswerArray;
+        },
+        getCurrentAnswerArray : state => {
+            return state.currentAnswerArray;
+        }
 
 
     },
@@ -85,9 +90,10 @@ export const store = new Vuex.Store({
             commit('pushQuestion',payload);
         },
         // eslint-disable-next-line no-unused-vars
-        addAnswer({commit},payload,qid){
-            commit('a')
-        }
+        updateCurrentAnswers({commit},payload){
+            commit('setCurrentAnswerArray',payload);
+        },
+
 
     }
 

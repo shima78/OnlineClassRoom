@@ -1,7 +1,7 @@
 const moment = require('moment')
 var idAuto = 0;
 var idAutoAns = 0
-var allQuestions  = [] 
+var allQuestions  = []
 function formatQuestions(username, text, room, difficulty){
     idAuto = idAuto +1
     var q = {
@@ -37,16 +37,17 @@ function getExportData(room){
     return data
 
 }
- 
+
 function getquestionById(qid){
-    const index = allQuestions.find(q=> q.id === qid);
-    return index
+    const index = allQuestions.findIndex(q=> q.id === parseInt(qid));
+
+    return index;
 }
 
 
 function getQuestionAnswers(qid){
-    const index = allQuestions.find(q=> q.id === qid);
-
+    const index = allQuestions.findIndex(q=> q.id === parseInt(qid));
+    console.log('index',index)
     return allQuestions[index]['answers']
 }
 
@@ -64,18 +65,21 @@ function changDifficulty(qid,d){
 
 // const answers = [];
 function formatAnswers(username, text, qid){
-    idAuto += 1
+    idAutoAns += 1
     const ans = {
-        username,
-        text,
+        username: username,
+        text: text,
         time: moment().format('h:mm a'),
         score:null,
         isAccepted : null,
         id : idAutoAns,
-        qid
+        qid: qid
     };
-    const index = getquestionById(qid)
+
+    const index = getquestionById(parseInt(qid))
+    console.log('input',{username, text, qid},'index:',index,'allQ',allQuestions)
     allQuestions[index].answers.push(ans);
+
     const room = allQuestions[index].room;
     return allQuestions.filter(q => q.room === room);
 }

@@ -74,6 +74,8 @@ io.on('connection',socket =>{
     });
 
     //listen for Questions
+    //gets new question
+    //returns array of answerQuestion
     socket.on('chatQuestions',async ({text , difficulty}) => {
         const user = await getCurrentUser(socket.id);
         //console.log('current user', user)
@@ -83,14 +85,16 @@ io.on('connection',socket =>{
     })
 
     //listen for answers
+    //gets std answer
     socket.on('chatAnswer',async ({username, text, qid})=> {
         const user = await getCurrentUser(socket.id);
         io.to(user.room).emit('answer',await formatAnswers(username, text, qid));
     })
     //listen for answers
+    //gets all answer
     socket.on('getAnswers',async (qid)=> {
         const user = await getCurrentUser(socket.id);
-        io.to(user.room).emit('answer',);
+        io.to(user.room).emit('answersArray',await getQuestionAnswers(qid));
     })
     //set score for answer
     socket.on('setScore',async ({qid,ansid,score})=> {

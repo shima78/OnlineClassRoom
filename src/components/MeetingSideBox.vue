@@ -64,7 +64,7 @@
               <i class="material-icons">add</i>
             </button>
             </template>
-            <input v-if="role === 'std'" type="text" class="input-bar" v-model="answerText" style="height: 30px;" placeholder="Question Number" >
+            <input v-if="role === 'std'" type="text" class="input-bar" v-model="qid" style="height: 30px;" placeholder="Question Number" >
           </div>
           <button id="question-send-button" class="pink-button" @click="askQuestion" v-if="role === 'owner'"> Ask </button>
           <button id="answer-send-button" class="pink-button" @click="answerQuestion" v-if="role === 'std'"> Answer </button>
@@ -85,8 +85,8 @@
 
       <div id="answer-box" class="side-shadow-container">
         <vue-scroll>
-          <template v-for="answerOBJ in this.currentAnswersArray">
-            <answer-bubble :key="answerOBJ.index" :username="answerOBJ.username" :answer-message="answerOBJ.text" :time="answerOBJ.time" :score="answerOBJ.score"></answer-bubble>
+          <template v-for="object in currentAnswers[0]">
+            <answer-bubble :key="object.index" :answer-message="object.text" :username="object.username" :time="object.time"></answer-bubble>
           </template>
         </vue-scroll>
       </div>
@@ -113,26 +113,33 @@ export default {
       questionButton: null,
       selected: 1,
       chatEntryText: null,
-      questionEntryText: null,
+      questionEntryText: "",
       messagesArray: new Array(),
       questionDifficulty: {currentValue: 1, checkBoxBind: [1]},
       questionArray: new Array(),
-      currentAnswersArray: new Array(),
+      answerArray: null,
       role: null,
-      answerText: null
+      qid: null,
+      username: null,
+      currentAnswerIndex: null
     }
   },
   methods:{
     ...mapActions(['updateUsersData']),
-    ...mapGetters(['getRole']),
+    ...mapGetters(['getRole','getUsername',"getUserData"]),
     init: function () {
-
+    console.log('currentQuestion:',this.questionArray,this.$store.getters.getCurrentAnswerArrayIndex)
 
       //login inti
+      this.answerArray =  this.questionArray.map(q => q.answers);
+      this.currentAnswerIndex = this.$store.getters.getCurrentAnswerArrayIndex;
+      this.username = this.$store.getters.getUsername;
       this.role = this.$store.getters.getRole;
       this.chatButton = document.getElementById("chat-button");
       this.listButton = document.getElementById("list-button");
       this.questionButton = document.getElementById("question-button");
+
+      //events
       this.SERVER.on("message", (message) => {
         let today = new Date();
         this.messagesArray.push({
@@ -150,8 +157,15 @@ export default {
       //getting question!!
       this.SERVER.on("newQuestion", (newQuestion) => {
           this.questionArray = newQuestion;
-          console.log(this.questionArray)
+
       });
+
+      //get answers back
+      this.SERVER.on("answer",(answerData) =>{
+        console.log('answerRESP:',answerData)
+            this.questionArray = answerData;
+
+      })
 
     },
     sendMessage : function (){
@@ -179,31 +193,34 @@ export default {
     },
     askQuestion: function (){
       //TODO
-      if(this.questionEntryText =="") {
+      if(this.questionEntryText == "") {
         console.log('empty text')
         return;
       }
       else{
-        console.log('sending questio to server')
+
         let questionSendData = {
           text: this.questionEntryText,
           difficulty: this.questionDifficulty.currentValue
         }
+        console.log('sending question to server',questionSendData)
         //sending Question!
         this.SERVER.emit('chatQuestions',questionSendData);
       }
     },
     answerQuestion: function (){
-      if(this.questionEntryText =="") {
+      if(this.questionEntryText == "") {
         console.log('empty text')
         return;
       }else{
         console.log('sending answer to server')
         let answerData = {
-
+            username: this.username,
+            text: this.questionEntryText,
+            qid: this.qid
         }
-        //sending Question!
-        this.SERVER.emit('chatQuestions',answerData);
+        //sending Answers!
+        this.SERVER.emit('chatAnswer',answerData);
 
       }
     }
@@ -217,7 +234,11 @@ export default {
     },
     SERVER(){
       return this.$store.getters.getServer;
+    },
+    currentAnswers(){
+      return this.$store.getters.getCurrentAnswerArray;
     }
+
   }
 }
 </script>
