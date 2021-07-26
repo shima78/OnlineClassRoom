@@ -8,13 +8,13 @@
     </div>
     <div id="accept-reject-wrapper">
       <template  v-if="role === 'owner'">
-        <button class="accept-reject-button" @click="rejectAnswer" >
+        <button class="accept-reject-button" @click="rejectAnswer" id="accept-button">
           <i class="material-icons">cancel</i>
           <label>
             Reject
           </label>
         </button>
-        <button class="accept-reject-button" @click="acceptAnswer">
+        <button class="accept-reject-button" @click="acceptAnswer" id="reject-button">
           <label>
             Accept
           </label>
@@ -122,15 +122,32 @@ export default {
       this.server.emit('accept',{qid: this.qid,ansid: this.answerID,isAcc: true})
       this.server.emit('getAnswers',this.qid);
       this.scoreQuestion();
+
+      let selectButton = document.getElementById('accept-button');
+      selectButton.childNodes[0].style.color = '#7389a9';
+      selectButton.childNodes[1].style.color = '#7389a9';
+
+      let unSelectButton = document.getElementById('reject-button');
+      unSelectButton.childNodes[0].style.color = '#ff7c74';
+      unSelectButton.childNodes[1].style.color = '#ff7c74';
     },
     rejectAnswer: function (){
       this.server.emit('accept',{qid: this.qid,ansid: this.answerID,isAcc: false})
       this.scoreQuestion()
 
+      let selectButton = document.getElementById('reject-button');
+      selectButton.childNodes[0].style.color = '#7389a9';
+      selectButton.childNodes[1].style.color = '#7389a9';
+
+      let unSelectButton = document.getElementById('accept-button');
+      unSelectButton.childNodes[0].style.color = '#ff7c74';
+      unSelectButton.childNodes[1].style.color = '#ff7c74';
+
+
     },
     scoreQuestion: function (){
       this.server.emit('setScore',{qid: this.qid,ansid: this.answerID,score: parseInt(this.inputScore)})
-      console.log('settingScore')
+
     }
 
   },

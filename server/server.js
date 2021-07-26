@@ -10,6 +10,9 @@ const PORT  = 3000;
 let express = require("express");
 const jwt = require('jsonwebtoken');
 const userDB = require('./db/user');
+const fs = require("fs");
+const baseUrl = "http://localhost:"+ PORT +"/uploads/";
+let multer  = require('multer');
 // const _ = require("core-js");
 //let multer  = require('multer');
 // eslint-disable-next-line no-unused-vars
@@ -17,9 +20,82 @@ const userDB = require('./db/user');
 const app = express();
 //we need a server that we can access
 const server = http.createServer(app);
+global.__basedir = __dirname
+
 let drawingHistory = [];
 
 const io = socketio(server,	{cors: {origin: "*"}});
+
+const fileFilter = (req, file, cb) => {
+    const allowedTypes = ["image/jpeg", "image/jpg", "image/png"];
+    if (!allowedTypes.includes(file.mimetype)) {
+        const error = new Error("Incorrect file");
+        error.code = "INCORRECT_FILETYPE";
+        return cb(error, false)
+    }
+    cb(null, true);
+}
+
+app.get("/files", (req, res) => {
+    const directoryPath = __basedir + "/uploads/";
+
+    fs.readdir(directoryPath, function (err, files) {
+        if (err) {
+            res.status(500).send({
+                message: "Unable to scan files!",
+            });
+        }
+
+        let fileInfos = [];
+
+        files.forEach((file) => {
+            fileInfos.push({
+                name: file,
+                url: baseUrl + file,
+            });
+        });
+
+        res.status(200).send(fileInfos);
+    });
+});
+
+app.get("/uploads/:name", (req, res) => {
+    const fileName = req.params.name;
+    const directoryPath = __basedir + "/uploads/";
+
+    res.download(directoryPath + fileName, fileName, (err) => {
+        if (err) {
+            res.status(500).send({
+                message: "Could not download the file. " + err,
+            });
+        }
+    });
+});
+
+
+
+//upload
+const upload = multer({
+    dest: './uploads',
+    fileFilter,
+    limits: {
+        fileSize: 5000000
+    }
+});
+app.post('/upload', upload.single('file'), (req, res) => {
+    res.json({ file: req.file });
+});
+
+app.use((err, req, res, next) => {
+    if (err.code === "INCORRECT_FILETYPE") {
+        res.status(422).json({ error: 'Only images are allowed' });
+        return;
+    }
+    if (err.code === "LIMIT_FILE_SIZE") {
+        res.status(422).json({ error: 'Allow file size is 500KB' });
+        return;
+    }
+});
 //Run when a client connects
 io.on('connection',socket =>{
 
@@ -229,6 +305,12 @@ io.on('connection',socket =>{
         console.log('drawline')
         io.to(user.room).emit('line-draw-from-server',data);
     });
+
+    //upload
+    socket.on('upload',(filename)=>{
+        const user = getCurrentUser(socket.id);
+        io.to(user.room).emit('bgURL',"http://localhost:"+PORT+"/uploads/"+filename);
+    })
 
 
 
