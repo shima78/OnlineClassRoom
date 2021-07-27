@@ -72,7 +72,18 @@
     </div>
     <div id="wrapper" style="display: grid; grid-template-rows: 1fr; grid-template-columns: 1fr; height: calc(100% - 120px); box-sizing: border-box;">
       <div id="pdf-view-wrapper" style="z-index: 1; grid-row: 1; grid-column: 1;">
-        <vue-pdf-app style="height: 100%; width: 100%; border-radius: 14px; margin-top: 2px;"
+        <div id="pdf-nav-bar">
+          <button class="round-button">
+            <i class="material-icons">chevron_left</i>
+          </button>
+          <div id="pdf-nav-bar-mid">
+            <label>sharing file:              at page:</label>
+          </div>
+          <button class="round-button">
+            <i class="material-icons">chevron_right</i>
+          </button>
+        </div>
+        <vue-pdf-app style="height: calc(100%); width: 100%; border-radius: 0px 0px 14px 14px;"
                      :pdf="PDF.pdfSource" :title="PDF.title" theme="light"
                       :page-number="PDF.pageNumber"
         ></vue-pdf-app>
@@ -736,6 +747,7 @@ export default {
 #pdf-view-wrapper{
   background-color: #e0e5ec;
   display: flex;
+  flex-direction: column;
   align-items: center;
   justify-content: center;
   box-sizing: border-box;
@@ -753,6 +765,32 @@ export default {
   --pdf-toolbar-color: #7389a9;
   --pdf-button-hover-font-color: #ff7c74;
   --pdf-app-background-color:#bcc6d6;
+}
+
+#pdf-nav-bar{
+
+  padding: 4px 10px;
+  box-sizing: border-box;
+  width: 100%;
+  max-height: 36px;
+  min-height: 36px;
+  background-color: #e0e5ec;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-direction: row;
+  border-radius: 14px 14px 0px 0px;
+  box-shadow:  3px 3px 6px #bec3c9,
+   -3px -3px 6px #ffffff;
+
+}
+#pdf-nav-bar > button{
+  height: 25px;
+  width: 40px;
+}
+
+#pdf-nav-bar-mid > label{
+  font-style: italic;
 }
 
 
