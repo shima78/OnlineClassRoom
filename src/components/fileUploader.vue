@@ -68,7 +68,12 @@ export default {
           console.log(JSON.parse(str))
           const filename = this.message.data.file.filename
           console.log(filename)
-          this.server.emit('fileUpload',filename)
+          if(this.picture){
+            this.server.emit('fileUpload',filename)
+          }
+          else if(this.pdf){
+            this.server.emit('uploadPDF',filename)
+          }
         }
         catch(err){
           console.log('tried',err.response.data.error)
@@ -87,7 +92,7 @@ export default {
 }
 </script>
 
-
+<style src="../style/neuMeet.css"></style>
 <style>
 .file{
   max-height: 40px;

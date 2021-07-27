@@ -310,8 +310,16 @@ io.on('connection',socket =>{
     //upload
     socket.on('fileUpload',(filename)=>{
         const user = getCurrentUser(socket.id);
-        console.log('emmiting bg url')
+
         io.to(user.room).emit('bgURL',"http://localhost:"+PORT+"/uploads/"+filename);
+    })
+
+
+    //pdfUpload
+    socket.on('uploadPDF',(filename)=>{
+        const user = getCurrentUser(socket.id);
+        io.to(user.room).emit('PDF',"http://localhost:"+PORT+"/uploads/"+filename)
+
     })
 
 

@@ -72,9 +72,12 @@
     </div>
     <div id="wrapper" style="display: grid; grid-template-rows: 1fr; grid-template-columns: 1fr; height: calc(100% - 120px); box-sizing: border-box;">
       <div id="pdf-view-wrapper" style="z-index: 1; grid-row: 1; grid-column: 1;">
-
-          <label v-if="noPdf.value" id="noPdfLabel">{{this.noPdf.text}}</label>
+        <vue-pdf-app style="height: 100%; width: 100%; border-radius: 14px; margin-top: 2px;"
+                     :pdf="PDF.pdfSource" :title="PDF.title" theme="light"
+                      :page-number="PDF.pageNumber"
+        ></vue-pdf-app>
       </div>
+      <!-- <input :required="test ? true : false"> -->
       <canvas  id="white-board-canvas" @mousedown="mouseDown" @mousemove="mouseMove" @mouseup="mouseup" @mouseleave="mouseleave" style="z-index: 2; grid-row: 1; grid-column: 1;">
       </canvas>
 
@@ -89,7 +92,8 @@
 import VSwatches from 'vue-swatches'
 import fileUploader from "@/components/fileUploader";
 import {mapGetters} from "vuex";
-
+import VuePdfApp from "vue-pdf-app";
+import "vue-pdf-app/dist/icons/main.css";
 
 // eslint-disable-next-line no-unused-vars
 
@@ -147,7 +151,15 @@ export default {
       },
 
       //ui variable
-      clientWide: null
+      clientWide: null,
+      role: null,
+
+      PDF:{
+        pdfSource: null,
+        title: null,
+        pageNumber: null
+      },
+
 
 
 
@@ -156,11 +168,12 @@ export default {
   },
   components:{
     fileUploader,
-    VSwatches
+    VSwatches,
+    VuePdfApp
 
   },
   methods:{
-    ...mapGetters(['getServer']),
+    ...mapGetters(['getServer','getRole']),
     addClick: function (x,y,dragging){
 
       if(x) {
@@ -202,7 +215,12 @@ export default {
     },
 
     init: function (){
+
+      this.server = this.$store.getters.getServer;
+      this.role = this.$store.getters.getRole;
       this.clientWide =1;
+
+      //vueswatch size based
       let canvasControl = document.getElementById('white-board-control');
       if(canvasControl.offsetWidth < 900){
         this.clientWide = 0;
@@ -210,7 +228,30 @@ export default {
       else{
         this.clientWide = 1;
       }
-      this.server = this.$store.getters.getServer;
+        console.log("role",this.role)
+
+      //role based button disable
+      if(this.role == "std"){
+
+        let whiteBoardInputControls = canvasControl.getElementsByTagName('input');
+        let whiteBoardButtonControls = canvasControl.getElementsByTagName('button');
+        console.log(whiteBoardInputControls,whiteBoardInputControls)
+        for(let i = 0;i < whiteBoardButtonControls.length; i++){
+          if(i==1 || i==0){
+            continue;
+          }
+          whiteBoardButtonControls[i].disabled = true;
+        }
+
+        for(let j = 0;j < whiteBoardInputControls.length; j++){
+          whiteBoardInputControls[j].disabled = true;
+        }
+
+        console.log('whiteBoardInputControls',whiteBoardInputControls);
+        console.log('whiteBoardButtonControls',whiteBoardButtonControls);
+      }
+
+
 
       this.pdfDiv = document.getElementById('pdf-view-wrapper');
       this.canvas = document.getElementById('white-board-canvas');
@@ -262,49 +303,80 @@ export default {
       })
 
 
+      this.server.on("PDF",async (PDF)=>{
+        console.log('pdf:',PDF);
+        this.PDF.pdfSource=PDF;
+
+      })
+
+
 
 
 
     },
     mouseDown: function (event){
-      // eslint-disable-next-line no-unused-vars
-      let MouseX = event.pageX - this.offset.left;
-      // eslint-disable-next-line no-unused-vars
-      let MouseY = event.pageY - this.offset.top;
-
-      this.shapeClickMemory = {
-        initialPoint: {
-          x: this.shapeClickMemory.finalPoint.x,
-          y: this.shapeClickMemory.finalPoint.y
-        },
-        finalPoint: {
-          x: event.pageX - this.offset.left,
-          y: event.pageY - this.offset.top
-        }
+      if(this.role == 'std'){
+        return;
       }
+      else {
+
+        // eslint-disable-next-line no-unused-vars
+        let MouseX = event.pageX - this.offset.left;
+        // eslint-disable-next-line no-unused-vars
+        let MouseY = event.pageY - this.offset.top;
+
+        this.shapeClickMemory = {
+          initialPoint: {
+            x: this.shapeClickMemory.finalPoint.x,
+            y: this.shapeClickMemory.finalPoint.y
+          },
+          finalPoint: {
+            x: event.pageX - this.offset.left,
+            y: event.pageY - this.offset.top
+          }
+        }
 
 
-      this.paint = true;
-      this.addClick(event.pageX - this.offset.left,event.pageY - this.offset.top);
-      this.drawOnCanvas();
+        this.paint = true;
+        this.addClick(event.pageX - this.offset.left, event.pageY - this.offset.top);
+        this.drawOnCanvas();
+      }
 
     },
     mouseMove: function (event){
-      if(this.paint){
-        this.addClick(event.pageX - this.offset.left,event.pageY - this.offset.top,true);
-        this.drawOnCanvas();
+      if(this.role == 'std'){
+        return;
       }
+      else{
+        if(this.paint){
+          this.addClick(event.pageX - this.offset.left,event.pageY - this.offset.top,true);
+          this.drawOnCanvas();
+        }
+      }
+
     },
     // eslint-disable-next-line no-unused-vars
     mouseup: function (event){
-      this.paint = false;
-      this.ClearDrawCoordinates();
+      if(this.role == 'std'){
+        return;
+      }
+      else{
+        this.paint = false;
+        this.ClearDrawCoordinates();
+      }
+
 
     },
 
     mouseleave: function (){
-      this.paint = false;
-      this.ClearDrawCoordinates();
+      if(this.role == 'std'){
+        return;
+      }
+      else{
+        this.paint = false;
+        this.ClearDrawCoordinates();
+      }
+
 
     },
 
@@ -356,8 +428,13 @@ export default {
       this.color = this.colorHold;
     },
     clearAll: function (){
-      this.server.emit('clear-the-canvas', {});
-      this.canvasContext.clearRect(0, 0, 2*this.canvas.width, 2*this.canvas.height);
+      if(this.role == 'std'){
+        return;
+      }else{
+        this.server.emit('clear-the-canvas', {});
+        this.canvasContext.clearRect(0, 0, 2*this.canvas.width, 2*this.canvas.height);
+      }
+
     },
     setCanvasOffset: function (){
       let positionRect = this.canvas.getBoundingClientRect();
@@ -529,6 +606,7 @@ export default {
     this.setCanvasOffset();
     window.onresize = this.resizeLog;
 
+
   }
 }
 </script>
@@ -671,11 +749,10 @@ export default {
   inset -3px -3px 6px #ffffff;
 }
 
-#noPdfLabel{
-  font-size: 24px;
-
-
-  font-style: italic;
+.pdf-app.light {
+  --pdf-toolbar-color: #7389a9;
+  --pdf-button-hover-font-color: #ff7c74;
+  --pdf-app-background-color:#bcc6d6;
 }
 
 
