@@ -20,19 +20,19 @@ let multer  = require('multer');
 const app = express();
 //we need a server that we can access
 const server = http.createServer(app);
-global.__basedir = __dirname
+global.__basedir = __dirname;
 
 let drawingHistory = [];
 
 const io = socketio(server,	{cors: {origin: "*"}});
 
 const fileFilter = (req, file, cb) => {
-    const allowedTypes = ["image/jpeg", "image/jpg", "image/png"];
+    /*const allowedTypes = ["image/jpeg", "image/jpg", "image/png"];
     if (!allowedTypes.includes(file.mimetype)) {
         const error = new Error("Incorrect file");
         error.code = "INCORRECT_FILETYPE";
         return cb(error, false)
-    }
+    }*/
     cb(null, true);
 }
 
@@ -60,6 +60,7 @@ app.get("/files", (req, res) => {
 });
 
 app.get("/uploads/:name", (req, res) => {
+    console.log('uploade poked')
     const fileName = req.params.name;
     const directoryPath = __basedir + "/uploads/";
 
@@ -79,7 +80,7 @@ const upload = multer({
     dest: './uploads',
     fileFilter,
     limits: {
-        fileSize: 5000000
+        fileSize: 500000000
     }
 });
 app.post('/upload', upload.single('file'), (req, res) => {
@@ -307,8 +308,9 @@ io.on('connection',socket =>{
     });
 
     //upload
-    socket.on('upload',(filename)=>{
+    socket.on('fileUpload',(filename)=>{
         const user = getCurrentUser(socket.id);
+        console.log('emmiting bg url')
         io.to(user.room).emit('bgURL',"http://localhost:"+PORT+"/uploads/"+filename);
     })
 

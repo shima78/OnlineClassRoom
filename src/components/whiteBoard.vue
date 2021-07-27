@@ -9,7 +9,10 @@
         <button class="round-button" style="grid-column: 1; grid-row: 2;" @click="canvas.style.zIndex = 3; pdfDiv.style.zIndex = 1;">
           <i class="material-icons">cast_for_education</i>
         </button>
-        <input class="round-button custom-file-input" id="photo-upload-button" style="grid-row: 2; grid-column: 2;" type="file" @change="uploadImage">
+        <fileUploader></fileUploader>
+        <!---<input class="round-button custom-file-input" id="photo-upload-button" style="grid-row: 2; grid-column: 2;" type="file" @change="onSelect"> -->
+
+
       </div>
 
       <div id="shape-ctrl-group" class="ctrl-group">
@@ -80,7 +83,9 @@
 <script>
 // eslint-disable-next-line no-unused-vars
 import VSwatches from 'vue-swatches'
+import fileUploader from "@/components/fileUploader";
 import {mapGetters} from "vuex";
+
 
 // eslint-disable-next-line no-unused-vars
 
@@ -129,6 +134,12 @@ export default {
           x: null,
           y: null
         }
+      },
+
+      //imageData
+      imageData:{
+        file: null,
+        message: null
       }
 
 
@@ -137,7 +148,7 @@ export default {
     }
   },
   components:{
-
+    fileUploader,
     VSwatches
 
   },
@@ -219,6 +230,15 @@ export default {
       this.server.on("rect-draw-from-server",({shapeClickMemory, strokeStyle, lineWidth}) =>{
 
         this.drawRectClientL({shapeClickMemory,strokeStyle,lineWidth});
+      })
+
+
+      //imageUpload
+      //TODO fix IMAGE FRONT
+      this.server.on("bgURL",async (URL)=>{
+        // document.getElementById("image").src = URL
+        console.log('bgrul:::',URL)
+        document.getElementById("white-board-canvas").style.backgroundImage = "url("+URL+")";
       })
 
 
@@ -470,18 +490,8 @@ export default {
     undo: function (){
       this.server.emit('undo-canvas', {});
     },
-    uploadImage: function (){
-      console.log("imageUp running");
-      const reader = new FileReader();
-      reader.onload = function() {
-        const base64 = this.result.replace(/.*base64,/, '');
-        this.server().emit('image', base64);
-      };
-      reader.readAsDataURL(this.files[0]);
 
 
-
-    }
 
 
 

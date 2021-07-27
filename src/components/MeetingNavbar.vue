@@ -3,6 +3,7 @@
           <div id="media-control">
             <input type="checkbox" class="toggle-button check-box" id="speaker">
             <input type="checkbox" class="toggle-button check-box" id="microphone">
+            <input type="checkbox" class="toggle-button check-box" id="video">
             <input type="range" id="volume-slider" class="slider">
           </div>
 
@@ -147,6 +148,13 @@ export default {
 }
 #microphone{
   margin-right: 10px;
+}
+#video{
+  margin-right: 10px;
+}
+
+#video:after{
+  content: '\e04b';
 }
 
 #volume-slider{

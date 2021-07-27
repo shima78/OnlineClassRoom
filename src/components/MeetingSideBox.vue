@@ -90,7 +90,6 @@
                            :username="object.username" :qid="parseInt(object.qid)"
                            :time="object.time" :score="object.score"
                            :accept="object.isAccepted" :answer-i-d="object.id"
-
             ></answer-bubble>
           </template>
         </vue-scroll>
@@ -189,7 +188,7 @@ export default {
         return;
       }
       else{
-        console.log(this.chatEntryText)
+        this.chatEntryText="";
         this.SERVER.emit("chatMessage",this.chatEntryText);
       }
     },
