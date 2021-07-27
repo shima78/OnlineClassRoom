@@ -1,13 +1,18 @@
 <template>
   <div class="file">
-    <form @submit.prevent="" enctype="multipart/form-data">
-      <div class="fields">
-        <label>
-        </label><br/>
-        <input class="round-button pdf-button custom-file-input photo-upload-button"
+    <form @submit.prevent="" enctype="multipart/form-data" style="max-height: 40px; max-height: 40px">
+      <div class="fields" style="max-height: 40px; max-width: 40px">
+        <input v-if="pdf"
+            class="round-button custom-file-input pdf-upload-button"
             type="file"
             ref="file"
             @change="onSelect"
+        />
+        <input  v-if="picture"
+            class="round-button custom-file-input picture-upload-button"
+               type="file"
+               ref="file"
+               @change="onSelect"
         />
       </div>
 
@@ -29,6 +34,11 @@ export default {
       server:this.$store.getters.getServer,
     }
   },
+  props:{
+    pdf: Boolean,
+    picture: Boolean
+  }
+  ,
   methods: {
     ...mapGetters(['getServer']),
 
@@ -52,7 +62,7 @@ export default {
 
           await axios.post('http://localhost:3000/upload',formData).then(response => (this.message = response));
           // this.message = 'Uploaded!!'
-          console.log("UNDEFINED!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!",this.message)
+          //console.log("UNDEFINED!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!",this.message)
           console.log("response",JSON.stringify(this.message))
           const str = JSON.stringify(this.message)
           console.log(JSON.parse(str))
@@ -66,11 +76,13 @@ export default {
           this.message = err.response.data.error
         }
       }
-    },
+    }
 
 
 
-  }
+
+  },
+
 
 }
 </script>
@@ -127,11 +139,15 @@ export default {
 
 .custom-file-input:active::before {
   color: #ff7c74;
-
 }
 
-.photo-upload-button::before{
+
+.picture-upload-button::before{
   content: '\e251';
 }
 
+
+.pdf-upload-button::before{
+  content: '\e2c6';
+}
 </style>

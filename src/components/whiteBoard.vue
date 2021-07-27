@@ -5,11 +5,12 @@
           <button class="round-button pdf-button" style="grid-column: 1; grid-row: 1;" @click="pdfDiv.style.zIndex = 3; canvas.style.zIndex = 1;">
             <label>PDF</label>
           </button>
-          <input class="round-button pdf-button custom-file-input" id="pdf-upload-button" style="grid-column: 2; grid-row: 1;" type="file">
-        <button class="round-button" style="grid-column: 1; grid-row: 2;" @click="canvas.style.zIndex = 3; pdfDiv.style.zIndex = 1;">
+        <fileUploader  :pdf="true" :picture="false" style="grid-column: 2; grid-row: 1;"></fileUploader>
+          <!--<input class="round-button pdf-button custom-file-input" id="pdf-upload-button" style="grid-column: 2; grid-row: 1;" type="file">-->
+        <button class="round-button" style="grid-column: 1; grid-row: 2;" @click="canvas.style.zIndex = 3; pdfDiv.style.zIndex = 1; ">
           <i class="material-icons">cast_for_education</i>
         </button>
-        <fileUploader></fileUploader>
+        <fileUploader  :pdf="false" :picture="true" style="grid-row: 2; grid-column: 2;"></fileUploader>
         <!---<input class="round-button custom-file-input" id="photo-upload-button" style="grid-row: 2; grid-column: 2;" type="file" @change="onSelect"> -->
 
 
@@ -238,7 +239,12 @@ export default {
       this.server.on("bgURL",async (URL)=>{
         // document.getElementById("image").src = URL
         console.log('bgrul:::',URL)
-        document.getElementById("white-board-canvas").style.backgroundImage = "url("+URL+")";
+        this.canvas.style.backgroundImage = "url("+URL+")";
+        this.canvas.style.backgroundPosition = "center";
+        this.canvas.style.backgroundRepeat = "no-repeat";
+        this.canvas.style.backgroundAttachment = "fixed";
+        this.canvas.style.backgroundSize = "contain";
+
       })
 
 
