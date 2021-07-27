@@ -7,7 +7,7 @@
           </button>
         <fileUploader  :pdf="true" :picture="false" style="grid-column: 2; grid-row: 1;"></fileUploader>
           <!--<input class="round-button pdf-button custom-file-input" id="pdf-upload-button" style="grid-column: 2; grid-row: 1;" type="file">-->
-        <button class="round-button" style="grid-column: 1; grid-row: 2;" @click="canvas.style.zIndex = 3; pdfDiv.style.zIndex = 1; ">
+        <button class="round-button" style="grid-column: 1; grid-row: 2;" @click="canvas.style.zIndex = 3; pdfDiv.style.zIndex = 1; canvas.style.backgroundImage = null">
           <i class="material-icons">cast_for_education</i>
         </button>
         <fileUploader  :pdf="false" :picture="true" style="grid-row: 2; grid-column: 2;"></fileUploader>
@@ -63,7 +63,9 @@
       </div>
 
       <div id="color-wheel-ctrl-group" class="ctrl-group">
-        <v-swatches v-model="color" popover-x="left" inline background-color="#e0e5ec" row-length="8" :swatch-style=this.swatchStyle>
+        <v-swatches v-if="clientWide" v-model="color" popover-x="left" inline  background-color="#e0e5ec" row-length="4" :swatch-style=this.swatchStyle :close-on-select="true">
+        </v-swatches>
+        <v-swatches v-if="!clientWide" v-model="color" popover-x="left"   background-color="#e0e5ec" row-length="4" :swatch-style=this.swatchStyle :close-on-select="true">
         </v-swatches>
       </div>
 
@@ -73,8 +75,9 @@
 
           <label v-if="noPdf.value" id="noPdfLabel">{{this.noPdf.text}}</label>
       </div>
-      <canvas id="white-board-canvas" @mousedown="mouseDown" @mousemove="mouseMove" @mouseup="mouseup" @mouseleave="mouseleave" style="z-index: 2; grid-row: 1; grid-column: 1;">
+      <canvas  id="white-board-canvas" @mousedown="mouseDown" @mousemove="mouseMove" @mouseup="mouseup" @mouseleave="mouseleave" style="z-index: 2; grid-row: 1; grid-column: 1;">
       </canvas>
+
     </div>
 
   </div>
@@ -141,7 +144,10 @@ export default {
       imageData:{
         file: null,
         message: null
-      }
+      },
+
+      //ui variable
+      clientWide: null
 
 
 
@@ -196,6 +202,14 @@ export default {
     },
 
     init: function (){
+      this.clientWide =1;
+      let canvasControl = document.getElementById('white-board-control');
+      if(canvasControl.offsetWidth < 900){
+        this.clientWide = 0;
+      }
+      else{
+        this.clientWide = 1;
+      }
       this.server = this.$store.getters.getServer;
 
       this.pdfDiv = document.getElementById('pdf-view-wrapper');
@@ -496,20 +510,24 @@ export default {
     undo: function (){
       this.server.emit('undo-canvas', {});
     },
+    resizeLog: function (){
+      let canvasControl = document.getElementById('white-board-control');
+      if(canvasControl.offsetWidth < 900){
+        this.clientWide = 0;
+      }
+      else{
+        this.clientWide = 1;
+      }
 
-
-
-
-
-
-
+      this.setCanvasOffset()
+    }
 
 
 },
   mounted() {
     this.init();
     this.setCanvasOffset();
-
+    window.onresize = this.resizeLog;
 
   }
 }
@@ -533,7 +551,7 @@ export default {
   height: 120px;
   display: flex;
   align-items: center;
-  justify-content: space-evenly;
+  justify-content: space-around;
   flex-direction: row-reverse;
 }
 
@@ -592,6 +610,10 @@ export default {
   align-items: center;
 }
 
+
+#color-wheel-ctrl-group{
+
+}
 #line-redo-ctrl-group{
   display: grid;
   grid-template-rows: 55px 55px;
@@ -623,11 +645,6 @@ export default {
   box-sizing: border-box;
   justify-content: space-around;
   width: 100px;
-
-
-
-
-
 
   height: calc(100% - 16px);
 

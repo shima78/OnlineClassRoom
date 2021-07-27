@@ -26,6 +26,13 @@ export default {
       console.log("app has received socket:\t",socket);
 
     }
+  },
+  created() {
+    if (document.documentElement.clientWidth < 1200) {
+      document.querySelector("meta[name=viewport]").setAttribute(
+          'content',
+          'width=device-width, initial-scale=0.75, maximum-scale=0.90, user-scalable=0');
+    }
   }
 
 }
