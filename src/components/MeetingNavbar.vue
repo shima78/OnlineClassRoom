@@ -2,7 +2,7 @@
     <div id="nav-bar">
           <div id="media-control">
             <input type="checkbox" class="toggle-button check-box" id="speaker">
-<!--            <input type="checkbox" class="toggle-button check-box" id="microphone" @change="shareAudio">-->
+            <input type="checkbox" class="toggle-button check-box" id="microphone" @change="shareAudio">
             <input type="checkbox" class="toggle-button check-box" id="video">
             <input type="range" id="volume-slider" class="slider">
           </div>
@@ -31,11 +31,11 @@
 <script>
 import Vue from 'vue'
 import VueRecord from '@codekraft-studio/vue-record'
-
+import axios from 'axios';
 Vue.use(VueRecord)
 
-
 import {mapActions, mapGetters} from "vuex";
+
 import * as Papa from 'papaparse';
 export default {
   name: "MeetingNavbar",
@@ -46,6 +46,7 @@ export default {
     return{
         server: null,
         role: null,
+        reader : new FileReader(),
     }
   },
 
@@ -56,38 +57,68 @@ export default {
     onResult (data) {
       console.log('The blob data:', data);
       console.log('Downloadable audio', window.URL.createObjectURL(data));
+      axios({
+
+        url: window.URL.createObjectURL(data),
+
+        method: 'GET',
+
+        responseType: 'blob',
+
+      }).then((response) => {
+
+        var fileURL = window.URL.createObjectURL(new Blob([response.data]));
+        var fileLink = document.createElement('a');
+        fileLink.href = fileURL;
+        fileLink.setAttribute('download', 'file.pdf');
+        document.body.appendChild(fileLink);
+
+
+
+        fileLink.click();
+
+      });
     },
-    // shareAudio: function (time,server) {
-    //     console.log("server in func", server)
-    //     navigator.mediaDevices.getUserMedia({ audio: true }).then((stream) => {
-    //     console.log("then",server, stream)
-    //     var madiaRecorder = new MediaRecorder(stream);
-    //     madiaRecorder.start();
-    //     var audioChunks = [];
-    //     madiaRecorder.addEventListener("dataavailable", function (event) {
-    //       audioChunks.push(event.data);
-    //     });
-    //     madiaRecorder.addEventListener("stop", function () {
-    //       var audioBlob = new Blob(audioChunks);
-    //       audioChunks = [];
-    //       var fileReader = new FileReader();
-    //       fileReader.readAsDataURL(audioBlob);
-    //       fileReader.onload = function(e) {
-    //         // The file's text will be printed here
-    //         console.log(e.target.result)
-    //         console.log("in media",server)
-    //         server.emit('voice', fileReader.result)
-    //       };
-    //       madiaRecorder.start();
-    //       setTimeout(function () {
-    //         madiaRecorder.stop();
-    //       }, time);
-    //     });
-    //     setTimeout(function () {
-    //       madiaRecorder.stop();
-    //     }, time);
-    //   });
-    // },
+    shareAudio: function () {
+        const time = 5000
+        console.log("server in func", this.server)
+        navigator.mediaDevices.getUserMedia({ audio: true }).then((stream) => {
+        console.log("then",this.server, stream)
+        var madiaRecorder = new MediaRecorder(stream);
+        madiaRecorder.start();
+        var audioChunks = [];
+        var myserver = this.server
+        madiaRecorder.addEventListener("dataavailable", function (event) {
+          audioChunks.push(event.data);
+        });
+        madiaRecorder.addEventListener("stop", async function () {
+          const audioBlob = new Blob(audioChunks);
+          audioChunks = [];
+
+          var fileReader = new FileReader();
+          fileReader.readAsDataURL(audioBlob);
+          fileReader.onloadend = function () {
+            var base64String = fileReader.result;
+            // console.log(base64String)
+            myserver.emit('radio', base64String);
+
+          };
+
+          madiaRecorder.start();
+          setTimeout(function () {
+            madiaRecorder.stop();
+          }, time);
+        });
+        setTimeout(function () {
+          madiaRecorder.stop();
+        }, time);
+      });
+    },
+    caller: function (data){
+      console.log(data)
+      console.log(this.reader.result)
+      this.server.emit('radio',this.reader.result)
+    },
 
     output: function (){
       this.server.emit('export')
@@ -136,10 +167,9 @@ export default {
         // When the client receives a voice message it will play the sound
 
       });
-      this.server.on('voice', function(arrayBuffer) {
-        var blob = new Blob([arrayBuffer], { 'type' : 'audio/ogg; codecs=opus' });
-        var audio = document.createElement('audio');
-        audio.src = window.URL.createObjectURL(blob);
+      this.server.on("voice", function(data) {
+        console.log("data")
+        var audio = new Audio(data);
         audio.play();
       });
     }
@@ -148,8 +178,10 @@ export default {
 
   },
   mounted() {
+
       this.server =  this.$store.getters.getServer;
       this.role = this.$store.getters.getRole;
+      this.reader.addEventListener('loadend', this.caller)
       this.init();
 
       // console.log(this.server)

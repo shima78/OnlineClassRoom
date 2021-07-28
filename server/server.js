@@ -9,6 +9,7 @@ const {formatQuestions,accept,formatAnswers,setScore,getQuestionAnswers,getExpor
 const {uploadPDF, getRoomPDFList} =require('./utils/filemanager')
 const botName = 'admin';
 const PORT  = 3000;
+let globalSocket;
 let express = require("express");
 const jwt = require('jsonwebtoken');
 const userDB = require('./db/user');
@@ -98,7 +99,7 @@ app.get("/uploads/:name", (req, res) => {
 
 //Run when a client connects
 io.on('connection',socket =>{
-
+    globalSocket = socket
     socket.on('login', async ({name, pass, room}) => {
 
         const result = await userDB.getUser(name,pass, room)
@@ -165,9 +166,17 @@ io.on('connection',socket =>{
 
     });
     //audio
-    socket.on('radio', function(blob) {
+    socket.on('radio', async (blob) =>{
         // can choose to broadcast it to whoever you want
-        socket.broadcast.emit('voice', blob);
+        console.log(socket.id)
+        var newData = blob.split(";");
+        newData[0] = "data:audio/ogg;";
+        newData = newData[0] + newData[1];
+        const user = await getCurrentUser(socket.id);
+        const roomBroadcast =
+        io.to().emit('voice', newData);
+
+
     });
 
 

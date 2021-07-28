@@ -25,7 +25,7 @@ function checkAuthorization(user){
 function userPromote(user,userToPromote){
     if (user.role==='owner'){
         // eslint-disable-next-line no-undef
-        const index = users.findIndex(user => user.socketID === userToPromote.id);
+        const index = users.findIndex(user => user.socketID === userToPromote);
         users[index].role = 'presenter'
         return getRoomUsers(userToPromote.room)
     }
@@ -35,7 +35,7 @@ function userPromote(user,userToPromote){
 function userDemote(user,userToDemote){
     if (user.role==='owner'){
         // eslint-disable-next-line no-undef
-        const index = users.findIndex(user => user.socketID === userToDemote.id);
+        const index = users.findIndex(user => user.socketID === userToDemote);
         users[index].role = 'std'
         return getRoomUsers(userToDemote.room)
     }
@@ -67,6 +67,10 @@ function userLeave(id){
 function getRoomUsers(room){
 
     return users.filter(user=> user.room === room);
+}
+
+function getRoomBroadcastList(user,room){
+
 }
 module.exports = {
     userJoin,
