@@ -70,7 +70,7 @@ app.get("/files", (req, res) => {
 
         files.forEach((file) => {
             fileInfos.push({
-                name: file.originalname,
+                name: file,
                 url: baseUrl + file,
             });
             console.log(file)
