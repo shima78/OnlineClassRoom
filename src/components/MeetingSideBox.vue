@@ -28,7 +28,6 @@
       </div>
     </div>
     <div id="attendList" class="side-box-v-container" v-if="selected === 2">
-
       <div id="attend-list-box" class="side-shadow-container">
         <vue-scroll>
           <template v-for="userOBJ in userInfo[0].filter(user => user.online == true)">
@@ -50,7 +49,7 @@
             </textarea>
         </div >
         <div id="question-input-action-wrapper">
-          <div style="display: flex; flex-direction: row;justify-content: space-between; align-items: center">
+          <div style="display: flex; flex-direction: row;justify-content: space-between; align-items: center; margin-right: 30px">
             <template v-if="role === 'owner'">
             <button id="question-hard-inc-low" class="round-button inc-button"   @click="decDifficulty" >
               <i class="material-icons">remove</i>
@@ -64,7 +63,16 @@
               <i class="material-icons">add</i>
             </button>
             </template>
-            <input v-if="role === 'std'" type="text" class="input-bar" v-model="qid" style="height: 30px;" placeholder="Question Number" >
+            <template v-if="role === 'std'">
+              <button id="qid-selector-left" class="round-button inc-button"  @click="lastQuestionSelect">
+                <i class="material-icons">chevron_left</i>
+              </button>
+              <input type="text" class="input-bar" v-model="qid" style="height: 30px; width: 100%; text-align: center;" placeholder="Question Number"  disabled>
+              <button id="qid-selector-right" class="round-button inc-button"   @click="nextQuestionSelect">
+                <i class="material-icons">chevron_right</i>
+              </button>
+            </template>
+
           </div>
           <button id="question-send-button" class="pink-button" @click="askQuestion" v-if="role === 'owner'"> Ask </button>
           <button id="answer-send-button" class="pink-button" @click="answerQuestion" v-if="role === 'std'"> Answer </button>
@@ -123,7 +131,7 @@ export default {
       questionArray: new Array(),
       answerArray: null,
       role: null,
-      qid: null,
+      qid: 0,
       username: null,
       currentAnswerIndex: null
     }
@@ -188,8 +196,9 @@ export default {
         return;
       }
       else{
-        this.chatEntryText="";
+
         this.SERVER.emit("chatMessage",this.chatEntryText);
+        this.chatEntryText="";
       }
     },
     incDifficulty:  function (){
@@ -238,7 +247,21 @@ export default {
         this.SERVER.emit('chatAnswer',answerData);
 
       }
-    }
+    },
+    lastQuestionSelect: function (){
+      let questionList = this.questionArray.map(x => x.id);
+      console.log(questionList,this.qid-1)
+      if(questionList.includes(this.qid - 1)){
+        this.qid = this.qid - 1;
+      }
+    },
+    nextQuestionSelect: function (){
+      let questionList = this.questionArray.map(x => x.id);
+      if(questionList.includes(this.qid+1)){
+        this.qid = this.qid + 1;
+      }
+
+    },
   },
   mounted() {
     this.init();
@@ -368,6 +391,7 @@ export default {
 }
 #question-input-action-wrapper{
   width: 100%;
+  box-sizing: border-box;
   display: flex;
   flex-direction: row;
   justify-content: space-between;

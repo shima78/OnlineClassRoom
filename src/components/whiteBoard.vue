@@ -77,7 +77,7 @@
             <i class="material-icons">chevron_left</i>
           </button>
           <div id="pdf-nav-bar-mid">
-            <label>sharing file:              at page:</label>
+            <label>sharing file:              at page: {{this.PDF.pageNumber}}</label>
           </div>
           <button class="round-button">
             <i class="material-icons">chevron_right</i>
@@ -169,7 +169,7 @@ export default {
         pdfSource: null,
         title: null,
         pageNumber: null
-      },
+      }
 
 
 
@@ -183,6 +183,20 @@ export default {
     VuePdfApp
 
   },
+
+  computed:{
+    PDFPageNumber(){
+      return this.PDF.pageNumber;
+    }
+  },
+
+
+  watch:{
+    PDFPageNumber: function(){
+      console.log('pdfpage',this.PDFPageNumber)//emit pagenumber change
+    }
+  }
+  ,
   methods:{
     ...mapGetters(['getServer','getRole']),
     addClick: function (x,y,dragging){
