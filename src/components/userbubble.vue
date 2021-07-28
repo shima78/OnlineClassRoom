@@ -5,7 +5,7 @@
       </label>
     <div style="display: flex; flex-direction: row; justify-content: space-evenly; align-content: center; " >
       <template  v-if="role === 'owner' && userRole != 'owner'">
-        <button class="accept-reject-button"  id="accept-button">
+        <button class="accept-reject-button"  id="accept-button" @click="demoteUser">
           <i class="material-icons">group_remove</i>
           <label>
             Demote
@@ -42,13 +42,19 @@ export default {
   props:{
     username: String,
     joinTime: String,
-    userRole: String
+    userRole: String,
+    socketID: String
 
   },
   methods:{
     ...mapGetters(['getRole','getServer']),
     promoteUser: function (){
-      this.server.emit('promote',this.username)
+      console.log('running promote')
+      this.server.emit('promote',this.socketID)
+    },
+    demoteUser: function (){
+      console.log('running demote')
+      this.server.emit('demote',this.socketID)
     }
   },
   mounted() {

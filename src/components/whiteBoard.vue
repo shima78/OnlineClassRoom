@@ -1,6 +1,6 @@
 <template>
   <div id="white-board-wrapper">
-    <div id="white-board-control">
+    <div id="white-board-control" v-show="expandWhiteBoardControl">
       <div id="upload-ctrl-group" class="ctrl-group">
           <button class="round-button pdf-button" style="grid-column: 1; grid-row: 1;" @click="pdfDiv.style.zIndex = 3; canvas.style.zIndex = 1;">
             <label>PDF</label>
@@ -73,15 +73,15 @@
     <div id="wrapper" style="display: grid; grid-template-rows: 1fr; grid-template-columns: 1fr; height: calc(100% - 120px); box-sizing: border-box;">
       <div id="pdf-view-wrapper" style="z-index: 1; grid-row: 1; grid-column: 1;">
         <div id="pdf-nav-bar">
-          <button class="round-button" @click="lastPDF">
-            <i class="material-icons">chevron_left</i>
-          </button>
-          <div id="pdf-nav-bar-mid">
-            <label>sharing file:              at page: {{this.PDF.pageNumber}}</label>
-          </div>
-          <button class="round-button" @click="nextPDF">
-            <i class="material-icons">chevron_right</i>
-          </button>
+            <button class="round-button" id="hide-button"  @click="expandWhiteBoardControlFunction" style="display: flex; justify-content: space-between; width: 120px; padding-left: 10px; box-sizing: border-box;">
+                <label v-if="expandWhiteBoardControl">hide</label>
+                <label v-if="!expandWhiteBoardControl">show</label>
+                <i v-if="expandWhiteBoardControl" class="material-icons">expand_less</i>
+                <i v-if="!expandWhiteBoardControl" class="material-icons">expand_more</i>
+
+            </button>
+
+
         </div>
         <vue-pdf-app style="height: calc(100%); width: 100%; border-radius: 0px 0px 14px 14px;"
                      :pdf="PDF.pdfSource" :title="PDF.title" theme="light"
@@ -105,6 +105,7 @@ import fileUploader from "@/components/fileUploader";
 import {mapGetters} from "vuex";
 import VuePdfApp from "vue-pdf-app";
 import "vue-pdf-app/dist/icons/main.css";
+
 
 // eslint-disable-next-line no-unused-vars
 
@@ -169,7 +170,9 @@ export default {
         pdfSource: null,
         title: null,
         pageNumber: null
-      }
+      },
+
+      expandWhiteBoardControl: 1
 
 
 
@@ -181,7 +184,6 @@ export default {
     fileUploader,
     VSwatches,
     VuePdfApp
-
   },
 
   computed:{
@@ -192,13 +194,34 @@ export default {
 
 
   watch:{
-    PDFPageNumber: function(){
+    PDF: function(){
       console.log('pdfpage',this.PDFPageNumber)//emit pagenumber change
     }
   }
   ,
   methods:{
     ...mapGetters(['getServer','getRole','getRoomID']),
+    expandWhiteBoardControlFunction: function (){
+
+      let clientWideHold = this.clientWide;
+      let wrapper = document.getElementById('wrapper');
+
+      if(this.expandWhiteBoardControl){
+        this.clientWide = clientWideHold;
+        wrapper.style.height = 'calc(100%)'
+        this.expandWhiteBoardControl = !this.expandWhiteBoardControl;
+
+      }
+      else{
+      this.clientWide = clientWideHold;
+        wrapper.style.height = 'calc(100% - 120px)'
+
+
+        this.expandWhiteBoardControl = !this.expandWhiteBoardControl;
+      }
+
+
+    },
     addClick: function (x,y,dragging){
 
       if(x) {
@@ -315,7 +338,9 @@ export default {
 
       //pdf event listeners
 
-      this.server.on("privateMessage")
+      this.server.on("privateMessage",(data)=>{
+        console.log("pdfList",data)
+      })
 
 
       //imageUpload
@@ -630,12 +655,6 @@ export default {
       }
 
       this.setCanvasOffset()
-    },
-    lastPDF: function () {
-      this.server.emit('getPDFList', this.$store.getters.getRoomID)
-    },
-    nextPDF: function (){
-
     }
 
 
@@ -644,7 +663,7 @@ export default {
     this.init();
     this.setCanvasOffset();
     window.onresize = this.resizeLog;
-
+    console.log("PDF",this.PDF)
 
   }
 }
@@ -820,6 +839,11 @@ export default {
 #pdf-nav-bar-mid > label{
   font-style: italic;
 }
+#hide-button {
+  width: 120px;
+}
+
+
 
 
 </style>

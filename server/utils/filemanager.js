@@ -10,7 +10,7 @@ function uploadPDF(originalname,name, room,URL){
 
 }
 function getRoomPDFList(room){
-    return pdfList.filter(pdf=> pdf.room === room);
+    return pdfList.filter(pdf=> pdf.room === room.toString());
 }
 module.exports = {
     uploadPDF,

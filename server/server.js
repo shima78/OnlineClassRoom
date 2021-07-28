@@ -3,8 +3,9 @@ const http = require('http');
 const  _ = require('lodash');
 const socketio = require('socket.io');
 const { formatMessage, getRoomMessages} = require('./utils/messages');
-const {userJoin,  getCurrentUser, userLeave, getRoomUsers, userPromote} = require('./utils/users');
+const {userJoin,  getCurrentUser, userLeave, getRoomUsers, userPromote,userDemote } = require('./utils/users');
 const {formatQuestions,accept,formatAnswers,setScore,getQuestionAnswers,getExportData} = require('./utils/QA');
+
 // eslint-disable-next-line no-unused-vars
 const {uploadPDF, getRoomPDFList} =require('./utils/filemanager')
 const botName = 'admin';
@@ -126,6 +127,30 @@ io.on('connection',socket =>{
         }
 
     })
+
+
+    socket.on('loginGuest', async ({name,room}) => {
+        // const result = await userDB.getUser(name,'', room)
+        const roomOwner = getRoomOwner(room)
+        const guestSocketId = socket.id
+        io.to(roomOwner.socketID).emit('guest', {guestSocketId,name});
+
+    })
+    socket.on('acceptGuest', async ({id, name})=>{
+        const user = getCurrentUser(socket.id);
+
+        const usr = {
+            socketID:id,
+            username:name,
+            room: user.room,
+            role:'guest',
+            userID:''
+        }
+        // console.log(usr)
+        jwt.sign({usr}, 'secretkey', { expiresIn: '2h' }, (err, token) => {
+            socket.emit('loginRes',token)
+        });
+    } )
 
     socket.on('joinRoom', async ({username,room, role,userID })  => {
         const user = await userJoin(socket.id, username, room, role, userID);
@@ -330,9 +355,10 @@ io.on('connection',socket =>{
 
     })
     socket.on('getPDFList', async (room)=>{
+        console.log('roominpdf',room)
         console.log(await getRoomPDFList(room))
-        io.to(socket.id).emit('privateMessage', await getRoomPDFList(room));
-        // io.to(room).emit(await getRoomPDFList(room))
+        //io.to(socket.id).emit('privateMessage', await getRoomPDFList(room));
+        io.to(room).emit('privateMessage',await getRoomPDFList(room))
     })
     socket.on('changePDFPage', async (pageNumber)=>{
         const currUser = await getCurrentUser(socket.id)
@@ -340,12 +366,14 @@ io.on('connection',socket =>{
     })
     socket.on('promote',async  userToPromote => {
         const user = getCurrentUser(socket.id)
+        console.log('user',user)
         io.to(user.room).emit('newRole',await userPromote(user,userToPromote));
     });
 
-    socket.on('demote',async  userToPromote => {
+    socket.on('demote',async  userToDemote => {
         const user = getCurrentUser(socket.id)
-        io.to(user.room).emit('newRole',await userPromote(user,userToPromote));
+        console.log('user',user)
+        io.to(user.room).emit('newRole',await userDemote(user,userToDemote));
     });
 
 
