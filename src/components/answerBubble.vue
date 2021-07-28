@@ -22,7 +22,7 @@
         </button>
       </template>
 
-      <template v-if="role === 'std'">
+      <template v-if="role === 'std' || role === 'std'">
         <button class="accept-reject-button" :disabled="true" v-if="accept === false">
           <label>
             Rejected
@@ -52,7 +52,7 @@
       <label class="time-label">
         {{time}}
       </label>
-      <label v-if="role === 'std'">
+      <label v-if="role === 'std' || role === 'presenter'">
         <input type="number" class="score-input-bar" style="text-align: center" v-model="score" :disabled="true">
       </label>
       <div style="display: flex; justify-content: space-around; align-items: center; box-sizing: border-box;" v-if="role === 'owner'">

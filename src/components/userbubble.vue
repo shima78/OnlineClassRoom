@@ -5,13 +5,13 @@
       </label>
     <div style="display: flex; flex-direction: row; justify-content: space-evenly; align-content: center; " >
       <template  v-if="role === 'owner' && userRole != 'owner'">
-        <button class="accept-reject-button"  id="accept-button" @click="demoteUser">
+        <button class="accept-reject-button"  id="accept-button" @click="demoteUser" v-if="userRole === 'presenter'">
           <i class="material-icons">group_remove</i>
           <label>
             Demote
           </label>
         </button>
-        <button class="accept-reject-button"  id="reject-button" @click="promoteUser">
+        <button class="accept-reject-button"  id="reject-button" @click="promoteUser" v-if="userRole === 'std'">
           <label>
             Promote
           </label>

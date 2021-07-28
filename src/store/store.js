@@ -93,6 +93,9 @@ export const store = new Vuex.Store({
         updateCurrentAnswers({commit},payload){
             commit('setCurrentAnswerArray',payload);
         },
+        updateRole({commit},payload){
+            commit('setRole',payload)
+        }
 
 
     }

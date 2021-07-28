@@ -66,7 +66,7 @@
               <i class="material-icons">add</i>
             </button>
             </template>
-            <template v-if="role === 'std'">
+            <template v-if="role === 'std' || role ==='presenter'">
               <button id="qid-selector-left" class="round-button inc-button"  @click="lastQuestionSelect">
                 <i class="material-icons">chevron_left</i>
               </button>
@@ -78,7 +78,7 @@
 
           </div>
           <button id="question-send-button" class="pink-button" @click="askQuestion" v-if="role === 'owner'"> Ask </button>
-          <button id="answer-send-button" class="pink-button" @click="answerQuestion" v-if="role === 'std'"> Answer </button>
+          <button id="answer-send-button" class="pink-button" @click="answerQuestion" v-if="role === 'std' || role === 'presenter'"> Answer </button>
 
         </div>
       </div>

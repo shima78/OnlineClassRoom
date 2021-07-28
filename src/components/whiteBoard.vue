@@ -18,32 +18,32 @@
 
       <div id="shape-ctrl-group" class="ctrl-group">
 
-          <button class="round-button">
+          <button class="round-button" :disabled="role === 'std'">
             <i class="material-icons">post_add</i>
           </button>
-          <button class="round-button" @click="drawCircle">
+          <button class="round-button" @click="drawCircle" :disabled="role === 'std'">
             <i class="material-icons-outlined">circle</i>
           </button>
-          <button class="round-button" @click="drawLine">
+          <button class="round-button" @click="drawLine" :disabled="role === 'std'">
           <i class="material-icons">horizontal_rule</i>
         </button>
-          <button class="round-button" @click="drawRect">
+          <button class="round-button" @click="drawRect" :disabled="role === 'std'">
             <i class="material-icons-outlined">crop_square</i>
           </button>
 
       </div>
 
       <div id="line-redo-ctrl-group" class="ctrl-group">
-        <button class="round-button">
+        <button class="round-button" :disabled="role === 'std'">
           <i class="material-icons" @click="eraseMode">phonelink_erase</i>
         </button>
-        <button class="round-button" @click="pendMode">
+        <button class="round-button" @click="pendMode" :disabled="role === 'std'">
           <i class="material-icons-outlined">draw</i>
         </button>
-        <button class="round-button" @click="clearAll">
+        <button class="round-button" @click="clearAll" :disabled="role === 'std'">
           <i class="material-icons">restart_alt</i>
         </button>
-        <button class="round-button" @click="undo">
+        <button class="round-button" @click="undo" :disabled="role === 'std'">
           <i class="material-icons-outlined">undo</i>
         </button>
 
@@ -52,20 +52,20 @@
       <div id="pen-thickness-ctrl-group" class="ctrl-group">
         <label class="thickness-label" id="thickness-label-a">A</label>
         <div style="display: flex; flex-direction: row; justify-content: space-between; align-items: center; width: 100%">
-          <button id="thickness-inc-low" class="round-button inc-button" @click="thicknessDec">
+          <button id="thickness-inc-low" class="round-button inc-button" @click="thicknessDec" :disabled="role === 'std'">
           <i class="material-icons">remove</i>
         </button>
 
-          <button id="thickness-inc-high" class="round-button inc-button" @click="thicknessInc">
+          <button id="thickness-inc-high" class="round-button inc-button" @click="thicknessInc" :disabled="role === 'std'">
             <i class="material-icons">add</i>
           </button></div>
 
       </div>
 
       <div id="color-wheel-ctrl-group" class="ctrl-group">
-        <v-swatches v-if="clientWide" v-model="color" popover-x="left" inline  background-color="#e0e5ec" row-length="4" :swatch-style=this.swatchStyle :close-on-select="true">
+        <v-swatches v-if="clientWide" v-model="color" popover-x="left" inline  background-color="#e0e5ec" row-length="4" :swatch-style=this.swatchStyle :close-on-select="true" :disabled="role === 'std'">
         </v-swatches>
-        <v-swatches v-if="!clientWide" v-model="color" popover-x="left"   background-color="#e0e5ec" row-length="4" :swatch-style=this.swatchStyle :close-on-select="true">
+        <v-swatches v-if="!clientWide" v-model="color" popover-x="left"   background-color="#e0e5ec" row-length="4" :swatch-style=this.swatchStyle :close-on-select="true" :disabled="role === 'std'">
         </v-swatches>
       </div>
 
@@ -73,7 +73,9 @@
     <div id="wrapper" style="display: grid; grid-template-rows: 1fr; grid-template-columns: 1fr; height: calc(100% - 120px); box-sizing: border-box;">
       <div id="pdf-view-wrapper" style="z-index: 1; grid-row: 1; grid-column: 1;">
         <div id="pdf-nav-bar">
-            <button class="round-button" id="hide-button"  @click="expandWhiteBoardControlFunction" style="display: flex; justify-content: space-between; width: 120px; padding-left: 10px; box-sizing: border-box;">
+            <button class="round-button" id="hide-button"  @click="expandWhiteBoardControlFunction"
+                    style="display: flex; justify-content: space-between; width: 120px; padding-left: 10px; box-sizing: border-box;"
+                    :disabled="role === 'std'">
                 <label v-if="expandWhiteBoardControl">hide</label>
                 <label v-if="!expandWhiteBoardControl">show</label>
                 <i v-if="expandWhiteBoardControl" class="material-icons">expand_less</i>
@@ -102,7 +104,7 @@
 // eslint-disable-next-line no-unused-vars
 import VSwatches from 'vue-swatches'
 import fileUploader from "@/components/fileUploader";
-import {mapGetters} from "vuex";
+import {mapGetters,mapActions} from "vuex";
 import VuePdfApp from "vue-pdf-app";
 import "vue-pdf-app/dist/icons/main.css";
 
@@ -201,6 +203,7 @@ export default {
   ,
   methods:{
     ...mapGetters(['getServer','getRole','getRoomID']),
+    ...mapActions(['updateRole']),
     expandWhiteBoardControlFunction: function (){
 
       let clientWideHold = this.clientWide;
@@ -276,10 +279,10 @@ export default {
       else{
         this.clientWide = 1;
       }
-        console.log("role",this.role)
+
 
       //role based button disable
-      if(this.role == "std"){
+     /* if(this.role == "std"){
 
         let whiteBoardInputControls = canvasControl.getElementsByTagName('input');
         let whiteBoardButtonControls = canvasControl.getElementsByTagName('button');
@@ -297,7 +300,7 @@ export default {
 
         console.log('whiteBoardInputControls',whiteBoardInputControls);
         console.log('whiteBoardButtonControls',whiteBoardButtonControls);
-      }
+      }*/
 
 
 
@@ -365,6 +368,10 @@ export default {
 
       this.server.on("newRole", async (data)=>{
         console.log('promote data',data)
+        let user = data.find(user => user.socketID === this.server.id && user.online === true)
+        this.updateRole(user.role)
+        this.role = user.role;
+
       })
 
 

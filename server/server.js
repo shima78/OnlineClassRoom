@@ -162,7 +162,7 @@ io.on('connection',socket =>{
 
         // Welcome current user   change event name
         socket.emit('message', await formatMessage(botName, 'Welcome to ChatCord!',user.room));
-
+        io.to(room).emit('privateMessage',await getRoomPDFList(room))
         // Broadcast when a user connects
         socket.broadcast.to(user.room)
             .emit('message',
