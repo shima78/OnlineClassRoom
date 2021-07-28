@@ -25,9 +25,19 @@ function checkAuthorization(user){
 function userPromote(user,userToPromote){
     if (user.role==='owner'){
         // eslint-disable-next-line no-undef
-        const index = users.findIndex(user => user.socketID === id);
+        const index = users.findIndex(user => user.socketID === userToPromote.id);
         users[index].role = 'presenter'
         return getRoomUsers(userToPromote.room)
+    }
+    return false
+}
+
+function userDemote(user,userToDemote){
+    if (user.role==='owner'){
+        // eslint-disable-next-line no-undef
+        const index = users.findIndex(user => user.socketID === userToDemote.id);
+        users[index].role = 'std'
+        return getRoomUsers(userToDemote.room)
     }
     return false
 }
@@ -36,6 +46,12 @@ function userPromote(user,userToPromote){
 function getCurrentUser(id){
     return users.find(user => user.socketID === id);
 }
+
+
+function getRoomOwner(room){
+    return users.find(user =>(user.room === room) &&(user.role==='owner'));
+}
+
 
 function userLeave(id){
     var  usr = users.find(user=> user.socketID ===id);
@@ -58,5 +74,6 @@ module.exports = {
     userLeave,
     getRoomUsers,
     userPromote,
-    checkAuthorization
+    checkAuthorization,
+    getRoomOwner
 }
