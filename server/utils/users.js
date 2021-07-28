@@ -14,6 +14,14 @@ function userJoin(socketID,username,room, role,userID ){
     return user
 }
 
+function checkAuthorization(user){
+    if(user.role==='owner' || user.role==='presenter'){
+        return true
+    }
+    return false
+}
+
+
 function userPromote(user,userToPromote){
     if (user.role==='owner'){
         // eslint-disable-next-line no-undef
@@ -49,5 +57,6 @@ module.exports = {
     getCurrentUser,
     userLeave,
     getRoomUsers,
-    userPromote
+    userPromote,
+    checkAuthorization
 }

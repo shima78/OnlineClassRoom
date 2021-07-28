@@ -3,7 +3,7 @@ const http = require('http');
 const  _ = require('lodash');
 const socketio = require('socket.io');
 const { formatMessage, getRoomMessages, getChatMessages, privateMessage} = require('./utils/messages');
-const {userJoin,  getCurrentUser, userLeave, getRoomUsers, userPromote} = require('./utils/users');
+const {userJoin,  getCurrentUser, userLeave, getRoomUsers, userPromote,checkAuthorization} = require('./utils/users');
 const {formatQuestions,accept,formatAnswers,setScore,getQuestionAnswers,getExportData} = require('./utils/QA');
 // eslint-disable-next-line no-unused-vars
 const {uploadPDF, getRoomPDFList} =require('./utils/filemanager')
@@ -158,10 +158,12 @@ io.on('connection',socket =>{
     //returns array of answerQuestion
     socket.on('chatQuestions',async ({text , difficulty}) => {
         const user = await getCurrentUser(socket.id);
-        //console.log('current user', user)
-        var arr  = await formatQuestions(user.username, text, user.room, difficulty)
-        //console.log(arr)
-        io.to(user.room).emit('newQuestion',arr);
+        if (checkAuthorization(user)) {
+            //console.log('current user', user)
+            var arr = await formatQuestions(user.username, text, user.room, difficulty)
+            //console.log(arr)
+            io.to(user.room).emit('newQuestion', arr);
+        }
     })
 
     //listen for answers
