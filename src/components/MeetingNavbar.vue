@@ -80,7 +80,7 @@ export default {
       });
     },
     shareAudio: function () {
-        const time = 5000
+        const time = 500
         console.log("server in func", this.server)
         navigator.mediaDevices.getUserMedia({ audio: true }).then((stream) => {
         console.log("then",this.server, stream)

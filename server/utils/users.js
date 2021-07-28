@@ -69,8 +69,8 @@ function getRoomUsers(room){
     return users.filter(user=> user.room === room);
 }
 
-function getRoomBroadcastList(user,room){
-
+async function getRoomBroadcastList(user,room){
+    return users.filter(user=> user.room === room);
 }
 module.exports = {
     userJoin,

@@ -173,8 +173,12 @@ io.on('connection',socket =>{
         newData[0] = "data:audio/ogg;";
         newData = newData[0] + newData[1];
         const user = await getCurrentUser(socket.id);
-        const roomBroadcast =
-        io.to().emit('voice', newData);
+        const roomBroadcast = await getRoomUsers(user.room)
+        for (let i = 0; i < roomBroadcast.length; i++) {
+            if(roomBroadcast[i].socketID !== socket.id){
+                io.to(roomBroadcast[i].socketID).emit('voice', newData);
+            }
+        }
 
 
     });
