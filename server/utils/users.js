@@ -16,6 +16,7 @@ function userJoin(socketID,username,room, role,userID ){
 
 function userPromote(user,userToPromote){
     if (user.role==='owner'){
+        // eslint-disable-next-line no-undef
         const index = users.findIndex(user => user.socketID === id);
         users[index].role = 'presenter'
         return getRoomUsers(userToPromote.room)
