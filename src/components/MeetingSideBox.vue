@@ -32,7 +32,7 @@
         <vue-scroll>
           <template v-for="userOBJ in userInfo[0].filter(user => user.online == true)">
             <user-bubble :key="userOBJ.index" :username="userOBJ.username"
-                         :join-time="userOBJ.joinTime" :status="userOBJ.online"></user-bubble>
+                         :join-time="userOBJ.joinTime" :status="userOBJ.online" :user-role="userOBJ.role"></user-bubble>
           </template>
         </vue-scroll>
       </div>
@@ -188,6 +188,11 @@ export default {
       this.SERVER.on("newScore",(scoreData)=>{
         console.log('NewscoreData',scoreData)
         this.updateUsersData(scoreData)
+      })
+
+      //promoteUser
+      this.SERVER.on("newRole",data =>{
+        console.log('promote data:',data)
       })
 
     },

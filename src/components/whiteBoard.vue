@@ -73,13 +73,13 @@
     <div id="wrapper" style="display: grid; grid-template-rows: 1fr; grid-template-columns: 1fr; height: calc(100% - 120px); box-sizing: border-box;">
       <div id="pdf-view-wrapper" style="z-index: 1; grid-row: 1; grid-column: 1;">
         <div id="pdf-nav-bar">
-          <button class="round-button">
+          <button class="round-button" @click="lastPDF">
             <i class="material-icons">chevron_left</i>
           </button>
           <div id="pdf-nav-bar-mid">
             <label>sharing file:              at page: {{this.PDF.pageNumber}}</label>
           </div>
-          <button class="round-button">
+          <button class="round-button" @click="nextPDF">
             <i class="material-icons">chevron_right</i>
           </button>
         </div>
@@ -198,7 +198,7 @@ export default {
   }
   ,
   methods:{
-    ...mapGetters(['getServer','getRole']),
+    ...mapGetters(['getServer','getRole','getRoomID']),
     addClick: function (x,y,dragging){
 
       if(x) {
@@ -313,6 +313,10 @@ export default {
         this.drawRectClientL({shapeClickMemory,strokeStyle,lineWidth});
       })
 
+      //pdf event listeners
+
+      this.server.on("privateMessage")
+
 
       //imageUpload
       //TODO fix IMAGE FRONT
@@ -332,6 +336,10 @@ export default {
         console.log('pdf:',PDF);
         this.PDF.pdfSource=PDF;
 
+      })
+
+      this.server.on("newRole", async (data)=>{
+        console.log('promote data',data)
       })
 
 
@@ -622,6 +630,12 @@ export default {
       }
 
       this.setCanvasOffset()
+    },
+    lastPDF: function () {
+      this.server.emit('getPDFList', this.$store.getters.getRoomID)
+    },
+    nextPDF: function (){
+
     }
 
 

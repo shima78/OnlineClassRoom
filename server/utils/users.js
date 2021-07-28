@@ -1,7 +1,7 @@
 const moment = require('moment')
 const users = [];
 function userJoin(socketID,username,room, role,userID ){
-    const user =  {socketID, 
+    const user =  {socketID,
         username,
         userID,
         room,
@@ -9,10 +9,22 @@ function userJoin(socketID,username,room, role,userID ){
         leaveTime: '',
         role,
         online : true
-     };
+    };
     users.push(user);
     return user
 }
+
+function userPromote(user,userToPromote){
+    if (user.role==='owner'){
+        // eslint-disable-next-line no-undef
+        const index = users.findIndex(user => user.socketID === id);
+        users[index].role = 'presenter'
+        return getRoomUsers(userToPromote.room)
+    }
+    return false
+}
+
+
 function getCurrentUser(id){
     return users.find(user => user.socketID === id);
 }
@@ -29,12 +41,13 @@ function userLeave(id){
 
 }
 function getRoomUsers(room){
-    
+
     return users.filter(user=> user.room === room);
 }
 module.exports = {
     userJoin,
     getCurrentUser,
     userLeave,
-    getRoomUsers
+    getRoomUsers,
+    userPromote
 }

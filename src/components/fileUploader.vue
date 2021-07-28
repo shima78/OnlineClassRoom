@@ -3,16 +3,16 @@
     <form @submit.prevent="" enctype="multipart/form-data" style="max-height: 40px; max-height: 40px">
       <div class="fields" style="max-height: 40px; max-width: 40px">
         <input v-if="pdf"
-            class="round-button custom-file-input pdf-upload-button"
-            type="file"
-            ref="file"
-            @change="onSelect"
-        />
-        <input  v-if="picture"
-            class="round-button custom-file-input picture-upload-button"
+               class="round-button custom-file-input pdf-upload-button"
                type="file"
                ref="file"
                @change="onSelect"
+        />
+        <input  v-if="picture"
+                class="round-button custom-file-input picture-upload-button"
+                type="file"
+                ref="file"
+                @change="onSelect"
         />
       </div>
 
@@ -41,7 +41,6 @@ export default {
   ,
   methods: {
     ...mapGetters(['getServer']),
-
     async onSelect(){
       //const allowedTypes = ["image/jpeg", "image/jpg", "image/png"];
       const file = this.$refs.file.files[0];
@@ -59,7 +58,6 @@ export default {
         const formData = new FormData();
         formData.append('file',this.file);
         try{
-
           await axios.post('http://localhost:3000/upload',formData).then(response => (this.message = response));
           // this.message = 'Uploaded!!'
           //console.log("UNDEFINED!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!",this.message)
@@ -72,7 +70,7 @@ export default {
             this.server.emit('fileUpload',filename)
           }
           else if(this.pdf){
-            this.server.emit('uploadPDF',filename)
+            this.server.emit('uploadPDF',filename,this.message.data.file.originalname)
           }
         }
         catch(err){
@@ -82,13 +80,7 @@ export default {
         }
       }
     }
-
-
-
-
   },
-
-
 }
 </script>
 
@@ -102,7 +94,6 @@ export default {
 }
 .custom-file-input::before {
   font-family: "Material Icons Outlined";
-
   display: flex;
   justify-content: center;
   align-items: center;
@@ -116,18 +107,14 @@ export default {
   border-radius: 50px;
   color: #7389a9;
 }
-
 .custom-file-input:active::before {
   color: #ff7c74;
-
 }
-
 .custom-file-input::-webkit-file-upload-button {
   visibility: hidden;
 }
 .custom-file-input::before {
   font-family: "Material Icons Outlined";
-
   display: flex;
   justify-content: center;
   align-items: center;
@@ -141,17 +128,12 @@ export default {
   border-radius: 50px;
   color: #7389a9;
 }
-
 .custom-file-input:active::before {
   color: #ff7c74;
 }
-
-
 .picture-upload-button::before{
   content: '\e251';
 }
-
-
 .pdf-upload-button::before{
   content: '\e2c6';
 }

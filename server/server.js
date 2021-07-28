@@ -3,8 +3,10 @@ const http = require('http');
 const  _ = require('lodash');
 const socketio = require('socket.io');
 const { formatMessage, getRoomMessages} = require('./utils/messages');
-const {userJoin,  getCurrentUser, userLeave, getRoomUsers} = require('./utils/users');
-const {formatQuestions,accept,formatAnswers,setScore,getQuestionAnswers,getExportData,getRoomQuestions} = require('./utils/QA');
+const {userJoin,  getCurrentUser, userLeave, getRoomUsers, userPromote} = require('./utils/users');
+const {formatQuestions,accept,formatAnswers,setScore,getQuestionAnswers,getExportData} = require('./utils/QA');
+// eslint-disable-next-line no-unused-vars
+const {uploadPDF, getRoomPDFList} =require('./utils/filemanager')
 const botName = 'admin';
 const PORT  = 3000;
 let express = require("express");
@@ -37,6 +39,7 @@ const fileFilter = (req, file, cb) => {
 }
 
 app.get("/files", (req, res) => {
+    // eslint-disable-next-line no-undef
     const directoryPath = __basedir + "/uploads/";
 
     fs.readdir(directoryPath, function (err, files) {
@@ -50,9 +53,10 @@ app.get("/files", (req, res) => {
 
         files.forEach((file) => {
             fileInfos.push({
-                name: file,
+                name: file.originalname,
                 url: baseUrl + file,
             });
+            console.log(file)
         });
 
         res.status(200).send(fileInfos);
@@ -62,6 +66,7 @@ app.get("/files", (req, res) => {
 app.get("/uploads/:name", (req, res) => {
     console.log('uploade poked')
     const fileName = req.params.name;
+    // eslint-disable-next-line no-undef
     const directoryPath = __basedir + "/uploads/";
 
     res.download(directoryPath + fileName, fileName, (err) => {
@@ -84,9 +89,11 @@ const upload = multer({
     }
 });
 app.post('/upload', upload.single('file'), (req, res) => {
+
     res.json({ file: req.file });
 });
 
+// eslint-disable-next-line no-unused-vars
 app.use((err, req, res, next) => {
     if (err.code === "INCORRECT_FILETYPE") {
         res.status(422).json({ error: 'Only images are allowed' });
@@ -104,11 +111,11 @@ io.on('connection',socket =>{
 
     socket.on('login', async ({name, pass, room}) => {
         const result = await userDB.getUser(name,pass, room)
-       // console.log(result)
+        // console.log(result)
 
         if(result.length){
             const usr = result[0]
-           console.log(usr)
+            console.log(usr)
             jwt.sign({usr}, 'secretkey', { expiresIn: '2h' }, (err, token) => {
                 socket.emit('loginRes',token)
             });
@@ -124,7 +131,7 @@ io.on('connection',socket =>{
         const user = await userJoin(socket.id, username, room, role, userID);
         //room is room ID
         if (room !== undefined){
-                        // console.log(user);
+            // console.log(user);
             socket.join(user.room);
         }
 
@@ -237,7 +244,7 @@ io.on('connection',socket =>{
         //console.log('drawingHistory',drawingHistoryItem.history)
 
     });
-        //TODO fix undo
+    //TODO fix undo
     socket.on('undo-canvas', async function (data) {
         const user = getCurrentUser(socket.id)
         if (_.some(drawingHistory, {
@@ -284,7 +291,7 @@ io.on('connection',socket =>{
                     undoData.data.lineWidth = data.lineWidth;
                     io.to(user.room).emit('draw-from-server', undoData.data);
                 }
-             }
+            }
         }
 
     });
@@ -316,13 +323,30 @@ io.on('connection',socket =>{
 
 
     //pdfUpload
-    socket.on('uploadPDF',(filename)=>{
+    socket.on('uploadPDF',async (filename, originalname)=>{
         const user = getCurrentUser(socket.id);
+        await uploadPDF(originalname,filename,user.room,"http://localhost:"+PORT+"/uploads/"+filename)
         io.to(user.room).emit('PDF',"http://localhost:"+PORT+"/uploads/"+filename)
 
     })
+    socket.on('getPDFList', async (room)=>{
+        console.log(await getRoomPDFList(room))
+        io.to(socket.id).emit('privateMessage', await getRoomPDFList(room));
+        // io.to(room).emit(await getRoomPDFList(room))
+    })
+    socket.on('changePDFPage', async (pageNumber)=>{
+        const currUser = await getCurrentUser(socket.id)
+        io.to(currUser.room).emit('changePage', pageNumber)
+    })
+    socket.on('promote',async  userToPromote => {
+        const user = getCurrentUser(socket.id)
+        io.to(user.room).emit('newRole',await userPromote(user,userToPromote));
+    });
 
-
+    socket.on('demote',async  userToPromote => {
+        const user = getCurrentUser(socket.id)
+        io.to(user.room).emit('newRole',await userPromote(user,userToPromote));
+    });
 
 
 
