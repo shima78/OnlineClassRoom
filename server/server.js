@@ -367,11 +367,11 @@ io.on('connection',socket =>{
         const user = getCurrentUser(socket.id)
         const receiver = getCurrentUser(receiverSocketId)
         await privateMessage(user,receiver, msg)
-        io.to(receiverSocketId).emit('newPrivateMessage',  await getChatMessages(user1,user2));
-        io.to(socket.id).emit('newPrivateMessage',  await getChatMessages(user1,user2));
+        io.to(receiverSocketId).emit('newPrivateMessage',  await getChatMessages(socket.id,receiverSocketId));
+        io.to(socket.id).emit('newPrivateMessage',  await getChatMessages(socket.id,receiverSocketId));
     })
     socket.on('openChat', async (user1,user2 ) =>{
-        const user = getCurrentUser(socket.id)
+        // const user = getCurrentUser(socket.id)
         io.to(socket.id).emit('privateMessage', await getChatMessages(user1,user2));
     })
     socket.on('disconnect', async () =>{
