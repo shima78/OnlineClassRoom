@@ -15,10 +15,6 @@ const userDB = require('./db/user');
 const fs = require("fs");
 const baseUrl = "http://localhost:"+ PORT +"/uploads/";
 let multer  = require('multer');
-// const _ = require("core-js");
-//let multer  = require('multer');
-// eslint-disable-next-line no-unused-vars
-// const cors = require('cors');
 const app = express();
 //we need a server that we can access
 const server = http.createServer(app);
