@@ -334,9 +334,9 @@ io.on('connection',socket =>{
         io.to(socket.id).emit('privateMessage', await getRoomPDFList(room));
         // io.to(room).emit(await getRoomPDFList(room))
     })
-    socket.on('changePDFPage', async (page)=>{
+    socket.on('changePDFPage', async (pageNumber)=>{
         const currUser = await getCurrentUser(socket.id)
-        io.to(currUser.room).emit('changePage', page)
+        io.to(currUser.room).emit('changePage', pageNumber)
     })
     socket.on('promote',async  userToPromote => {
         const user = getCurrentUser(socket.id)

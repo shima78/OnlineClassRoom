@@ -72,7 +72,7 @@ export default {
             this.server.emit('fileUpload',filename)
           }
           else if(this.pdf){
-            this.server.emit('uploadPDF',filename)
+            this.server.emit('uploadPDF',filename,this.message.data.file.originalname)
           }
         }
         catch(err){
