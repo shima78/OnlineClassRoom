@@ -164,6 +164,12 @@ io.on('connection',socket =>{
         })
 
     });
+    //audio
+    socket.on('radio', function(blob) {
+        // can choose to broadcast it to whoever you want
+        socket.broadcast.emit('voice', blob);
+    });
+
 
     //upload image
     socket.on('fileUpload',(filename)=>{
