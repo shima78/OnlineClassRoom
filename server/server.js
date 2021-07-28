@@ -2,7 +2,7 @@
 const http = require('http');
 const  _ = require('lodash');
 const socketio = require('socket.io');
-const { formatMessage, getRoomMessages} = require('./utils/messages');
+const { formatMessage, getRoomMessages, getChatMessages, privateMessage} = require('./utils/messages');
 const {userJoin,  getCurrentUser, userLeave, getRoomUsers, userPromote} = require('./utils/users');
 const {formatQuestions,accept,formatAnswers,setScore,getQuestionAnswers,getExportData} = require('./utils/QA');
 // eslint-disable-next-line no-unused-vars
@@ -361,6 +361,19 @@ io.on('connection',socket =>{
             })
         }
     })
+
+    //private message
+    socket.on('sendPrivateMessage', async ({msg, receiverSocketId}) =>{
+        const user = getCurrentUser(socket.id)
+        const receiver = getCurrentUser(receiverSocketId)
+        await privateMessage(user,receiver, msg)
+        io.to(receiverSocketId).emit('newPrivateMessage',  await getChatMessages(user1,user2));
+        io.to(socket.id).emit('newPrivateMessage',  await getChatMessages(user1,user2));
+    })
+    socket.on('openChat', async (user1,user2 ) =>{
+        const user = getCurrentUser(socket.id)
+        io.to(socket.id).emit('privateMessage', await getChatMessages(user1,user2));
+    })
     socket.on('disconnect', async () =>{
         await userLeave(socket.id);
         const currUser = await getCurrentUser(socket.id)
@@ -369,7 +382,6 @@ io.on('connection',socket =>{
         if (currUser) {
             io.to(currUser.room).emit('message',await formatMessage(botName,`${currUser.username} has 
             left the chat`, currUser.room));
-
             io.to(currUser.room).emit('roomUsers', {
                 room: currUser.room,
                 users: await getRoomUsers(currUser.room)
