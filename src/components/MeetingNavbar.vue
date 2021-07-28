@@ -134,12 +134,13 @@ export default {
         document.body.removeChild(element);
 
         // When the client receives a voice message it will play the sound
-        this.server.on('voice', function(arrayBuffer) {
-          var blob = new Blob([arrayBuffer], { 'type' : 'audio/ogg; codecs=opus' });
-          var audio = document.createElement('audio');
-          audio.src = window.URL.createObjectURL(blob);
-          audio.play();
-        });
+
+      });
+      this.server.on('voice', function(arrayBuffer) {
+        var blob = new Blob([arrayBuffer], { 'type' : 'audio/ogg; codecs=opus' });
+        var audio = document.createElement('audio');
+        audio.src = window.URL.createObjectURL(blob);
+        audio.play();
       });
     }
 
