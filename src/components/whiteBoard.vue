@@ -1,16 +1,20 @@
 <template>
   <div id="white-board-wrapper">
-    <div id="white-board-control">
+    <div id="white-board-control" v-show="expandWhiteBoardControl">
       <div id="upload-ctrl-group" class="ctrl-group">
-          <button class="round-button pdf-button" style="grid-column: 1; grid-row: 1;" @click="pdfDiv.style.zIndex = 3; canvas.style.zIndex = 1;">
-            <label>PDF</label>
-          </button>
+        <button class="round-button pdf-button" style="grid-column: 1; grid-row: 1;" @click="pdfDiv.style.zIndex = 3; canvas.style.zIndex = 1;">
+          <label>PDF</label>
+        </button>
         <fileUploader  :pdf="true" :picture="false" style="grid-column: 2; grid-row: 1;"></fileUploader>
-          <!--<input class="round-button pdf-button custom-file-input" id="pdf-upload-button" style="grid-column: 2; grid-row: 1;" type="file">-->
+
+        <!--<input class="round-button pdf-button custom-file-input" id="pdf-upload-button" style="grid-column: 2; grid-row: 1;" type="file">-->
         <button class="round-button" style="grid-column: 1; grid-row: 2;" @click="canvas.style.zIndex = 3; pdfDiv.style.zIndex = 1; canvas.style.backgroundImage = null">
           <i class="material-icons">cast_for_education</i>
         </button>
-        <fileUploader  :pdf="false" :picture="true" style="grid-row: 2; grid-column: 2;"></fileUploader>
+        <fileUploader  :pdf="false" :picture="true" style="grid-row: 2; grid-column: 2;" v-if="imageBack == 0"></fileUploader>
+        <button class="round-button" style="grid-column: 2; grid-row: 2;" v-if="imageBack == 1" @click="clearBackground">
+          <i class="material-icons">cancel</i>
+        </button>
         <!---<input class="round-button custom-file-input" id="photo-upload-button" style="grid-row: 2; grid-column: 2;" type="file" @change="onSelect"> -->
 
 
@@ -18,32 +22,32 @@
 
       <div id="shape-ctrl-group" class="ctrl-group">
 
-          <button class="round-button">
-            <i class="material-icons">post_add</i>
-          </button>
-          <button class="round-button" @click="drawCircle">
-            <i class="material-icons-outlined">circle</i>
-          </button>
-          <button class="round-button" @click="drawLine">
+        <button class="round-button" :disabled="role === 'std'">
+          <i class="material-icons">post_add</i>
+        </button>
+        <button class="round-button" @click="drawCircle" :disabled="role === 'std'">
+          <i class="material-icons-outlined">circle</i>
+        </button>
+        <button class="round-button" @click="drawLine" :disabled="role === 'std'">
           <i class="material-icons">horizontal_rule</i>
         </button>
-          <button class="round-button" @click="drawRect">
-            <i class="material-icons-outlined">crop_square</i>
-          </button>
+        <button class="round-button" @click="drawRect" :disabled="role === 'std'">
+          <i class="material-icons-outlined">crop_square</i>
+        </button>
 
       </div>
 
       <div id="line-redo-ctrl-group" class="ctrl-group">
-        <button class="round-button">
+        <button class="round-button" :disabled="role === 'std'">
           <i class="material-icons" @click="eraseMode">phonelink_erase</i>
         </button>
-        <button class="round-button" @click="pendMode">
+        <button class="round-button" @click="pendMode" :disabled="role === 'std'">
           <i class="material-icons-outlined">draw</i>
         </button>
-        <button class="round-button" @click="clearAll">
+        <button class="round-button" @click="clearAll" :disabled="role === 'std'">
           <i class="material-icons">restart_alt</i>
         </button>
-        <button class="round-button" @click="undo">
+        <button class="round-button" @click="undo" :disabled="role === 'std'">
           <i class="material-icons-outlined">undo</i>
         </button>
 
@@ -52,20 +56,21 @@
       <div id="pen-thickness-ctrl-group" class="ctrl-group">
         <label class="thickness-label" id="thickness-label-a">A</label>
         <div style="display: flex; flex-direction: row; justify-content: space-between; align-items: center; width: 100%">
-          <button id="thickness-inc-low" class="round-button inc-button" @click="thicknessDec">
-          <i class="material-icons">remove</i>
-        </button>
+          <button id="thickness-inc-low" class="round-button inc-button" @click="thicknessDec" :disabled="role === 'std'">
+            <i class="material-icons">remove</i>
+          </button>
 
-          <button id="thickness-inc-high" class="round-button inc-button" @click="thicknessInc">
+          <button id="thickness-inc-high" class="round-button inc-button" @click="thicknessInc" :disabled="role === 'std'">
             <i class="material-icons">add</i>
           </button></div>
+
 
       </div>
 
       <div id="color-wheel-ctrl-group" class="ctrl-group">
-        <v-swatches v-if="clientWide" v-model="color" popover-x="left" inline  background-color="#e0e5ec" row-length="4" :swatch-style=this.swatchStyle :close-on-select="true">
+        <v-swatches v-if="clientWide" v-model="color" popover-x="left" inline  background-color="#e0e5ec" row-length="4" :swatch-style=this.swatchStyle :close-on-select="true" :disabled="role === 'std'">
         </v-swatches>
-        <v-swatches v-if="!clientWide" v-model="color" popover-x="left"   background-color="#e0e5ec" row-length="4" :swatch-style=this.swatchStyle :close-on-select="true">
+        <v-swatches v-if="!clientWide" v-model="color" popover-x="left"   background-color="#e0e5ec" row-length="4" :swatch-style=this.swatchStyle :close-on-select="true" :disabled="role === 'std'">
         </v-swatches>
       </div>
 
@@ -73,23 +78,27 @@
     <div id="wrapper" style="display: grid; grid-template-rows: 1fr; grid-template-columns: 1fr; height: calc(100% - 120px); box-sizing: border-box;">
       <div id="pdf-view-wrapper" style="z-index: 1; grid-row: 1; grid-column: 1;">
         <div id="pdf-nav-bar">
-          <button class="round-button">
-            <i class="material-icons">chevron_left</i>
+          <button class="round-button" id="hide-button"  @click="expandWhiteBoardControlFunction"
+                  style="display: flex; justify-content: space-between; width: 120px; padding-left: 10px; box-sizing: border-box;"
+                  :disabled="role === 'std'">
+            <label v-if="expandWhiteBoardControl">hide</label>
+            <label v-if="!expandWhiteBoardControl">show</label>
+            <i v-if="expandWhiteBoardControl" class="material-icons">expand_less</i>
+            <i v-if="!expandWhiteBoardControl" class="material-icons">expand_more</i>
+
           </button>
-          <div id="pdf-nav-bar-mid">
-            <label>sharing file:              at page:</label>
-          </div>
-          <button class="round-button">
-            <i class="material-icons">chevron_right</i>
-          </button>
+
+
         </div>
         <vue-pdf-app style="height: calc(100%); width: 100%; border-radius: 0px 0px 14px 14px;"
                      :pdf="PDF.pdfSource" :title="PDF.title" theme="light"
-                      :page-number="PDF.pageNumber"
+                     :page-number="PDF.pageNumber"
         ></vue-pdf-app>
       </div>
       <!-- <input :required="test ? true : false"> -->
+
       <canvas  id="white-board-canvas" @mousedown="mouseDown" @mousemove="mouseMove" @mouseup="mouseup" @mouseleave="mouseleave" style="z-index: 2; grid-row: 1; grid-column: 1;">
+
       </canvas>
 
     </div>
@@ -102,9 +111,10 @@
 // eslint-disable-next-line no-unused-vars
 import VSwatches from 'vue-swatches'
 import fileUploader from "@/components/fileUploader";
-import {mapGetters} from "vuex";
+import {mapGetters,mapActions} from "vuex";
 import VuePdfApp from "vue-pdf-app";
 import "vue-pdf-app/dist/icons/main.css";
+
 
 // eslint-disable-next-line no-unused-vars
 
@@ -171,6 +181,9 @@ export default {
         pageNumber: null
       },
 
+      expandWhiteBoardControl: 1,
+      imageBack: 0
+
 
 
 
@@ -181,10 +194,49 @@ export default {
     fileUploader,
     VSwatches,
     VuePdfApp
-
   },
+
+  computed:{
+    PDFPageNumber(){
+      return this.PDF.pageNumber;
+    }
+  },
+
+
+  watch:{
+    PDF: function(){
+      console.log('pdfpage',this.PDFPageNumber)//emit pagenumber change
+    }
+  }
+  ,
   methods:{
-    ...mapGetters(['getServer','getRole']),
+    ...mapGetters(['getServer','getRole','getRoomID']),
+    ...mapActions(['updateRole']),
+    clearBackground: function (){
+      this.canvas.style.backgroundImage = null;
+      this.imageBack = 0;
+    },
+    expandWhiteBoardControlFunction: function (){
+
+      let clientWideHold = this.clientWide;
+      let wrapper = document.getElementById('wrapper');
+
+      if(this.expandWhiteBoardControl){
+        this.clientWide = clientWideHold;
+        wrapper.style.height = 'calc(100%)'
+        this.expandWhiteBoardControl = !this.expandWhiteBoardControl;
+
+      }
+      else{
+        this.clientWide = clientWideHold;
+        wrapper.style.height = 'calc(100% - 120px)'
+
+
+        this.expandWhiteBoardControl = !this.expandWhiteBoardControl;
+      }
+
+
+    },
     addClick: function (x,y,dragging){
 
       if(x) {
@@ -192,7 +244,7 @@ export default {
         this.click.y.push(y);
         this.click.drag.push(dragging);
       }
-      },
+    },
     drawOnCanvas: function (){
       this.canvasContext.strokeStyle = this.color;
       this.canvasContext.lineJoin = 'round';
@@ -227,6 +279,8 @@ export default {
 
     init: function (){
 
+
+
       this.server = this.$store.getters.getServer;
       this.role = this.$store.getters.getRole;
       this.clientWide =1;
@@ -239,28 +293,28 @@ export default {
       else{
         this.clientWide = 1;
       }
-        console.log("role",this.role)
+
 
       //role based button disable
-      if(this.role == "std"){
+      /* if(this.role == "std"){
 
-        let whiteBoardInputControls = canvasControl.getElementsByTagName('input');
-        let whiteBoardButtonControls = canvasControl.getElementsByTagName('button');
-        console.log(whiteBoardInputControls,whiteBoardInputControls)
-        for(let i = 0;i < whiteBoardButtonControls.length; i++){
-          if(i==1 || i==0){
-            continue;
-          }
-          whiteBoardButtonControls[i].disabled = true;
-        }
+         let whiteBoardInputControls = canvasControl.getElementsByTagName('input');
+         let whiteBoardButtonControls = canvasControl.getElementsByTagName('button');
+         console.log(whiteBoardInputControls,whiteBoardInputControls)
+         for(let i = 0;i < whiteBoardButtonControls.length; i++){
+           if(i==1 || i==0){
+             continue;
+           }
+           whiteBoardButtonControls[i].disabled = true;
+         }
 
-        for(let j = 0;j < whiteBoardInputControls.length; j++){
-          whiteBoardInputControls[j].disabled = true;
-        }
+         for(let j = 0;j < whiteBoardInputControls.length; j++){
+           whiteBoardInputControls[j].disabled = true;
+         }
 
-        console.log('whiteBoardInputControls',whiteBoardInputControls);
-        console.log('whiteBoardButtonControls',whiteBoardButtonControls);
-      }
+         console.log('whiteBoardInputControls',whiteBoardInputControls);
+         console.log('whiteBoardButtonControls',whiteBoardButtonControls);
+       }*/
 
 
 
@@ -299,10 +353,17 @@ export default {
         this.drawRectClientL({shapeClickMemory,strokeStyle,lineWidth});
       })
 
+      //pdf event listeners
+
+      this.server.on("privateMessage",(data)=>{
+        console.log("pdfList",data)
+      })
+
 
       //imageUpload
       //TODO fix IMAGE FRONT
       this.server.on("bgURL",async (URL)=>{
+        this.imageBack = 1;
         // document.getElementById("image").src = URL
         console.log('bgrul:::',URL)
         this.canvas.style.backgroundImage = "url("+URL+")";
@@ -317,6 +378,14 @@ export default {
       this.server.on("PDF",async (PDF)=>{
         console.log('pdf:',PDF);
         this.PDF.pdfSource=PDF;
+
+      })
+
+      this.server.on("newRole", async (data)=>{
+        console.log('promote data',data)
+        let user = data.find(user => user.socketID === this.server.id && user.online === true)
+        this.updateRole(user.role)
+        this.role = user.role;
 
       })
 
@@ -413,21 +482,21 @@ export default {
 
 
 
-      thicknessInc:  function (){
-        if(this.thickness < 9){
-          this.thickness += 1;
-          document.getElementById('thickness-label-a').style.fontWeight = (this.thickness * 100).toString();
+    thicknessInc:  function (){
+      if(this.thickness < 9){
+        this.thickness += 1;
+        document.getElementById('thickness-label-a').style.fontWeight = (this.thickness * 100).toString();
 
 
-        }
-      },
+      }
+    },
     thicknessDec: function (){
-        if(this.thickness > 1){
-          this.thickness -= 1;
-          document.getElementById('thickness-label-a').style.fontWeight = (this.thickness * 100).toString();
+      if(this.thickness > 1){
+        this.thickness -= 1;
+        document.getElementById('thickness-label-a').style.fontWeight = (this.thickness * 100).toString();
 
-        }
-      },
+      }
+    },
 
     eraseMode: function (){
       if(this.color != '#e0e5ec'){
@@ -471,9 +540,9 @@ export default {
         lineWidth: this.thickness
       });
 
-     this.server.emit('maintain-history', {
-       shapeClickMemory: this.shapeClickMemory,
-       shapeProperties: 'line',
+      this.server.emit('maintain-history', {
+        shapeClickMemory: this.shapeClickMemory,
+        shapeProperties: 'line',
         strokeStyle: this.color,
         lineWidth: this.thickness
       });
@@ -532,21 +601,21 @@ export default {
 
     drawOnClientCanvas: function (data) {
 
-        this.canvasContext.strokeStyle = data.strokeStyle;
-        this.canvasContext.lineJoin = "round";
-        this.canvasContext.lineWidth = data.lineWidth;
+      this.canvasContext.strokeStyle = data.strokeStyle;
+      this.canvasContext.lineJoin = "round";
+      this.canvasContext.lineWidth = data.lineWidth;
 
-        for (let i = 0; i < data.click.x.length; i++) {
-          this.canvasContext.beginPath();
-          if (data.click.drag[i] && i) {
-            this.canvasContext.moveTo(data.click.x[i - 1], data.click.y[i - 1]);
-          } else {
-            this.canvasContext.moveTo(data.click.x[i] - 1, data.click.y[i]);
-          }
-          this.canvasContext.lineTo(data.click.x[i], data.click.y[i]);
-          this.canvasContext.closePath();
-          this.canvasContext.stroke();
+      for (let i = 0; i < data.click.x.length; i++) {
+        this.canvasContext.beginPath();
+        if (data.click.drag[i] && i) {
+          this.canvasContext.moveTo(data.click.x[i - 1], data.click.y[i - 1]);
+        } else {
+          this.canvasContext.moveTo(data.click.x[i] - 1, data.click.y[i]);
         }
+        this.canvasContext.lineTo(data.click.x[i], data.click.y[i]);
+        this.canvasContext.closePath();
+        this.canvasContext.stroke();
+      }
     },
     //pass shapeMemory and line style
     drawCircleClient: function ({shapeClickMemory,strokeStyle,lineWidth}){
@@ -611,12 +680,12 @@ export default {
     }
 
 
-},
+  },
   mounted() {
     this.init();
     this.setCanvasOffset();
     window.onresize = this.resizeLog;
-
+    console.log("PDF",this.PDF)
 
   }
 }
@@ -781,7 +850,7 @@ export default {
   flex-direction: row;
   border-radius: 14px 14px 0px 0px;
   box-shadow:  3px 3px 6px #bec3c9,
-   -3px -3px 6px #ffffff;
+  -3px -3px 6px #ffffff;
 
 }
 #pdf-nav-bar > button{
@@ -792,6 +861,11 @@ export default {
 #pdf-nav-bar-mid > label{
   font-style: italic;
 }
+#hide-button {
+  width: 120px;
+}
+
+
 
 
 </style>

@@ -28,12 +28,14 @@
       </div>
     </div>
     <div id="attendList" class="side-box-v-container" v-if="selected === 2">
-
       <div id="attend-list-box" class="side-shadow-container">
         <vue-scroll>
           <template v-for="userOBJ in userInfo[0].filter(user => user.online == true)">
             <user-bubble :key="userOBJ.index" :username="userOBJ.username"
-                         :join-time="userOBJ.joinTime" :status="userOBJ.online"></user-bubble>
+                         :join-time="userOBJ.joinTime" :status="userOBJ.online"
+                         :user-role="userOBJ.role"
+                         :socket-i-d="userOBJ.socketID"
+            ></user-bubble>
           </template>
         </vue-scroll>
       </div>
@@ -50,24 +52,33 @@
             </textarea>
         </div >
         <div id="question-input-action-wrapper">
-          <div style="display: flex; flex-direction: row;justify-content: space-between; align-items: center">
+          <div style="display: flex; flex-direction: row;justify-content: space-between; align-items: center; margin-right: 30px">
             <template v-if="role === 'owner'">
-            <button id="question-hard-inc-low" class="round-button inc-button"   @click="decDifficulty" >
-              <i class="material-icons">remove</i>
-            </button>
-            <input type="checkbox" class="slider-check-box" v-model="this.questionDifficulty.checkBoxBind" disabled="true" value=1>
-            <input type="checkbox" class="slider-check-box" v-model="this.questionDifficulty.checkBoxBind" disabled="true" value=2>
-            <input type="checkbox" class="slider-check-box" v-model="this.questionDifficulty.checkBoxBind" disabled="true" value=3>
-            <input type="checkbox" class="slider-check-box" v-model="this.questionDifficulty.checkBoxBind" disabled="true" value=4>
-            <input type="checkbox" class="slider-check-box" v-model="this.questionDifficulty.checkBoxBind" disabled="true" value=5>
-            <button id="question-hard-inc-high" class="round-button inc-button"   @click="incDifficulty">
-              <i class="material-icons">add</i>
-            </button>
+              <button id="question-hard-inc-low" class="round-button inc-button"   @click="decDifficulty" >
+                <i class="material-icons">remove</i>
+              </button>
+              <input type="checkbox" class="slider-check-box" v-model="this.questionDifficulty.checkBoxBind" disabled="true" value=1>
+              <input type="checkbox" class="slider-check-box" v-model="this.questionDifficulty.checkBoxBind" disabled="true" value=2>
+              <input type="checkbox" class="slider-check-box" v-model="this.questionDifficulty.checkBoxBind" disabled="true" value=3>
+              <input type="checkbox" class="slider-check-box" v-model="this.questionDifficulty.checkBoxBind" disabled="true" value=4>
+              <input type="checkbox" class="slider-check-box" v-model="this.questionDifficulty.checkBoxBind" disabled="true" value=5>
+              <button id="question-hard-inc-high" class="round-button inc-button"   @click="incDifficulty">
+                <i class="material-icons">add</i>
+              </button>
             </template>
-            <input v-if="role === 'std'" type="text" class="input-bar" v-model="qid" style="height: 30px;" placeholder="Question Number" >
+            <template v-if="role === 'std' || role ==='presenter'">
+              <button id="qid-selector-left" class="round-button inc-button"  @click="lastQuestionSelect">
+                <i class="material-icons">chevron_left</i>
+              </button>
+              <input type="text" class="input-bar" v-model="qid" style="height: 30px; width: 100%; text-align: center;" placeholder="Question Number"  disabled>
+              <button id="qid-selector-right" class="round-button inc-button"   @click="nextQuestionSelect">
+                <i class="material-icons">chevron_right</i>
+              </button>
+            </template>
+
           </div>
           <button id="question-send-button" class="pink-button" @click="askQuestion" v-if="role === 'owner'"> Ask </button>
-          <button id="answer-send-button" class="pink-button" @click="answerQuestion" v-if="role === 'std'"> Answer </button>
+          <button id="answer-send-button" class="pink-button" @click="answerQuestion" v-if="role === 'std' || role === 'presenter'"> Answer </button>
 
         </div>
       </div>
@@ -123,20 +134,21 @@ export default {
       questionArray: new Array(),
       answerArray: null,
       role: null,
-      qid: null,
+      qid: 0,
       username: null,
-      currentAnswerIndex: null
     }
   },
   methods:{
     ...mapActions(['updateUsersData']),
     ...mapGetters(['getRole','getUsername',"getUserData"]),
     init: function () {
-    console.log('currentQuestion:',this.questionArray,this.$store.getters.getCurrentAnswerArrayIndex)
+
+
+
 
       //login inti
       this.answerArray =  this.questionArray.map(q => q.answers);
-      this.currentAnswerIndex = this.$store.getters.getCurrentAnswerArrayIndex;
+
       this.username = this.$store.getters.getUsername;
       this.role = this.$store.getters.getRole;
       this.chatButton = document.getElementById("chat-button");
@@ -155,19 +167,19 @@ export default {
 
       });
       this.SERVER.on("roomUsers", (userdata) => {
-          this.updateUsersData(userdata.users);
-        });
+        this.updateUsersData(userdata.users);
+      });
 
       //getting question!!
       this.SERVER.on("newQuestion", (newQuestion) => {
-          this.questionArray = newQuestion;
+        this.questionArray = newQuestion;
 
       });
 
       //get answers back
       this.SERVER.on("answer",(answerData) =>{
 
-            this.questionArray = answerData;
+        this.questionArray = answerData;
 
       })
 
@@ -182,14 +194,20 @@ export default {
         this.updateUsersData(scoreData)
       })
 
+      //promoteUser
+      this.SERVER.on("newRole",data =>{
+        this.updateUsersData(data)
+      })
+
     },
     sendMessage : function (){
       if(this.chatEntryText =="") {
         return;
       }
       else{
-        this.chatEntryText="";
+
         this.SERVER.emit("chatMessage",this.chatEntryText);
+        this.chatEntryText="";
       }
     },
     incDifficulty:  function (){
@@ -230,15 +248,29 @@ export default {
       }else{
         console.log('sending answer to server')
         let answerData = {
-            username: this.username,
-            text: this.questionEntryText,
-            qid: this.qid
+          username: this.username,
+          text: this.questionEntryText,
+          qid: this.qid
         }
         //sending Answers!
         this.SERVER.emit('chatAnswer',answerData);
 
       }
-    }
+    },
+    lastQuestionSelect: function (){
+      let questionList = this.questionArray.map(x => x.id);
+      console.log(questionList,this.qid-1)
+      if(questionList.includes(this.qid - 1)){
+        this.qid = this.qid - 1;
+      }
+    },
+    nextQuestionSelect: function (){
+      let questionList = this.questionArray.map(x => x.id);
+      if(questionList.includes(this.qid+1)){
+        this.qid = this.qid + 1;
+      }
+
+    },
   },
   mounted() {
     this.init();
@@ -368,6 +400,7 @@ export default {
 }
 #question-input-action-wrapper{
   width: 100%;
+  box-sizing: border-box;
   display: flex;
   flex-direction: row;
   justify-content: space-between;

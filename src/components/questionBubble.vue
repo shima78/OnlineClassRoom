@@ -27,7 +27,7 @@ export default {
   name: "questionBubble",
   data(){
     return{
-        qid: null,
+      qid: null,
       serve: null,
       answerArray: new Array()
     }

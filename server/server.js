@@ -197,9 +197,9 @@ io.on('connection',socket =>{
         //         io.to(roomBroadcast[i].socketID).emit('screenMedia', newData);
         //     }
         // }
-
-        io.to(user.room).emit('screenMedia', newData);
-
+        if(user.room!==undefined) {
+            io.to(user.room).emit('screenMedia', newData);
+        }
     });
 
 
