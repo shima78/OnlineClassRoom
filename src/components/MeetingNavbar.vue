@@ -5,7 +5,7 @@
       <input type="checkbox" class="toggle-button check-box" id="microphone">
       <input type="checkbox" class="toggle-button check-box" id="video">
       <input type="range" id="volume-slider" class="slider">
-      <VueRecord  id="vd" @result="onResult"/>
+
       <div id="username-box" style="display: flex; justify-content: center; align-items: center;">
         <div id="username-box-icon-back" style="display: flex; justify-content: center; align-items: center;">
           <label v-if="this.getRole() === 'owner'" >T</label>
@@ -36,16 +36,13 @@ import {mapActions, mapGetters} from "vuex";
 import * as Papa from 'papaparse';
 
 import axios from 'axios';
-import VueRecord from "@codekraft-studio/vue-record"
-import Vue from "vue";
-Vue.use(VueRecord)
+
+
 
 
 export default {
   name: "MeetingNavbar",
   components: {
-    VueRecord
-
 
   },
   data(){

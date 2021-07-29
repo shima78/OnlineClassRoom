@@ -12,12 +12,13 @@
       </button>
     </div>
     <div id="chatList" class="side-box-v-container" v-if="selected === 1">
-      <div id="chat-message-box" class="side-shadow-container">
+      <div class="chat-message-box side-shadow-container">
         <vue-scroll>
           <template v-for="messageOBJ in this.messagesArray">
             <chat-bubble :key="messageOBJ.index" :username="messageOBJ.username" :message="messageOBJ.message" :time="messageOBJ.time"></chat-bubble>
           </template>
         </vue-scroll>
+
       </div>
 
       <div id="chatMessageEntry" >
@@ -39,6 +40,7 @@
           </template>
         </vue-scroll>
       </div>
+      <div class="side-shadow-container" style="height: 100px">dawad</div>
     </div>
     <div id="question-list" class="side-box-v-container" v-if="selected === 3">
       <div id="question-entry" class="side-shadow-container">

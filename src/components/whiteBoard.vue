@@ -80,7 +80,7 @@
         <div id="pdf-nav-bar">
             <button class="round-button" id="hide-button"  @click="expandWhiteBoardControlFunction"
                     style="display: flex; justify-content: space-between; width: 120px; padding-left: 10px; box-sizing: border-box;"
-                    :disabled="role === 'std'">
+                    >
                 <label v-if="expandWhiteBoardControl">hide</label>
                 <label v-if="!expandWhiteBoardControl">show</label>
                 <i v-if="expandWhiteBoardControl" class="material-icons">expand_less</i>
