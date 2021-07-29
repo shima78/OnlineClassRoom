@@ -53,7 +53,7 @@ export default {
         server: null,
         role: null,
         reader : new FileReader(),
-        // isOn: null,
+        isOn: false,
     }
   },
 
@@ -87,7 +87,6 @@ export default {
       });
     },
     shareAudio: function () {
-        // this.isOn = !this.isOn
         const time = 1000
         console.log("server in func", this.server)
         navigator.mediaDevices.getUserMedia({ audio: true }).then((stream) => {
@@ -109,7 +108,7 @@ export default {
           fileReader.onloadend = function () {
             var base64String = fileReader.result;
             // console.log(base64String)
-            // console.log(isOn)
+
             myserver.emit('radio', base64String);
 
           };
@@ -127,7 +126,6 @@ export default {
 
     //
     shareScreen: function () {
-
       const time =5000
         console.log("server in func", this.server)
 
@@ -149,7 +147,6 @@ export default {
           fileReader.onloadend = function () {
             var base64String = fileReader.result;
             // console.log(base64String)
-
             myserver.emit('screen', base64String);
 
           };

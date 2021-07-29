@@ -402,11 +402,11 @@ io.on('connection',socket =>{
     });
 
     socket.on('promote',async  userToPromote => {
-        const user = getCurrentUser(socket.id)
+        const user = await getCurrentUser(socket.id)
         io.to(user.room).emit('newRole',await userPromote(user,userToPromote));
     });
     socket.on('demote',async  userToDemote => {
-        const user = getCurrentUser(socket.id)
+        const user = await getCurrentUser(socket.id)
         io.to(user.room).emit('newRole',await userDemote(user,userToDemote));
     });
 

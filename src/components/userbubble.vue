@@ -18,17 +18,9 @@
           <i class="material-icons">group_add</i>
         </button>
       </template>
-      <button class="accept-reject-button"  id="reject-button" @click="promoteUser" v-if="userRole === 'std'">
-        <label>
-          Promote
-        </label>
-        <i class="material-icons">group_add</i>
-      </button>
       <label class="role-label">
         {{ joinTime }}
       </label>
-
-
     </div>
 
   </div>

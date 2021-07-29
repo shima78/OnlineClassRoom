@@ -28,7 +28,7 @@
       </div>
     </div>
     <div id="attendList" class="side-box-v-container" v-if="selected === 2">
-      <div class="attend-list-box side-shadow-container">
+      <div id="attend-list-box" class="side-shadow-container">
         <vue-scroll>
           <template v-for="userOBJ in userInfo[0].filter(user => user.online == true)">
             <user-bubble :key="userOBJ.index" :username="userOBJ.username"
@@ -38,17 +38,6 @@
             ></user-bubble>
           </template>
         </vue-scroll>
-      </div>
-      <div v-show="newGuest.exists" v-if="this.getRole() === 'owner'" style="display: flex; flex-direction: column; width: calc(100% - 20px); height:  margin-left:
-      10px; margin-right: 10px; box-sizing: border-box; margin-top: 10px;">
-        <div style="height: 40px">
-          <label>User {{this.newGuest.username}} has requested to enter the room at {{this.newGuest.time}}</label>
-        </div>
-        <div class="guest-button-holder" style="display: flex; flex-direction: row; justify-content: space-evenly; ">
-          <button class="question-bubble-round-button round-button guest-button">Accept</button>
-          <button class="question-bubble-round-button round-button guest-button">Reject</button>
-        </div>
-
       </div>
     </div>
     <div id="question-list" class="side-box-v-container" v-if="selected === 3">
@@ -128,11 +117,10 @@ import QuestionBubble from "@/components/questionBubble";
 import AnswerBubble from "@/components/answerBubble";
 // eslint-disable-next-line no-unused-vars
 import {mapActions, mapGetters} from "vuex";
-
 export default {
   name: "MeetingSideBox",
   // eslint-disable-next-line vue/no-unused-components
-  components: { AnswerBubble, QuestionBubble, UserBubble, ChatBubble},
+  components: {AnswerBubble, QuestionBubble, UserBubble, ChatBubble},
   data() {
     return {
       chatButton: null,
@@ -148,11 +136,6 @@ export default {
       role: null,
       qid: 0,
       username: null,
-      newGuest: {
-        exists: 0,
-        name: "Dwadawdwadwd",
-        time: "19:81 pm"
-      }
     }
   },
   methods:{
@@ -508,50 +491,4 @@ export default {
   border-radius: 12px 12px 0px 0px;
   padding: 4px 8px 4px 8px;
 }*/
-#attendList{
-  grid-template-rows: 6fr 1fr;
-  box-sizing: border-box;
-}
-
-.question-bubble-round-button{
-  width: 100px;
-  height: 20px;
-  box-shadow:  2px 2px 4px #d96963,
-  -2px -2px 4px #ff8f85;
-
-  font-family: "Poppins",sans-serif;
-  font-size: 12px;
-  font-weight: 400;
-  color: #7389a9;
-}
-
-.question-bubble-round-button:active{
-  color: #ff7c74;
-  box-shadow: inset 2px 2px 4px #bec3c9,
-  inset -2px -2px 4px #ffffff;
-}
-.guest-button{
-  box-shadow: none;
-  height: 30px;
-  font-size: 14px;
-  font-weight: bold;
-  width: 100%;
-}
-
-.guest-button > label{
-  color: #ff7c74;
-
-}
-
-.guest-button:active{
-  box-shadow: inset 2px 2px 4px #bec3c9,
-  inset -2px -2px 4px #ffffff;
-
-}
-.guest-button-holder{
-  box-sizing: border-box;
-  border-radius: 24px;
-  box-shadow:  3px 3px 6px #bec3c9,
-  -3px -3px 6px #ffffff;
-}
 </style>
