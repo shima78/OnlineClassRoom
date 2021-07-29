@@ -40,7 +40,7 @@
           </template>
         </vue-scroll>
       </div>
-      <div class="side-shadow-container" style="height: 100px">dawad</div>
+      <div class="side-shadow-container" >dawad</div>
     </div>
     <div id="question-list" class="side-box-v-container" v-if="selected === 3">
       <div id="question-entry" class="side-shadow-container">
