@@ -2,18 +2,23 @@
     <div id="nav-bar">
           <div id="media-control">
             <input type="checkbox" class="toggle-button check-box" id="speaker">
-            <input type="checkbox" class="toggle-button check-box" id="microphone" @change="shareAudio">
+            <input type="checkbox" class="toggle-button check-box" id="microphone"
+                   @change="shareAudio"
+                   >
             <input type="checkbox" class="toggle-button check-box" id="video" @change="shareScreen">
             <input type="range" id="volume-slider" class="slider">
+            <div id="username-box" style="display: flex; justify-content: center; align-items: center;">
+              <div id="username-box-icon-back" style="display: flex; justify-content: center; align-items: center;">
+                <label v-if="this.getRole() === 'owner'" >T</label>
+                <label v-if="this.getRole() === 'std'" >S</label>
+                <label v-if="this.getRole() === 'presenter'" >P</label>
+              </div>
+              <div id="username-text" style="display: flex; justify-content: center; align-items: center;"><label>{{this.getUsername()}}</label></div>
           </div>
 
-<!--      <vue-record-video />-->
+      </div>
 
-
-<!--   <vue-record-audio @result="onResult"/>-->
-<!--      <audio src="blob:http://localhost:8080/347bf6d4-c6eb-4315-9dab-5c970f3666e2"-->
-<!--             controls="controls"></audio>-->
-      <vue-record-video  id="vd" @result="onResult"/>
+<!--      <vue-record-video style="" id="vd" @result="onResult"/>-->
       <video id="myVideo" autoplay width="100px" height="100px" >
         <source id="source" src="">
       </video>
@@ -48,11 +53,12 @@ export default {
         server: null,
         role: null,
         reader : new FileReader(),
+        // isOn: null,
     }
   },
 
   methods: {
-    ...mapGetters(['getServer','getRole']),
+    ...mapGetters(['getServer','getRole','getUsername']),
     ...mapActions(['updateUsersData']),
 
     onResult (data) {
@@ -81,6 +87,7 @@ export default {
       });
     },
     shareAudio: function () {
+        // this.isOn = !this.isOn
         const time = 1000
         console.log("server in func", this.server)
         navigator.mediaDevices.getUserMedia({ audio: true }).then((stream) => {
@@ -89,6 +96,7 @@ export default {
         madiaRecorder.start();
         var audioChunks = [];
         var myserver = this.server
+        var isOn = this.isOn
         madiaRecorder.addEventListener("dataavailable", function (event) {
           audioChunks.push(event.data);
         });
@@ -101,6 +109,7 @@ export default {
           fileReader.onloadend = function () {
             var base64String = fileReader.result;
             // console.log(base64String)
+            // console.log(isOn)
             myserver.emit('radio', base64String);
 
           };
@@ -118,6 +127,7 @@ export default {
 
     //
     shareScreen: function () {
+
       const time =5000
         console.log("server in func", this.server)
 
@@ -139,6 +149,7 @@ export default {
           fileReader.onloadend = function () {
             var base64String = fileReader.result;
             // console.log(base64String)
+
             myserver.emit('screen', base64String);
 
           };
@@ -249,6 +260,7 @@ export default {
   display: flex;
   justify-content: space-between;
   align-content: center;
+  align-items: center;
   margin: 24px 40px 6px 40px;
   padding: 0px 10px;
 
@@ -305,7 +317,7 @@ export default {
 
 #volume-slider{
 
-    margin-right: 10px;
+  margin-right: 10px;
 }
 
 #speaker:after{
@@ -324,7 +336,28 @@ export default {
   font-weight: bold;
   font-size: 14px;
 }
+#username-box-icon-back{
+  width: 24px;
+  height: 24px;
+  background-color: #ff7c74;
+  border-radius: 18px 0px 0px 18px;
 
+}
 
+#username-box-icon-back > label{
+  font-weight: bold;
+  color: #e0e5ec;
+}
 
+#username-text{
+  height: 24px;
+  width: 70px;
+  border-radius: 0px 18px 18px 0px;;
+}
+
+#username-box{
+  box-shadow:  3px 3px 6px #bec3c9,
+  -3px -3px 6px #ffffff;
+  border-radius: 18px;
+}
 </style>
