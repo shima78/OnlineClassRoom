@@ -1,49 +1,49 @@
 <template>
   <div class="answer-bubble">
     <div class="top-wrapper">
-    <div class="username-label-wrapper">
-      <label class="username-label">
-        {{username}}
-      </label>
-    </div>
-    <div id="accept-reject-wrapper">
-      <template  v-if="role === 'owner'">
-        <button class="accept-reject-button" @click="rejectAnswer" id="accept-button">
-          <i class="material-icons">cancel</i>
-          <label>
-            Reject
-          </label>
-        </button>
-        <button class="accept-reject-button" @click="acceptAnswer" id="reject-button">
-          <label>
-            Accept
-          </label>
-          <i class="material-icons">check_circle</i>
-        </button>
-      </template>
+      <div class="username-label-wrapper">
+        <label class="username-label">
+          {{username}}
+        </label>
+      </div>
+      <div id="accept-reject-wrapper">
+        <template  v-if="role === 'owner'">
+          <button class="accept-reject-button" @click="rejectAnswer" id="accept-button">
+            <i class="material-icons">cancel</i>
+            <label>
+              Reject
+            </label>
+          </button>
+          <button class="accept-reject-button" @click="acceptAnswer" id="reject-button">
+            <label>
+              Accept
+            </label>
+            <i class="material-icons">check_circle</i>
+          </button>
+        </template>
 
-      <template v-if="role === 'std' || role === 'std'">
-        <button class="accept-reject-button" :disabled="true" v-if="accept === false">
-          <label>
-            Rejected
-          </label>
-          <i class="material-icons">cancel</i>
-        </button>
-        <button class="accept-reject-button" :disabled="true" v-if="accept === true">
-          <label>
-            Accepted
-          </label>
-          <i class="material-icons">check_circle</i>
-        </button>
-        <button class="accept-reject-button" :disabled="true" v-if="accept === null">
-          <label>
-            Not checked
-          </label>
-          <i class="material-icons">remove_circle</i>
-        </button>
-      </template>
+        <template v-if="role === 'std' || role === 'std'">
+          <button class="accept-reject-button" :disabled="true" v-if="accept === false">
+            <label>
+              Rejected
+            </label>
+            <i class="material-icons">cancel</i>
+          </button>
+          <button class="accept-reject-button" :disabled="true" v-if="accept === true">
+            <label>
+              Accepted
+            </label>
+            <i class="material-icons">check_circle</i>
+          </button>
+          <button class="accept-reject-button" :disabled="true" v-if="accept === null">
+            <label>
+              Not checked
+            </label>
+            <i class="material-icons">remove_circle</i>
+          </button>
+        </template>
 
-    </div>
+      </div>
     </div>
     <p class="answer-p">
       {{answerMessage}}
@@ -185,7 +185,7 @@ export default {
   margin-left: 4px;
   margin-right: 1px;
 
-   overflow-wrap: anywhere;
+  overflow-wrap: anywhere;
 }
 .time-label{
   font-size: 10px;
@@ -249,7 +249,7 @@ export default {
 
 
   box-shadow:   2px 2px 4px #bec3c9,
-   -2px -2px 4px #ffffff;
+  -2px -2px 4px #ffffff;
   border-radius: 24px;
 }
 

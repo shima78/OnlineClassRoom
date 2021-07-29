@@ -2,12 +2,12 @@
   <div id="white-board-wrapper">
     <div id="white-board-control" v-show="expandWhiteBoardControl">
       <div id="upload-ctrl-group" class="ctrl-group">
-          <button class="round-button pdf-button" style="grid-column: 1; grid-row: 1;" @click="pdfDiv.style.zIndex = 3; canvas.style.zIndex = 1;">
-            <label>PDF</label>
-          </button>
+        <button class="round-button pdf-button" style="grid-column: 1; grid-row: 1;" @click="pdfDiv.style.zIndex = 3; canvas.style.zIndex = 1;">
+          <label>PDF</label>
+        </button>
         <fileUploader  :pdf="true" :picture="false" style="grid-column: 2; grid-row: 1;"></fileUploader>
 
-          <!--<input class="round-button pdf-button custom-file-input" id="pdf-upload-button" style="grid-column: 2; grid-row: 1;" type="file">-->
+        <!--<input class="round-button pdf-button custom-file-input" id="pdf-upload-button" style="grid-column: 2; grid-row: 1;" type="file">-->
         <button class="round-button" style="grid-column: 1; grid-row: 2;" @click="canvas.style.zIndex = 3; pdfDiv.style.zIndex = 1; canvas.style.backgroundImage = null">
           <i class="material-icons">cast_for_education</i>
         </button>
@@ -22,18 +22,18 @@
 
       <div id="shape-ctrl-group" class="ctrl-group">
 
-          <button class="round-button" :disabled="role === 'std'">
-            <i class="material-icons">post_add</i>
-          </button>
-          <button class="round-button" @click="drawCircle" :disabled="role === 'std'">
-            <i class="material-icons-outlined">circle</i>
-          </button>
-          <button class="round-button" @click="drawLine" :disabled="role === 'std'">
+        <button class="round-button" :disabled="role === 'std'">
+          <i class="material-icons">post_add</i>
+        </button>
+        <button class="round-button" @click="drawCircle" :disabled="role === 'std'">
+          <i class="material-icons-outlined">circle</i>
+        </button>
+        <button class="round-button" @click="drawLine" :disabled="role === 'std'">
           <i class="material-icons">horizontal_rule</i>
         </button>
-          <button class="round-button" @click="drawRect" :disabled="role === 'std'">
-            <i class="material-icons-outlined">crop_square</i>
-          </button>
+        <button class="round-button" @click="drawRect" :disabled="role === 'std'">
+          <i class="material-icons-outlined">crop_square</i>
+        </button>
 
       </div>
 
@@ -57,8 +57,8 @@
         <label class="thickness-label" id="thickness-label-a">A</label>
         <div style="display: flex; flex-direction: row; justify-content: space-between; align-items: center; width: 100%">
           <button id="thickness-inc-low" class="round-button inc-button" @click="thicknessDec" :disabled="role === 'std'">
-          <i class="material-icons">remove</i>
-        </button>
+            <i class="material-icons">remove</i>
+          </button>
 
           <button id="thickness-inc-high" class="round-button inc-button" @click="thicknessInc" :disabled="role === 'std'">
             <i class="material-icons">add</i>
@@ -78,21 +78,21 @@
     <div id="wrapper" style="display: grid; grid-template-rows: 1fr; grid-template-columns: 1fr; height: calc(100% - 120px); box-sizing: border-box;">
       <div id="pdf-view-wrapper" style="z-index: 1; grid-row: 1; grid-column: 1;">
         <div id="pdf-nav-bar">
-            <button class="round-button" id="hide-button"  @click="expandWhiteBoardControlFunction"
-                    style="display: flex; justify-content: space-between; width: 120px; padding-left: 10px; box-sizing: border-box;"
-                    >
-                <label v-if="expandWhiteBoardControl">hide</label>
-                <label v-if="!expandWhiteBoardControl">show</label>
-                <i v-if="expandWhiteBoardControl" class="material-icons">expand_less</i>
-                <i v-if="!expandWhiteBoardControl" class="material-icons">expand_more</i>
+          <button class="round-button" id="hide-button"  @click="expandWhiteBoardControlFunction"
+                  style="display: flex; justify-content: space-between; width: 120px; padding-left: 10px; box-sizing: border-box;"
+                  :disabled="role === 'std'">
+            <label v-if="expandWhiteBoardControl">hide</label>
+            <label v-if="!expandWhiteBoardControl">show</label>
+            <i v-if="expandWhiteBoardControl" class="material-icons">expand_less</i>
+            <i v-if="!expandWhiteBoardControl" class="material-icons">expand_more</i>
 
-            </button>
+          </button>
 
 
         </div>
         <vue-pdf-app style="height: calc(100%); width: 100%; border-radius: 0px 0px 14px 14px;"
                      :pdf="PDF.pdfSource" :title="PDF.title" theme="light"
-                      :page-number="PDF.pageNumber"
+                     :page-number="PDF.pageNumber"
         ></vue-pdf-app>
       </div>
       <!-- <input :required="test ? true : false"> -->
@@ -213,8 +213,8 @@ export default {
     ...mapGetters(['getServer','getRole','getRoomID']),
     ...mapActions(['updateRole']),
     clearBackground: function (){
-     this.canvas.style.backgroundImage = null;
-     this.imageBack = 0;
+      this.canvas.style.backgroundImage = null;
+      this.imageBack = 0;
     },
     expandWhiteBoardControlFunction: function (){
 
@@ -228,7 +228,7 @@ export default {
 
       }
       else{
-      this.clientWide = clientWideHold;
+        this.clientWide = clientWideHold;
         wrapper.style.height = 'calc(100% - 120px)'
 
 
@@ -244,7 +244,7 @@ export default {
         this.click.y.push(y);
         this.click.drag.push(dragging);
       }
-      },
+    },
     drawOnCanvas: function (){
       this.canvasContext.strokeStyle = this.color;
       this.canvasContext.lineJoin = 'round';
@@ -296,25 +296,25 @@ export default {
 
 
       //role based button disable
-     /* if(this.role == "std"){
+      /* if(this.role == "std"){
 
-        let whiteBoardInputControls = canvasControl.getElementsByTagName('input');
-        let whiteBoardButtonControls = canvasControl.getElementsByTagName('button');
-        console.log(whiteBoardInputControls,whiteBoardInputControls)
-        for(let i = 0;i < whiteBoardButtonControls.length; i++){
-          if(i==1 || i==0){
-            continue;
-          }
-          whiteBoardButtonControls[i].disabled = true;
-        }
+         let whiteBoardInputControls = canvasControl.getElementsByTagName('input');
+         let whiteBoardButtonControls = canvasControl.getElementsByTagName('button');
+         console.log(whiteBoardInputControls,whiteBoardInputControls)
+         for(let i = 0;i < whiteBoardButtonControls.length; i++){
+           if(i==1 || i==0){
+             continue;
+           }
+           whiteBoardButtonControls[i].disabled = true;
+         }
 
-        for(let j = 0;j < whiteBoardInputControls.length; j++){
-          whiteBoardInputControls[j].disabled = true;
-        }
+         for(let j = 0;j < whiteBoardInputControls.length; j++){
+           whiteBoardInputControls[j].disabled = true;
+         }
 
-        console.log('whiteBoardInputControls',whiteBoardInputControls);
-        console.log('whiteBoardButtonControls',whiteBoardButtonControls);
-      }*/
+         console.log('whiteBoardInputControls',whiteBoardInputControls);
+         console.log('whiteBoardButtonControls',whiteBoardButtonControls);
+       }*/
 
 
 
@@ -482,21 +482,21 @@ export default {
 
 
 
-      thicknessInc:  function (){
-        if(this.thickness < 9){
-          this.thickness += 1;
-          document.getElementById('thickness-label-a').style.fontWeight = (this.thickness * 100).toString();
+    thicknessInc:  function (){
+      if(this.thickness < 9){
+        this.thickness += 1;
+        document.getElementById('thickness-label-a').style.fontWeight = (this.thickness * 100).toString();
 
 
-        }
-      },
+      }
+    },
     thicknessDec: function (){
-        if(this.thickness > 1){
-          this.thickness -= 1;
-          document.getElementById('thickness-label-a').style.fontWeight = (this.thickness * 100).toString();
+      if(this.thickness > 1){
+        this.thickness -= 1;
+        document.getElementById('thickness-label-a').style.fontWeight = (this.thickness * 100).toString();
 
-        }
-      },
+      }
+    },
 
     eraseMode: function (){
       if(this.color != '#e0e5ec'){
@@ -540,9 +540,9 @@ export default {
         lineWidth: this.thickness
       });
 
-     this.server.emit('maintain-history', {
-       shapeClickMemory: this.shapeClickMemory,
-       shapeProperties: 'line',
+      this.server.emit('maintain-history', {
+        shapeClickMemory: this.shapeClickMemory,
+        shapeProperties: 'line',
         strokeStyle: this.color,
         lineWidth: this.thickness
       });
@@ -601,21 +601,21 @@ export default {
 
     drawOnClientCanvas: function (data) {
 
-        this.canvasContext.strokeStyle = data.strokeStyle;
-        this.canvasContext.lineJoin = "round";
-        this.canvasContext.lineWidth = data.lineWidth;
+      this.canvasContext.strokeStyle = data.strokeStyle;
+      this.canvasContext.lineJoin = "round";
+      this.canvasContext.lineWidth = data.lineWidth;
 
-        for (let i = 0; i < data.click.x.length; i++) {
-          this.canvasContext.beginPath();
-          if (data.click.drag[i] && i) {
-            this.canvasContext.moveTo(data.click.x[i - 1], data.click.y[i - 1]);
-          } else {
-            this.canvasContext.moveTo(data.click.x[i] - 1, data.click.y[i]);
-          }
-          this.canvasContext.lineTo(data.click.x[i], data.click.y[i]);
-          this.canvasContext.closePath();
-          this.canvasContext.stroke();
+      for (let i = 0; i < data.click.x.length; i++) {
+        this.canvasContext.beginPath();
+        if (data.click.drag[i] && i) {
+          this.canvasContext.moveTo(data.click.x[i - 1], data.click.y[i - 1]);
+        } else {
+          this.canvasContext.moveTo(data.click.x[i] - 1, data.click.y[i]);
         }
+        this.canvasContext.lineTo(data.click.x[i], data.click.y[i]);
+        this.canvasContext.closePath();
+        this.canvasContext.stroke();
+      }
     },
     //pass shapeMemory and line style
     drawCircleClient: function ({shapeClickMemory,strokeStyle,lineWidth}){
@@ -680,7 +680,7 @@ export default {
     }
 
 
-},
+  },
   mounted() {
     this.init();
     this.setCanvasOffset();
@@ -850,7 +850,7 @@ export default {
   flex-direction: row;
   border-radius: 14px 14px 0px 0px;
   box-shadow:  3px 3px 6px #bec3c9,
-   -3px -3px 6px #ffffff;
+  -3px -3px 6px #ffffff;
 
 }
 #pdf-nav-bar > button{

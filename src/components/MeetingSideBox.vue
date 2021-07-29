@@ -12,13 +12,12 @@
       </button>
     </div>
     <div id="chatList" class="side-box-v-container" v-if="selected === 1">
-      <div class="chat-message-box side-shadow-container">
+      <div id="chat-message-box" class="side-shadow-container">
         <vue-scroll>
           <template v-for="messageOBJ in this.messagesArray">
             <chat-bubble :key="messageOBJ.index" :username="messageOBJ.username" :message="messageOBJ.message" :time="messageOBJ.time"></chat-bubble>
           </template>
         </vue-scroll>
-
       </div>
 
       <div id="chatMessageEntry" >
@@ -35,12 +34,11 @@
             <user-bubble :key="userOBJ.index" :username="userOBJ.username"
                          :join-time="userOBJ.joinTime" :status="userOBJ.online"
                          :user-role="userOBJ.role"
-                          :socket-i-d="userOBJ.socketID"
+                         :socket-i-d="userOBJ.socketID"
             ></user-bubble>
           </template>
         </vue-scroll>
       </div>
-      <div class="side-shadow-container" >dawad</div>
     </div>
     <div id="question-list" class="side-box-v-container" v-if="selected === 3">
       <div id="question-entry" class="side-shadow-container">
@@ -56,17 +54,17 @@
         <div id="question-input-action-wrapper">
           <div style="display: flex; flex-direction: row;justify-content: space-between; align-items: center; margin-right: 30px">
             <template v-if="role === 'owner'">
-            <button id="question-hard-inc-low" class="round-button inc-button"   @click="decDifficulty" >
-              <i class="material-icons">remove</i>
-            </button>
-            <input type="checkbox" class="slider-check-box" v-model="this.questionDifficulty.checkBoxBind" disabled="true" value=1>
-            <input type="checkbox" class="slider-check-box" v-model="this.questionDifficulty.checkBoxBind" disabled="true" value=2>
-            <input type="checkbox" class="slider-check-box" v-model="this.questionDifficulty.checkBoxBind" disabled="true" value=3>
-            <input type="checkbox" class="slider-check-box" v-model="this.questionDifficulty.checkBoxBind" disabled="true" value=4>
-            <input type="checkbox" class="slider-check-box" v-model="this.questionDifficulty.checkBoxBind" disabled="true" value=5>
-            <button id="question-hard-inc-high" class="round-button inc-button"   @click="incDifficulty">
-              <i class="material-icons">add</i>
-            </button>
+              <button id="question-hard-inc-low" class="round-button inc-button"   @click="decDifficulty" >
+                <i class="material-icons">remove</i>
+              </button>
+              <input type="checkbox" class="slider-check-box" v-model="this.questionDifficulty.checkBoxBind" disabled="true" value=1>
+              <input type="checkbox" class="slider-check-box" v-model="this.questionDifficulty.checkBoxBind" disabled="true" value=2>
+              <input type="checkbox" class="slider-check-box" v-model="this.questionDifficulty.checkBoxBind" disabled="true" value=3>
+              <input type="checkbox" class="slider-check-box" v-model="this.questionDifficulty.checkBoxBind" disabled="true" value=4>
+              <input type="checkbox" class="slider-check-box" v-model="this.questionDifficulty.checkBoxBind" disabled="true" value=5>
+              <button id="question-hard-inc-high" class="round-button inc-button"   @click="incDifficulty">
+                <i class="material-icons">add</i>
+              </button>
             </template>
             <template v-if="role === 'std' || role ==='presenter'">
               <button id="qid-selector-left" class="round-button inc-button"  @click="lastQuestionSelect">
@@ -169,19 +167,19 @@ export default {
 
       });
       this.SERVER.on("roomUsers", (userdata) => {
-          this.updateUsersData(userdata.users);
-        });
+        this.updateUsersData(userdata.users);
+      });
 
       //getting question!!
       this.SERVER.on("newQuestion", (newQuestion) => {
-          this.questionArray = newQuestion;
+        this.questionArray = newQuestion;
 
       });
 
       //get answers back
       this.SERVER.on("answer",(answerData) =>{
 
-            this.questionArray = answerData;
+        this.questionArray = answerData;
 
       })
 
@@ -250,9 +248,9 @@ export default {
       }else{
         console.log('sending answer to server')
         let answerData = {
-            username: this.username,
-            text: this.questionEntryText,
-            qid: this.qid
+          username: this.username,
+          text: this.questionEntryText,
+          qid: this.qid
         }
         //sending Answers!
         this.SERVER.emit('chatAnswer',answerData);

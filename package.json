@@ -26,6 +26,7 @@
     "vuescroll": "^4.17.3"
   },
   "devDependencies": {
+    "@codekraft-studio/vue-record": "^0.0.3",
     "@vue/cli-plugin-babel": "~4.5.0",
     "@vue/cli-plugin-eslint": "~4.5.0",
     "@vue/cli-plugin-router": "~4.5.0",
