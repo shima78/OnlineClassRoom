@@ -9,7 +9,8 @@
           <input id="username" class="input-bar text" v-model="username" placeholder="Username" autocomplete="off" name="username" maxLength="32">
           <input id="roomid" class="input-bar text" v-model="roomID" placeholder="room ID" autocomplete="off" name="roomid" maxLength="32">
           <input id="password" class="input-bar text" v-model="password" placeholder="Password" autocomplete="off" name="password" type="password" maxLength="64">
-          <button id="meet-enter-button" @click="loginInit" > Enter Meeting </button>
+          <button class="meet-enter-button" @click="loginInit" > Enter Meeting </button>
+          <button id="meet-enter-button" @click="loginInit" > Guest </button>
 
       </div>
     </div>
@@ -240,8 +241,8 @@ button:active{
   margin-right: -10px;
   margin-top: -10px;
 }
-#meet-enter-button{
-  grid-column: 1/3;
+.meet-enter-button{
+  grid-column: 1/2;
   grid-row: 5;
 }
 .Vue-Toastification__toast--default.my-custom-toast-class {

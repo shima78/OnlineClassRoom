@@ -96,7 +96,7 @@ export default {
         madiaRecorder.start();
         var audioChunks = [];
         var myserver = this.server
-        var isOn = this.isOn
+
         madiaRecorder.addEventListener("dataavailable", function (event) {
           audioChunks.push(event.data);
         });
