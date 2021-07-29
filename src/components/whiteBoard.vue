@@ -6,11 +6,15 @@
             <label>PDF</label>
           </button>
         <fileUploader  :pdf="true" :picture="false" style="grid-column: 2; grid-row: 1;"></fileUploader>
+
           <!--<input class="round-button pdf-button custom-file-input" id="pdf-upload-button" style="grid-column: 2; grid-row: 1;" type="file">-->
         <button class="round-button" style="grid-column: 1; grid-row: 2;" @click="canvas.style.zIndex = 3; pdfDiv.style.zIndex = 1; canvas.style.backgroundImage = null">
           <i class="material-icons">cast_for_education</i>
         </button>
-        <fileUploader  :pdf="false" :picture="true" style="grid-row: 2; grid-column: 2;"></fileUploader>
+        <fileUploader  :pdf="false" :picture="true" style="grid-row: 2; grid-column: 2;" v-if="imageBack == 0"></fileUploader>
+        <button class="round-button" style="grid-column: 2; grid-row: 2;" v-if="imageBack == 1" @click="clearBackground">
+          <i class="material-icons">cancel</i>
+        </button>
         <!---<input class="round-button custom-file-input" id="photo-upload-button" style="grid-row: 2; grid-column: 2;" type="file" @change="onSelect"> -->
 
 
@@ -60,6 +64,7 @@
             <i class="material-icons">add</i>
           </button></div>
 
+
       </div>
 
       <div id="color-wheel-ctrl-group" class="ctrl-group">
@@ -91,7 +96,9 @@
         ></vue-pdf-app>
       </div>
       <!-- <input :required="test ? true : false"> -->
+
       <canvas  id="white-board-canvas" @mousedown="mouseDown" @mousemove="mouseMove" @mouseup="mouseup" @mouseleave="mouseleave" style="z-index: 2; grid-row: 1; grid-column: 1;">
+
       </canvas>
 
     </div>
@@ -174,7 +181,8 @@ export default {
         pageNumber: null
       },
 
-      expandWhiteBoardControl: 1
+      expandWhiteBoardControl: 1,
+      imageBack: 0
 
 
 
@@ -204,6 +212,10 @@ export default {
   methods:{
     ...mapGetters(['getServer','getRole','getRoomID']),
     ...mapActions(['updateRole']),
+    clearBackground: function (){
+     this.canvas.style.backgroundImage = null;
+     this.imageBack = 0;
+    },
     expandWhiteBoardControlFunction: function (){
 
       let clientWideHold = this.clientWide;
@@ -266,6 +278,8 @@ export default {
     },
 
     init: function (){
+
+
 
       this.server = this.$store.getters.getServer;
       this.role = this.$store.getters.getRole;
@@ -349,6 +363,7 @@ export default {
       //imageUpload
       //TODO fix IMAGE FRONT
       this.server.on("bgURL",async (URL)=>{
+        this.imageBack = 1;
         // document.getElementById("image").src = URL
         console.log('bgrul:::',URL)
         this.canvas.style.backgroundImage = "url("+URL+")";

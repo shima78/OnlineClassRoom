@@ -22,17 +22,17 @@ function checkAuthorization(user){
 }
 
 
+
 function userPromote(user,userToPromote){
-    console.log(users,userToPromote)
     if (user.role==='owner'){
         // eslint-disable-next-line no-undef
         const index = users.findIndex(user => user.socketID === userToPromote);
         users[index].role = 'presenter'
-        console.log('user to promote',users[index])
-        return getRoomUsers(users[index].room)
+        return getRoomUsers(userToPromote.room)
     }
     return false
 }
+
 
 function userDemote(user,userToDemote){
     console.log(users,userToDemote)

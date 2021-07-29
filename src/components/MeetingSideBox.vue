@@ -136,18 +136,19 @@ export default {
       role: null,
       qid: 0,
       username: null,
-      currentAnswerIndex: null
     }
   },
   methods:{
     ...mapActions(['updateUsersData']),
     ...mapGetters(['getRole','getUsername',"getUserData"]),
     init: function () {
-    console.log('currentQuestion:',this.questionArray,this.$store.getters.getCurrentAnswerArrayIndex)
+
+
+
 
       //login inti
       this.answerArray =  this.questionArray.map(q => q.answers);
-      this.currentAnswerIndex = this.$store.getters.getCurrentAnswerArrayIndex;
+
       this.username = this.$store.getters.getUsername;
       this.role = this.$store.getters.getRole;
       this.chatButton = document.getElementById("chat-button");

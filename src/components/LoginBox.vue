@@ -62,6 +62,21 @@ export default {
       await socket.on("loginRes", (data) => {
         console.log("login", data)
         if (data == 400) {
+          this.$toast.error("Wrong Credentials", {
+            toastClassName: "my-custom-toast-class",
+            position: "top-left",
+            timeout: 5000,
+            closeOnClick: true,
+            pauseOnFocusLoss: true,
+            pauseOnHover: true,
+            draggable: true,
+            draggablePercent: 0.6,
+            showCloseButtonOnHover: false,
+            hideProgressBar: false,
+            closeButton: "button",
+            icon: true,
+            rtl: false
+          });
           console.log("wrong") //login data handling
         } else {
           let decoded = jwt_decode(data);
@@ -229,5 +244,9 @@ button:active{
   grid-column: 1/3;
   grid-row: 5;
 }
+.Vue-Toastification__toast--default.my-custom-toast-class {
+  background-color: purple;
+}
+
 
 </style>
