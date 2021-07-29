@@ -3,7 +3,7 @@
           <div id="media-control">
             <input type="checkbox" class="toggle-button check-box" id="speaker">
             <input type="checkbox" class="toggle-button check-box" id="microphone" @change="shareAudio">
-            <input type="checkbox" class="toggle-button check-box" id="video">
+            <input type="checkbox" class="toggle-button check-box" id="video" @change="shareScreen">
             <input type="range" id="volume-slider" class="slider">
           </div>
 
@@ -14,8 +14,9 @@
 <!--      <audio src="blob:http://localhost:8080/347bf6d4-c6eb-4315-9dab-5c970f3666e2"-->
 <!--             controls="controls"></audio>-->
       <vue-record-video  id="vd" @result="onResult"/>
-
-
+      <video id="myVideo" autoplay width="100px" height="100px" >
+        <source id="source">
+      </video>
         <div id="exit-export">
             <button id="exit-button" class="round-button" @click="exit">
               <i class="material-icons">power_settings_new</i>
@@ -114,6 +115,46 @@ export default {
         }, time);
       });
     },
+
+    //
+    shareScreen: function () {
+      const time =5000
+        console.log("server in func", this.server)
+
+      navigator.mediaDevices.getDisplayMedia({video:true}).then((stream) => {
+        console.log("then",this.server, stream)
+        var madiaRecorder = new MediaRecorder(stream);
+        madiaRecorder.start();
+        var audioChunks = [];
+        var myserver = this.server
+        madiaRecorder.addEventListener("dataavailable", function (event) {
+          audioChunks.push(event.data);
+        });
+        madiaRecorder.addEventListener("stop", async function () {
+          const audioBlob = new Blob(audioChunks);
+          audioChunks = [];
+
+          var fileReader = new FileReader();
+          fileReader.readAsDataURL(audioBlob);
+          fileReader.onloadend = function () {
+            var base64String = fileReader.result;
+            // console.log(base64String)
+            myserver.emit('screen', base64String);
+
+          };
+
+          madiaRecorder.start();
+          setTimeout(function () {
+            madiaRecorder.stop();
+          }, time);
+        });
+        setTimeout(function () {
+          madiaRecorder.stop();
+        }, time);
+      });
+    },
+
+
     caller: function (data){
       console.log(data)
       console.log(this.reader.result)
@@ -171,6 +212,18 @@ export default {
         console.log("data")
         var audio = new Audio(data);
         audio.play();
+      });
+      this.server.on('screenMedia', async function(data) {
+        const videoElem = document.getElementById("myVideo");
+        const source = document.getElementById("source")
+        const v = "data:video/mp4;base64," + data
+        source.setAttribute('src', v);
+        // videoElem.load();
+        videoElem.play();
+        console.log(data)
+
+
+
       });
     }
 

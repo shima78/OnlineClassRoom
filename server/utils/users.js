@@ -27,7 +27,7 @@ function userPromote(user,userToPromote){
         // eslint-disable-next-line no-undef
         const index = users.findIndex(user => user.socketID === userToPromote);
         users[index].role = 'presenter'
-        return getRoomUsers(userToPromote.room)
+        return getRoomUsers(users[index].room)
     }
     return false
 }
@@ -37,7 +37,7 @@ function userDemote(user,userToDemote){
         // eslint-disable-next-line no-undef
         const index = users.findIndex(user => user.socketID === userToDemote);
         users[index].role = 'std'
-        return getRoomUsers(userToDemote.room)
+        return getRoomUsers(users[index].room)
     }
     return false
 }
@@ -79,5 +79,6 @@ module.exports = {
     getRoomUsers,
     userPromote,
     checkAuthorization,
-    getRoomOwner
+    getRoomOwner,
+    userDemote
 }

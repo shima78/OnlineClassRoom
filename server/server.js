@@ -3,7 +3,7 @@ const http = require('http');
 const  _ = require('lodash');
 const socketio = require('socket.io');
 const { formatMessage, getRoomMessages, getChatMessages, privateMessage} = require('./utils/messages');
-const {userJoin,  getCurrentUser, userLeave, getRoomUsers, userPromote,checkAuthorization,getRoomOwner} = require('./utils/users');
+const {userJoin,  getCurrentUser, userLeave, getRoomUsers, userPromote,userDemote,checkAuthorization,getRoomOwner} = require('./utils/users');
 const {formatQuestions,accept,formatAnswers,setScore,getQuestionAnswers,getExportData} = require('./utils/QA');
 // eslint-disable-next-line no-unused-vars
 const {uploadPDF, getRoomPDFList} =require('./utils/filemanager')
@@ -180,6 +180,25 @@ io.on('connection',socket =>{
             }
         }
 
+
+    });
+
+
+    socket.on('screen', async (blob) =>{
+        // can choose to broadcast it to whoever you want
+        console.log(socket.id)
+        var newData = blob.split(";");
+        newData[0] = "data:video/ogg;";
+        newData = newData[0] + newData[1];
+        const user = await getCurrentUser(socket.id);
+        // const roomBroadcast = await getRoomUsers(user.room)
+        // for (let i = 0; i < roomBroadcast.length; i++) {
+        //     if(roomBroadcast[i].socketID !== socket.id){
+        //         io.to(roomBroadcast[i].socketID).emit('screenMedia', newData);
+        //     }
+        // }
+
+        io.to(user.room).emit('screenMedia', newData);
 
     });
 
@@ -388,7 +407,7 @@ io.on('connection',socket =>{
     });
     socket.on('demote',async  userToDemote => {
         const user = getCurrentUser(socket.id)
-        io.to(user.room).emit('newRole',await userPromote(user,userToDemote));
+        io.to(user.room).emit('newRole',await userDemote(user,userToDemote));
     });
 
 
