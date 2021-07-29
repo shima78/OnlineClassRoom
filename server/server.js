@@ -2,24 +2,20 @@
 const http = require('http');
 const  _ = require('lodash');
 const socketio = require('socket.io');
-const { formatMessage, getRoomMessages} = require('./utils/messages');
-const {userJoin,  getCurrentUser, userLeave, getRoomUsers, userPromote,userDemote } = require('./utils/users');
+const { formatMessage, getRoomMessages, getChatMessages, privateMessage} = require('./utils/messages');
+const {userJoin,  getCurrentUser, userLeave, getRoomUsers, userPromote,userDemote,checkAuthorization,getRoomOwner} = require('./utils/users');
 const {formatQuestions,accept,formatAnswers,setScore,getQuestionAnswers,getExportData} = require('./utils/QA');
-
 // eslint-disable-next-line no-unused-vars
 const {uploadPDF, getRoomPDFList} =require('./utils/filemanager')
 const botName = 'admin';
 const PORT  = 3000;
+let globalSocket;
 let express = require("express");
 const jwt = require('jsonwebtoken');
 const userDB = require('./db/user');
 const fs = require("fs");
 const baseUrl = "http://localhost:"+ PORT +"/uploads/";
 let multer  = require('multer');
-// const _ = require("core-js");
-//let multer  = require('multer');
-// eslint-disable-next-line no-unused-vars
-// const cors = require('cors');
 const app = express();
 //we need a server that we can access
 const server = http.createServer(app);
@@ -29,59 +25,10 @@ let drawingHistory = [];
 
 const io = socketio(server,	{cors: {origin: "*"}});
 
+//upload
 const fileFilter = (req, file, cb) => {
-    /*const allowedTypes = ["image/jpeg", "image/jpg", "image/png"];
-    if (!allowedTypes.includes(file.mimetype)) {
-        const error = new Error("Incorrect file");
-        error.code = "INCORRECT_FILETYPE";
-        return cb(error, false)
-    }*/
     cb(null, true);
 }
-
-app.get("/files", (req, res) => {
-    // eslint-disable-next-line no-undef
-    const directoryPath = __basedir + "/uploads/";
-
-    fs.readdir(directoryPath, function (err, files) {
-        if (err) {
-            res.status(500).send({
-                message: "Unable to scan files!",
-            });
-        }
-
-        let fileInfos = [];
-
-        files.forEach((file) => {
-            fileInfos.push({
-                name: file.originalname,
-                url: baseUrl + file,
-            });
-            console.log(file)
-        });
-
-        res.status(200).send(fileInfos);
-    });
-});
-
-app.get("/uploads/:name", (req, res) => {
-    console.log('uploade poked')
-    const fileName = req.params.name;
-    // eslint-disable-next-line no-undef
-    const directoryPath = __basedir + "/uploads/";
-
-    res.download(directoryPath + fileName, fileName, (err) => {
-        if (err) {
-            res.status(500).send({
-                message: "Could not download the file. " + err,
-            });
-        }
-    });
-});
-
-
-
-//upload
 const upload = multer({
     dest: './uploads',
     fileFilter,
@@ -89,6 +36,7 @@ const upload = multer({
         fileSize: 500000000
     }
 });
+
 app.post('/upload', upload.single('file'), (req, res) => {
 
     res.json({ file: req.file });
@@ -105,18 +53,60 @@ app.use((err, req, res, next) => {
         return;
     }
 });
+
+
+//file list
+app.get("/files", (req, res) => {
+    // eslint-disable-next-line no-undef
+    const directoryPath = __basedir + "/uploads/";
+
+    fs.readdir(directoryPath, function (err, files) {
+        if (err) {
+            res.status(500).send({
+                message: "Unable to scan files!",
+            });
+        }
+
+        let fileInfos = [];
+
+        files.forEach((file) => {
+            fileInfos.push({
+                name: file,
+                url: baseUrl + file,
+            });
+            console.log(file)
+        });
+
+        res.status(200).send(fileInfos);
+    });
+});
+
+//download
+app.get("/uploads/:name", (req, res) => {
+    console.log('uploade poked')
+    const fileName = req.params.name;
+    // eslint-disable-next-line no-undef
+    const directoryPath = __basedir + "/uploads/";
+
+    res.download(directoryPath + fileName, fileName, (err) => {
+        if (err) {
+            res.status(500).send({
+                message: "Could not download the file. " + err,
+            });
+        }
+    });
+});
+
 //Run when a client connects
 io.on('connection',socket =>{
-
-    //console.log("connected");
-
+    globalSocket = socket
     socket.on('login', async ({name, pass, room}) => {
+
         const result = await userDB.getUser(name,pass, room)
-        // console.log(result)
 
         if(result.length){
             const usr = result[0]
-            console.log(usr)
+           console.log(usr)
             jwt.sign({usr}, 'secretkey', { expiresIn: '2h' }, (err, token) => {
                 socket.emit('loginRes',token)
             });
@@ -127,7 +117,6 @@ io.on('connection',socket =>{
         }
 
     })
-
 
     socket.on('loginGuest', async ({name,room}) => {
         // const result = await userDB.getUser(name,'', room)
@@ -152,17 +141,18 @@ io.on('connection',socket =>{
         });
     } )
 
+
     socket.on('joinRoom', async ({username,room, role,userID })  => {
         const user = await userJoin(socket.id, username, room, role, userID);
+
         //room is room ID
         if (room !== undefined){
-            // console.log(user);
             socket.join(user.room);
         }
 
         // Welcome current user   change event name
-        socket.emit('message', await formatMessage(botName, 'Welcome to ChatCord!',user.room));
-        io.to(room).emit('privateMessage',await getRoomPDFList(room))
+        socket.emit('message', await formatMessage(botName, 'Welcome to Flamingo!!',user.room));
+
         // Broadcast when a user connects
         socket.broadcast.to(user.room)
             .emit('message',
@@ -173,34 +163,113 @@ io.on('connection',socket =>{
             room : user.room,
             users :await getRoomUsers(user.room)
         })
-        //console.log('running join room')
+
     });
+    //audio
+    socket.on('radio', async (blob) =>{
+        // can choose to broadcast it to whoever you want
+        console.log(socket.id)
+        var newData = blob.split(";");
+        newData[0] = "data:audio/ogg;";
+        newData = newData[0] + newData[1];
+        const user = await getCurrentUser(socket.id);
+        const roomBroadcast = await getRoomUsers(user.room)
+        for (let i = 0; i < roomBroadcast.length; i++) {
+            if(roomBroadcast[i].socketID !== socket.id){
+                io.to(roomBroadcast[i].socketID).emit('voice', newData);
+            }
+        }
+
+
+    });
+
+
+    socket.on('screen', async (blob) =>{
+        // can choose to broadcast it to whoever you want
+        console.log(socket.id)
+        var newData = blob.split(";");
+        newData[0] = "data:video/ogg;";
+        newData = newData[0] + newData[1];
+        const user = await getCurrentUser(socket.id);
+        // const roomBroadcast = await getRoomUsers(user.room)
+        // for (let i = 0; i < roomBroadcast.length; i++) {
+        //     if(roomBroadcast[i].socketID !== socket.id){
+        //         io.to(roomBroadcast[i].socketID).emit('screenMedia', newData);
+        //     }
+        // }
+
+        io.to(user.room).emit('screenMedia', newData);
+
+    });
+
+
+    //upload image
+    socket.on('fileUpload',(filename)=>{
+        const user = getCurrentUser(socket.id);
+
+        io.to(user.room).emit('bgURL',"http://localhost:"+PORT+"/uploads/"+filename);
+    })
+
+    //upload PDF
+    socket.on('uploadPDF',async (filename, originalname)=>{
+        const user = getCurrentUser(socket.id);
+        await uploadPDF(originalname,filename,user.room,"http://localhost:"+PORT+"/uploads/"+filename)
+        io.to(user.room).emit('PDF',"http://localhost:"+PORT+"/uploads/"+filename)
+
+    })
+
+    //get PDF list
+    socket.on('getPDFList', async (room)=>{
+        console.log(await getRoomPDFList(room))
+        io.to(socket.id).emit('privateMessage', await getRoomPDFList(room));
+        // io.to(room).emit(await getRoomPDFList(room))
+    })
+
+    //change PDF page
+    socket.on('changePDFPage', async (pageNumber)=>{
+        const currUser = await getCurrentUser(socket.id)
+        io.to(currUser.room).emit('changePage', pageNumber)
+    })
+
 
     //listen for chatMessage
     socket.on('chatMessage',async  msg => {
         const user = getCurrentUser(socket.id)
         io.to(user.room).emit('message',await formatMessage(user.username,msg, user.room));
     });
+    //private message
+    socket.on('sendPrivateMessage', async ({msg, receiverSocketId}) =>{
+        const user = getCurrentUser(socket.id)
+        const receiver = getCurrentUser(receiverSocketId)
+        await privateMessage(user,receiver, msg)
+        io.to(receiverSocketId).emit('newPrivateMessage',  await getChatMessages(socket.id,receiverSocketId));
+        io.to(socket.id).emit('newPrivateMessage',  await getChatMessages(socket.id,receiverSocketId));
+    })
+    //open chat using user1, user2 socket.id
+    socket.on('openChat', async (user1,user2 ) =>{
+        // const user = getCurrentUser(socket.id)
+        io.to(socket.id).emit('privateMessage', await getChatMessages(user1,user2));
+    })
+
+
 
     //listen for Questions
-    //gets new question
-    //returns array of answerQuestion
     socket.on('chatQuestions',async ({text , difficulty}) => {
         const user = await getCurrentUser(socket.id);
-        //console.log('current user', user)
-        var arr  = await formatQuestions(user.username, text, user.room, difficulty)
-        //console.log(arr)
-        io.to(user.room).emit('newQuestion',arr);
+        if (checkAuthorization(user)) {
+            //console.log('current user', user)
+            var arr = await formatQuestions(user.username, text, user.room, difficulty)
+            //console.log(arr)
+            io.to(user.room).emit('newQuestion', arr);
+        }
     })
 
     //listen for answers
-    //gets std answer
     socket.on('chatAnswer',async ({username, text, qid})=> {
         const user = await getCurrentUser(socket.id);
         io.to(user.room).emit('answer',await formatAnswers(username, text, qid));
     })
-    //listen for answers
-    //gets all answer
+    //get question answers
     socket.on('getAnswers',async (qid)=> {
         const user = await getCurrentUser(socket.id);
         io.to(user.room).emit('answersArray',await getQuestionAnswers(qid));
@@ -212,16 +281,14 @@ io.on('connection',socket =>{
         //instead of new score we can use answer!
         io.to(user.room).emit('newScore', await setScore(qid,ansid,score));
     })
-    //listen for answers
-    //AMIR: WHAT IS accept??
+    //accept or reject answers
     socket.on('accept', async ({qid,ansid,isAcc})=> {
         const user = await getCurrentUser(socket.id);
         //show this answer to everyone
         io.to(user.room).emit('newAccept',await accept(qid,ansid,isAcc));
     })
 
-
-
+    //export users, messages, answers
     socket.on('export', async () =>{
         const user = await getCurrentUser(socket.id)
         //console.log(user)
@@ -235,9 +302,7 @@ io.on('connection',socket =>{
         }
     });
 
-
-
-
+    //whiteboard
     socket.on('draw-from-client', async function (data) {
         const user = getCurrentUser(socket.id)
         //console.log("client draw data",data)
@@ -269,7 +334,7 @@ io.on('connection',socket =>{
         //console.log('drawingHistory',drawingHistoryItem.history)
 
     });
-    //TODO fix undo
+
     socket.on('undo-canvas', async function (data) {
         const user = getCurrentUser(socket.id)
         if (_.some(drawingHistory, {
@@ -279,7 +344,6 @@ io.on('connection',socket =>{
             var drawingHistoryItem = _.filter(drawingHistory, function (item) {
                 return item.id === socket.id;
             });
-
 
             var undoData = _.last(drawingHistoryItem[0].history)
 
@@ -305,8 +369,6 @@ io.on('connection',socket =>{
                         io.to(user.room).emit('draw-from-server', historyItem.data);
 
                     }
-
-
                 });
             });
 
@@ -316,7 +378,7 @@ io.on('connection',socket =>{
                     undoData.data.lineWidth = data.lineWidth;
                     io.to(user.room).emit('draw-from-server', undoData.data);
                 }
-            }
+             }
         }
 
     });
@@ -339,42 +401,15 @@ io.on('connection',socket =>{
         io.to(user.room).emit('line-draw-from-server',data);
     });
 
-    //upload
-    socket.on('fileUpload',(filename)=>{
-        const user = getCurrentUser(socket.id);
-
-        io.to(user.room).emit('bgURL',"http://localhost:"+PORT+"/uploads/"+filename);
-    })
-
-
-    //pdfUpload
-    socket.on('uploadPDF',async (filename, originalname)=>{
-        const user = getCurrentUser(socket.id);
-        await uploadPDF(originalname,filename,user.room,"http://localhost:"+PORT+"/uploads/"+filename)
-        io.to(user.room).emit('PDF',"http://localhost:"+PORT+"/uploads/"+filename)
-
-    })
-    socket.on('getPDFList', async (room)=>{
-        console.log('roominpdf',room)
-        console.log(await getRoomPDFList(room))
-        //io.to(socket.id).emit('privateMessage', await getRoomPDFList(room));
-        io.to(room).emit('privateMessage',await getRoomPDFList(room))
-    })
-    socket.on('changePDFPage', async (pageNumber)=>{
-        const currUser = await getCurrentUser(socket.id)
-        io.to(currUser.room).emit('changePage', pageNumber)
-    })
     socket.on('promote',async  userToPromote => {
         const user = getCurrentUser(socket.id)
-        console.log('user',user)
         io.to(user.room).emit('newRole',await userPromote(user,userToPromote));
     });
-
     socket.on('demote',async  userToDemote => {
         const user = getCurrentUser(socket.id)
-        console.log('user',user)
         io.to(user.room).emit('newRole',await userDemote(user,userToDemote));
     });
+
 
 
 
@@ -394,6 +429,7 @@ io.on('connection',socket =>{
             })
         }
     })
+
     socket.on('disconnect', async () =>{
         await userLeave(socket.id);
         const currUser = await getCurrentUser(socket.id)
@@ -402,7 +438,6 @@ io.on('connection',socket =>{
         if (currUser) {
             io.to(currUser.room).emit('message',await formatMessage(botName,`${currUser.username} has 
             left the chat`, currUser.room));
-
             io.to(currUser.room).emit('roomUsers', {
                 room: currUser.room,
                 users: await getRoomUsers(currUser.room)

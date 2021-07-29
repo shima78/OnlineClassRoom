@@ -1,32 +1,32 @@
 <template>
-    <div id="nav-bar">
-          <div id="media-control">
-            <input type="checkbox" class="toggle-button check-box" id="speaker">
-            <input type="checkbox" class="toggle-button check-box" id="microphone">
-            <input type="checkbox" class="toggle-button check-box" id="video">
-            <input type="range" id="volume-slider" class="slider">
+  <div id="nav-bar">
+    <div id="media-control">
+      <input type="checkbox" class="toggle-button check-box" id="speaker">
+      <input type="checkbox" class="toggle-button check-box" id="microphone">
+      <input type="checkbox" class="toggle-button check-box" id="video">
+      <input type="range" id="volume-slider" class="slider">
+      <VueRecord  id="vd" @result="onResult"/>
+      <div id="username-box" style="display: flex; justify-content: center; align-items: center;">
+        <div id="username-box-icon-back" style="display: flex; justify-content: center; align-items: center;">
+          <label v-if="this.getRole() === 'owner'" >T</label>
+          <label v-if="this.getRole() === 'std'" >S</label>
+          <label v-if="this.getRole() === 'presenter'" >P</label>
 
-            <div id="username-box" style="display: flex; justify-content: center; align-items: center;">
-              <div id="username-box-icon-back" style="display: flex; justify-content: center; align-items: center;">
-                <label v-if="this.getRole() === 'owner'" >T</label>
-                <label v-if="this.getRole() === 'std'" >S</label>
-                <label v-if="this.getRole() === 'presenter'" >P</label>
-
-              </div>
-              <div id="username-text" style="display: flex; justify-content: center; align-items: center;"><label>{{this.getUsername()}}</label></div>
-            </div>
-          </div>
-
-          <div id="exit-export">
-            <button id="exit-button" class="round-button" @click="exit">
-              <i class="material-icons">power_settings_new</i>
-            </button>
-
-            <button id="export-button" class="round-button" @click="output" :disabled="role === 'std'" v-if="role === 'owner'">
-              <label>Export</label>
-            </button>
-          </div>
+        </div>
+        <div id="username-text" style="display: flex; justify-content: center; align-items: center;"><label>{{this.getUsername()}}</label></div>
+      </div>
     </div>
+
+    <div id="exit-export">
+      <button id="exit-button" class="round-button" @click="exit">
+        <i class="material-icons">power_settings_new</i>
+      </button>
+
+      <button id="export-button" class="round-button" @click="output" :disabled="role === 'std'" v-if="role === 'owner'">
+        <label>Export</label>
+      </button>
+    </div>
+  </div>
 </template>
 
 <script>
@@ -34,22 +34,47 @@
 
 import {mapActions, mapGetters} from "vuex";
 import * as Papa from 'papaparse';
+
+import axios from 'axios';
+import VueRecord from "@codekraft-studio/vue-record"
+import Vue from "vue";
+Vue.use(VueRecord)
+
+
 export default {
   name: "MeetingNavbar",
   components: {
+    VueRecord
+
 
   },
   data(){
     return{
-        server: null,
-        role: null,
-        username: null
+      server: null,
+      role: null,
+      username: null
     }
   },
 
   methods: {
     ...mapGetters(['getServer','getRole','getUsername']),
     ...mapActions(['updateUsersData']),
+    onResult (data) {
+      console.log('The blob data:', data);
+      console.log('Downloadable audio', window.URL.createObjectURL(data));
+      axios({
+        url: window.URL.createObjectURL(data),
+        method: 'GET',
+        responseType: 'blob',
+      }).then((response) => {
+        var fileURL = window.URL.createObjectURL(new Blob([response.data]));
+        var fileLink = document.createElement('a');
+        fileLink.href = fileURL;
+        fileLink.setAttribute('download', 'file.pdf');
+        document.body.appendChild(fileLink);
+        fileLink.click();
+      });
+    },
 
     output: function (){
       this.server.emit('export')
@@ -101,9 +126,9 @@ export default {
 
   },
   mounted() {
-      this.server =  this.$store.getters.getServer;
-      this.role = this.$store.getters.getRole;
-      this.init();
+    this.server =  this.$store.getters.getServer;
+    this.role = this.$store.getters.getRole;
+    this.init();
 
   }
 }
@@ -171,7 +196,7 @@ export default {
 
 #volume-slider{
 
-    margin-right: 10px;
+  margin-right: 10px;
 }
 
 #speaker:after{

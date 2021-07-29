@@ -8,6 +8,7 @@
     "lint": "vue-cli-service lint"
   },
   "dependencies": {
+    "@codekraft-studio/vue-record": "^0.0.3",
     "@pdftron/webviewer": "^8.0.0",
     "core-js": "^3.6.5",
     "express": "^4.17.1",

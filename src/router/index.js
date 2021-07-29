@@ -12,6 +12,7 @@ import 'vue-swatches/dist/vue-swatches.css'
 import Toast from "vue-toastification";
 import "vue-toastification/dist/index.css";
 
+
 Vue.use(Toast, {
   transition: "Vue-Toastification__bounce",
   maxToasts: 20,

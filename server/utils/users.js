@@ -9,7 +9,7 @@ function userJoin(socketID,username,room, role,userID ){
         leaveTime: '',
         role,
         online : true
-    };
+     };
     users.push(user);
     return user
 }
@@ -22,25 +22,21 @@ function checkAuthorization(user){
 }
 
 
-
 function userPromote(user,userToPromote){
     if (user.role==='owner'){
         // eslint-disable-next-line no-undef
         const index = users.findIndex(user => user.socketID === userToPromote);
         users[index].role = 'presenter'
-        return getRoomUsers(userToPromote.room)
+        return getRoomUsers(users[index].room)
     }
     return false
 }
 
-
 function userDemote(user,userToDemote){
-    console.log(users,userToDemote)
     if (user.role==='owner'){
         // eslint-disable-next-line no-undef
         const index = users.findIndex(user => user.socketID === userToDemote);
         users[index].role = 'std'
-        console.log('user to demote',users[index])
         return getRoomUsers(users[index].room)
     }
     return false
@@ -48,7 +44,6 @@ function userDemote(user,userToDemote){
 
 
 function getCurrentUser(id){
-
     return users.find(user => user.socketID === id);
 }
 
@@ -70,7 +65,11 @@ function userLeave(id){
 
 }
 function getRoomUsers(room){
-        console.log('room v room',users,room)
+
+    return users.filter(user=> user.room === room);
+}
+
+async function getRoomBroadcastList(user,room){
     return users.filter(user=> user.room === room);
 }
 module.exports = {
@@ -79,7 +78,7 @@ module.exports = {
     userLeave,
     getRoomUsers,
     userPromote,
-    userDemote,
     checkAuthorization,
-    getRoomOwner
+    getRoomOwner,
+    userDemote
 }
