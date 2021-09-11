@@ -124,7 +124,7 @@ export default {
 
 #home-box{
 
-  grid-column: 9/13;
+  grid-column: 7/10;
   grid-row: 2/7;
   min-width: 300px;
   max-width: 400px;

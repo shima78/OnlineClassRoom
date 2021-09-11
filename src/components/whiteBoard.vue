@@ -75,7 +75,7 @@
       </div>
 
     </div>
-    <div id="wrapper" style="display: grid; grid-template-rows: 1fr; grid-template-columns: 1fr; height: calc(100% - 120px); box-sizing: border-box;">
+    <div id="wrapper" style="display: grid; grid-template-rows: calc(100%); height: calc(100% - 120px); box-sizing: border-box;">
       <div id="pdf-view-wrapper" style="z-index: 1; grid-row: 1; grid-column: 1;">
         <div id="pdf-nav-bar">
           <button class="round-button" id="hide-button"  @click="expandWhiteBoardControlFunction"
