@@ -1,13 +1,13 @@
 <template>
   <div id="home-app" class="base">
-      <div id="back-slide" class="base">
-        <div id="logo-icon-box">
-          <img src="../assets/logo/whiteLogo.png"></div>
-        <div id="home-box" class="top">
-         <LoginBox>
-         </LoginBox>
-        </div>
+    <div id="back-slide" class="base">
+      <div id="logo-icon-box">
+        <img src="../assets/logo/whiteLogo.png"></div>
+      <div id="home-box" class="top">
+        <LoginBox>
+        </LoginBox>
       </div>
+    </div>
   </div>
 </template>
 
@@ -15,7 +15,6 @@
 
 import * as Three from 'three'
 import LoginBox from "@/components/LoginBox";
-
 
 
 export default {
@@ -36,54 +35,45 @@ export default {
     }
   },
   methods: {
-    init: function() {
+    init: function () {
 
 
       this.container = document.getElementById('back-slide');
 
-      this.camera = new Three.PerspectiveCamera(40, this.container.clientWidth/this.container.clientHeight, 0.01, 10);
+      this.camera = new Three.PerspectiveCamera(40, this.container.clientWidth / this.container.clientHeight, 0.01, 10);
       this.camera.position.z = 1;
 
 
       this.scene = new Three.Scene();
 
-      
 
-
-      let wireFrameGeometry = new Three.SphereGeometry(0.28,4,4);
+      let wireFrameGeometry = new Three.SphereGeometry(0.28, 4, 4);
       let wireFrameMaterial = new Three.MeshBasicMaterial();
       wireFrameMaterial.color = new Three.Color(0xffffff);
       wireFrameMaterial.wireframe = true;
-      this.wireFrameMesh = new Three.Mesh(wireFrameGeometry,wireFrameMaterial);
+      this.wireFrameMesh = new Three.Mesh(wireFrameGeometry, wireFrameMaterial);
       this.wireFrameMesh.translateX(-0.1);
       this.scene.add(this.wireFrameMesh);
-
-
-
 
 
       this.renderer = new Three.WebGLRenderer({antialias: true, alpha: true});
       this.renderer.setSize(this.container.clientWidth, this.container.clientHeight);
 
-      this.renderer.domElement.setAttribute("id","back-canvas");
+      this.renderer.domElement.setAttribute("id", "back-canvas");
       this.renderer.domElement.style.width = "inherit";
       this.renderer.domElement.style.height = "inherit";
       this.renderer.domElement.style.gridRow = "1/8";
       this.renderer.domElement.style.gridColumn = "1/10";
-      this.renderer.domElement.style.zIndex ="1";
+      this.renderer.domElement.style.zIndex = "1";
       this.container.appendChild(this.renderer.domElement);
 
 
-
-
-
-
     },
-    animate: function() {
+    animate: function () {
       requestAnimationFrame(this.animate);
-      this.renderer.setSize(this.container.clientWidth,this.container.clientHeight);
-      this.wireFrameMesh.rotation.z +=0.00025;
-      this.wireFrameMesh.rotation.y +=0.00025;
+      this.renderer.setSize(this.container.clientWidth, this.container.clientHeight);
+      this.wireFrameMesh.rotation.z += 0.00025;
+      this.wireFrameMesh.rotation.y += 0.00025;
       this.renderer.render(this.scene, this.camera);
     },
 
@@ -99,30 +89,29 @@ export default {
 <style scoped>
 
 
-
-
-.base{
+.base {
   z-index: 1;
 
 }
-.top{
+
+.top {
   z-index: 2;
 }
 
 
-#back-slide{
+#back-slide {
   width: 100vw;
-  max-width:100%;
+  max-width: 100%;
   height: 100vh;
   display: grid;
-  grid-template-columns: 1fr repeat(12,1fr) ;
-  grid-template-rows:   repeat(8,1fr) ;
+  grid-template-columns: 1fr repeat(12, 1fr);
+  grid-template-rows:   repeat(8, 1fr);
   background-image: url("../assets/background/mainBack.jpeg");
 
 
 }
 
-#home-box{
+#home-box {
 
   grid-column: 7/10;
   grid-row: 2/7;
@@ -135,21 +124,23 @@ export default {
   padding: 16px 14px 26px;
   border-radius: 30px;
   background: #111111;
-  box-shadow:  20px 20px 60px #cf525c,
+  box-shadow: 20px 20px 60px #cf525c,
   -20px -20px 60px #ff707c;
 
 
 }
-#logo-icon-box{
+
+#logo-icon-box {
   background-color: transparent;
-  position:fixed;
+  position: fixed;
   top: 12px;
   left: 12px;
   min-width: 100px;
   min-height: 50px;
 
 }
-#logo-icon-box > img{
+
+#logo-icon-box > img {
   max-width: 200px;
   max-height: 50px;
 }

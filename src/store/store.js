@@ -11,40 +11,40 @@ export const store = new Vuex.Store({
         username: null,
         roomId: null,
         role: null,
-        userID :null,
-        currentAnswerArray:[],
+        userID: null,
+        currentAnswerArray: [],
 
-    },mutations: {
-        setQuestion(state,payload){
+    }, mutations: {
+        setQuestion(state, payload) {
             state.questionArray = new Array(payload);
         },
-        setServer(state,payload){
+        setServer(state, payload) {
             state.server = payload;
         },
-        setRoomID(state,payload){
+        setRoomID(state, payload) {
             state.roomId = payload;
         },
-        setRole(state,payload){
+        setRole(state, payload) {
             state.role = payload;
         },
-        setUsername(state,payload){
+        setUsername(state, payload) {
             state.username = payload;
         },
-        setUserID(state,payload){
+        setUserID(state, payload) {
             state.userID = payload;
         },
-        setUsersData(state,payload){
+        setUsersData(state, payload) {
             state.userDataArray = new Array(payload);
         },
-        pushQuestion(state,payload){
+        pushQuestion(state, payload) {
             state.questionArray.push(payload);
         },
-        setCurrentAnswerArray(state,payload){
+        setCurrentAnswerArray(state, payload) {
             state.currentAnswerArray = new Array(payload);
         }
 
     },
-    getters:{
+    getters: {
         getUserData: state => {
             return state.userDataArray;
         },
@@ -63,38 +63,38 @@ export const store = new Vuex.Store({
         getUserID: state => {
             return state.userID;
         },
-        getQuestionArray : state => {
+        getQuestionArray: state => {
             return state.questionArray;
         },
-        getAnswerAllArray : state => {
+        getAnswerAllArray: state => {
             return state.currentAnswerArray;
         },
-        getCurrentAnswerArray : state => {
+        getCurrentAnswerArray: state => {
             return state.currentAnswerArray;
         }
 
 
     },
-    actions:{
+    actions: {
         // eslint-disable-next-line no-unused-vars
-        updateUsersData({ commit },payload){
-           commit('setUsersData',payload);
-           //console.log('action happening',payload)
+        updateUsersData({commit}, payload) {
+            commit('setUsersData', payload);
+            //console.log('action happening',payload)
         },
-        updateQuestionData({ commit },payload){
-            commit('setQuestion',payload);
+        updateQuestionData({commit}, payload) {
+            commit('setQuestion', payload);
         },
 
 
-        addQuestion({commit} ,payload){
-            commit('pushQuestion',payload);
+        addQuestion({commit}, payload) {
+            commit('pushQuestion', payload);
         },
         // eslint-disable-next-line no-unused-vars
-        updateCurrentAnswers({commit},payload){
-            commit('setCurrentAnswerArray',payload);
+        updateCurrentAnswers({commit}, payload) {
+            commit('setCurrentAnswerArray', payload);
         },
-        updateRole({commit},payload){
-            commit('setRole',payload)
+        updateRole({commit}, payload) {
+            commit('setRole', payload)
         }
 
 

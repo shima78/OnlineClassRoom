@@ -1,17 +1,17 @@
 <template>
   <div class="answer-bubble">
     <label class="username-label">
-      {{username}}
+      {{ username }}
     </label>
-    <div style="display: flex; flex-direction: row; justify-content: space-evenly; align-content: center; " >
-      <template  v-if="role === 'owner' && userRole != 'owner'">
-        <button class="accept-reject-button"  id="accept-button" @click="demoteUser" v-if="userRole === 'presenter'">
+    <div style="display: flex; flex-direction: row; justify-content: space-evenly; align-content: center; ">
+      <template v-if="role === 'owner' && userRole != 'owner'">
+        <button class="accept-reject-button" id="accept-button" @click="demoteUser" v-if="userRole === 'presenter'">
           <i class="material-icons">group_remove</i>
           <label>
             Demote
           </label>
         </button>
-        <button class="accept-reject-button"  id="reject-button" @click="promoteUser" v-if="userRole === 'std'">
+        <button class="accept-reject-button" id="reject-button" @click="promoteUser" v-if="userRole === 'std'">
           <label>
             Promote
           </label>
@@ -33,28 +33,28 @@ import {mapGetters} from "vuex";
 
 export default {
   name: "userBubble",
-  data(){
-    return{
+  data() {
+    return {
       role: null,
       server: null
     }
   },
-  props:{
+  props: {
     username: String,
     joinTime: String,
     userRole: String,
     socketID: String
 
   },
-  methods:{
-    ...mapGetters(['getRole','getServer']),
-    promoteUser: function (){
+  methods: {
+    ...mapGetters(['getRole', 'getServer']),
+    promoteUser: function () {
       console.log('running promote')
-      this.server.emit('promote',this.socketID)
+      this.server.emit('promote', this.socketID)
     },
-    demoteUser: function (){
+    demoteUser: function () {
       console.log('running demote')
-      this.server.emit('demote',this.socketID)
+      this.server.emit('demote', this.socketID)
     }
   },
   mounted() {
@@ -65,7 +65,7 @@ export default {
 </script>
 
 <style scoped>
-.answer-bubble{
+.answer-bubble {
 
   display: flex;
   flex-direction: row;
@@ -76,30 +76,29 @@ export default {
 
   min-height: 10px;
   max-height: 10px;
-  background-color: #e0e5ec;
+  background-color: var(--main-color);
   border-radius: 12px;
 
-  box-shadow:  3px 3px 6px #bec3c9,
-  -3px -3px 6px #ffffff;
+  box-shadow: var(--neu-shadow-3px);
 }
 
 
-.username-label{
+.username-label {
 
-  font-family: "Poppins",sans-serif;
+  font-family: "Poppins", sans-serif;
   font-size: 14px;
   font-weight: 500;
-  color: #7389a9;
+  color: var(--text-color);
 
 }
 
 
-.role-label{
+.role-label {
 
-  font-family: "Poppins",sans-serif;
+  font-family: "Poppins", sans-serif;
   font-size: 10px;
   font-weight: 400;
-  color: #ff7c74;
+  color: var(--accent-color);
 
 }
 
@@ -107,7 +106,7 @@ export default {
   height: 22px;
   width: 100%;
   margin: 2px;
-  background-color: #e0e5ec;
+  background-color: var(--main-color);
   outline: none;
   border: none;
   border-radius: 24px;
@@ -118,42 +117,43 @@ export default {
   align-items: center;
 }
 
-.accept-reject-button > label{
+.accept-reject-button > label {
   font-size: 12px;
   font-weight: 400;
   margin-left: 3px;
   margin-right: 3px;
 }
 
-.accept-reject-button > i{
+.accept-reject-button > i {
   font-size: 14px;
-  color: #7389a9;
+  color: var(--text-color);
 }
 
-.accept-reject-button:active{
-  box-shadow:  inset 1px 1px 2px #bec3c9,
-  inset -1px -1px 2px #ffffff;
-
-}
-
-.accept-reject-button:active > i{
-  color: #ff7c74;
+.accept-reject-button:active {
+  box-shadow: var(--neu-shadow-inset-1px);
 
 }
 
+.accept-reject-button:active > i {
+  color: var(--accent-color);
 
-.accept-reject-button:disabled >i{
-  color: #ff7c74;
 }
-.accept-reject-button:disabled:active{
-  box-shadow: none;
+
+
+.accept-reject-button:disabled > i {
+  color: var(--accent-color);
 }
-.accept-reject-button:disabled:active >i{
+
+.accept-reject-button:disabled:active {
   box-shadow: none;
 }
 
-.accept-reject-button:active > i{
-  color: #ff7c74;
+.accept-reject-button:disabled:active > i {
+  box-shadow: none;
+}
+
+.accept-reject-button:active > i {
+  color: var(--accent-color);
 
 }
 

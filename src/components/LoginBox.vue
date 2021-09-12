@@ -6,16 +6,18 @@
       </div>
 
 
-          <input id="username" class="input-bar text" v-model="username" placeholder="Username" autocomplete="off" name="username" maxLength="32">
-          <input id="roomid" class="input-bar text" v-model="roomID" placeholder="room ID" autocomplete="off" name="roomid" maxLength="32">
-          <input id="password" class="input-bar text" v-model="password" placeholder="Password" autocomplete="off" name="password" type="password" maxLength="64">
-          <button class="meet-enter-button" @click="loginInit" > Enter Meeting </button>
-          <button id="meet-enter-button" @click="loginInit" > Guest </button>
+      <input id="username" class="input-bar text" v-model="username" placeholder="Username" autocomplete="off"
+             name="username" maxLength="32">
+      <input id="roomid" class="input-bar text" v-model="roomID" placeholder="room ID" autocomplete="off" name="roomid"
+             maxLength="32">
+      <input id="password" class="input-bar text" v-model="password" placeholder="Password" autocomplete="off"
+             name="password" type="password" maxLength="64">
+      <button class="meet-enter-button" @click="loginInit"> Enter Meeting</button>
+      <button id="meet-enter-button" @click="loginInit"> Guest</button>
 
-      </div>
     </div>
+  </div>
 </template>
-
 
 
 <script>
@@ -27,16 +29,14 @@ import router from "@/router";
 // eslint-disable-next-line no-unused-vars
 import {store} from "@/store/store";
 // eslint-disable-next-line no-unused-vars
-import { mapGetters, mapActions } from 'vuex';
+import {mapGetters, mapActions} from 'vuex';
 import jwt_decode from 'jwt-decode'
-
 
 
 export default {
   name: "LoginBox",
-  components: {
-  },
-  data(){
+  components: {},
+  data() {
     return {
       parent: this,
       username: "",
@@ -46,18 +46,18 @@ export default {
       address: 'ws://localhost:3000',
       role: null,
       usid: null,//unique socket id,
-      userArray: new Array()
+      userArray: []
     }
   },
   methods: {
 
     ...mapActions(['updateUsersData']),
-    loginInit:  async function() {
+    loginInit: async function () {
 
       this.SERVER = await io(this.address);
       const socket = this.SERVER;
       this.$store.commit('setServer', socket);
-      console.log('login data: ',{name: this.username, pass: this.password, room: this.roomID})
+      console.log('login data: ', {name: this.username, pass: this.password, room: this.roomID})
       socket.emit('login', {name: this.username, pass: this.password, room: parseInt(this.roomID)})
 
       await socket.on("loginRes", (data) => {
@@ -82,19 +82,27 @@ export default {
         } else {
           let decoded = jwt_decode(data);
           console.log(decoded)
-          socket.emit('joinRoom', ({username: decoded.usr.username,room:this.roomID , role: decoded.usr.userRole,userID: decoded.usr.userID}));
-          console.log('login data',{username: decoded.usr.username,room:this.roomID , role: decoded.usr.userRole,userID: decoded.usr.userID})
+          socket.emit('joinRoom', ({
+            username: decoded.usr.username,
+            room: this.roomID,
+            role: decoded.usr.userRole,
+            userID: decoded.usr.userID
+          }));
+          console.log('login data', {
+            username: decoded.usr.username,
+            room: this.roomID,
+            role: decoded.usr.userRole,
+            userID: decoded.usr.userID
+          })
           this.$store.commit('setRoomID', decoded.usr.id);
-          this.$store.commit('setRole',decoded.usr.userRole)
+          this.$store.commit('setRole', decoded.usr.userRole)
           this.$store.commit('setUsername', decoded.usr.username);
-          this.$store.commit('setUserID',decoded.usr.userID);
+          this.$store.commit('setUserID', decoded.usr.userID);
 
 
-
-
-          this.SERVER.on("roomUsers",  (userData) =>{
-              console.log('ROOMUSERS IS ACTUALLY RUNNING',userData.users);
-              this.updateUsersData(userData.users);
+          this.SERVER.on("roomUsers", (userData) => {
+            console.log('ROOMUSERS IS ACTUALLY RUNNING', userData.users);
+            this.updateUsersData(userData.users);
           });
 
 
@@ -111,20 +119,22 @@ export default {
 </script>
 <style src="../style/loginRadio.css"></style>
 <style scoped>
-#generate-class-box{
+#generate-class-box {
   height: 100%;
   width: 100%;
 }
-#generate-class-form{
+
+#generate-class-form {
   display: grid;
-  grid-template-rows: minmax(100px,auto) repeat(2,40px) minmax(0px,40px) 40px;
+  grid-template-rows: minmax(100px, auto) repeat(2, 40px) minmax(0px, 40px) 40px;
   row-gap: 16px;
-  grid-template-columns: minmax(100px,1fr) 120px;
+  grid-template-columns: minmax(100px, 1fr) 120px;
 
   height: 100%;
   overflow: hidden;
 }
-.input-bar{
+
+.input-bar {
   margin-right: 10px;
   margin-left: 10px;
 
@@ -134,7 +144,7 @@ export default {
 
   border-width: 0px;
   background-color: #222222;
-  box-shadow:  7px 7px 14px #0e0e0e,
+  box-shadow: 7px 7px 14px #0e0e0e,
   -7px -7px 14px #141414;
   transition-duration: 0.01s;
 
@@ -142,14 +152,15 @@ export default {
 
 }
 
-.text{
+.text {
   font-size: 16px;
   font-weight: 7;
-  font-family: "Poppins",sans-serif;
+  font-family: "Poppins", sans-serif;
   font-weight: 300;
-  color: #7389a9;
+  color: var(--text-color);
 }
-.input-bar:focus{
+
+.input-bar:focus {
   font-weight: 7;
   border-width: 0px;
   color: #bbbbbb;
@@ -164,24 +175,22 @@ export default {
 }
 
 
-
-
-button{
+button {
   margin-left: 10px;
   margin-right: 10px;
 
 
   border-radius: 18px;
 
-  background: linear-gradient(145deg, #ff7c74, #d86861);
-  box-shadow:  7px 7px 14px #0f0f0f,
+  background: var(--accent-gradiant);
+  box-shadow: 7px 7px 14px #0f0f0f,
   -7px -7px 14px #131313;
 
   border: none;
   outline: none;
 
   color: white;
-  font-family: "Poppins",sans-serif;
+  font-family: "Poppins", sans-serif;
   font-size: 14px;
   font-weight: 400;
 
@@ -190,22 +199,22 @@ button{
 
 }
 
-button:active{
+button:active {
   margin-top: -2px;
   margin-bottom: 2px;
   transition-duration: 0.1s;
-  background: linear-gradient(145deg, #d86861, #ff7c74);
+  background: linear-gradient(145deg, #d86861, var(--accent-color));
 
 
 }
 
 
-#link-gen-button{
+#link-gen-button {
   grid-row: 5;
   grid-column: 2/3;
 }
 
-#link-gen-out{
+#link-gen-out {
 
   grid-row: 5;
   grid-column: 1;
@@ -213,22 +222,20 @@ button:active{
   margin-left: 10px;
 
 
-
 }
 
 
-
-#class-name-input{
+#class-name-input {
   grid-row: 2;
 }
 
 
-#user-name-input{
+#user-name-input {
   grid-row: 3;
 }
 
-#flamingo-image-div{
-  gird-row:1;
+#flamingo-image-div {
+  gird-row: 1;
   grid-column: 1/3;
   background-repeat: no-repeat;
   justify-items: center;
@@ -236,12 +243,13 @@ button:active{
 
 }
 
-#flamingo-image{
+#flamingo-image {
   margin: 60px;
   margin-right: -10px;
   margin-top: -10px;
 }
-.meet-enter-button{
+
+.meet-enter-button {
   grid-column: 1/2;
   grid-row: 5;
 }

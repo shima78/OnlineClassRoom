@@ -2,12 +2,12 @@
   <div id="meeting-app">
     <div id="meeting-background">
       <div id="Nav-bar-container">
-          <MeetingNavbar>
-          </MeetingNavbar>
+        <MeetingNavbar>
+        </MeetingNavbar>
       </div>
 
       <div id="board-container">
-          <white-board></white-board>
+        <white-board></white-board>
 
       </div>
 
@@ -40,18 +40,19 @@ export default {
 </script>
 <style src="../style/neuMeet.css"></style>
 <style scoped>
-#meeting-background{
-  background-color: #e0e5ec;
+#meeting-background {
+  background-color: var(--main-color);
   width: 100vw;
   height: 100vh;
   max-height: 100%;
   max-width: 100%;
   display: grid;
   row-gap: 10px;
-  grid-template-columns: minmax(700px,1fr) 400px;
-  grid-template-rows: 80px minmax(500px,1fr);
+  grid-template-columns: minmax(700px, 1fr) 400px;
+  grid-template-rows: 80px minmax(500px, 1fr);
 }
-#Nav-bar-container{
+
+#Nav-bar-container {
   grid-row: 1;
   grid-column: 1/3;
   z-index: 1;
@@ -60,35 +61,32 @@ export default {
 
 }
 
-#board-container{
+#board-container {
   margin: 20px 40px 40px;
   border-radius: 24px;
   display: flex;
 
-  background: #e0e5ec;
-  box-shadow:  5px 5px 10px #bec3c9,
-  -5px -5px 10px #ffffff;
+  background: var(--main-color);
+  box-shadow: var(--neu-shadow-5px);
 
 }
 
 
-
-#side-container{
+#side-container {
   display: flex;
   margin-right: 40px;
   margin-bottom: 40px;
   margin-top: 20px;
   border-radius: 24px;
 
-  background: #e0e5ec;
-  box-shadow:  5px 5px 10px #ccd0d7,
-  -5px -5px 10px #f4faff;
+  background: var(--main-color);
+  box-shadow: var(--neu-shadow-5px);
 
 
 }
 
 
-#meeting-app{
+#meeting-app {
   z-index: 0;
 }
 

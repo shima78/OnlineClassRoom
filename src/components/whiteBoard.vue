@@ -2,17 +2,21 @@
   <div id="white-board-wrapper">
     <div id="white-board-control" v-show="expandWhiteBoardControl">
       <div id="upload-ctrl-group" class="ctrl-group">
-        <button class="round-button pdf-button" style="grid-column: 1; grid-row: 1;" @click="pdfDiv.style.zIndex = 3; canvas.style.zIndex = 1;">
+        <button class="round-button pdf-button" style="grid-column: 1; grid-row: 1;"
+                @click="pdfDiv.style.zIndex = 3; canvas.style.zIndex = 1;">
           <label>PDF</label>
         </button>
-        <fileUploader  :pdf="true" :picture="false" style="grid-column: 2; grid-row: 1;"></fileUploader>
+        <fileUploader :pdf="true" :picture="false" style="grid-column: 2; grid-row: 1;"></fileUploader>
 
         <!--<input class="round-button pdf-button custom-file-input" id="pdf-upload-button" style="grid-column: 2; grid-row: 1;" type="file">-->
-        <button class="round-button" style="grid-column: 1; grid-row: 2;" @click="canvas.style.zIndex = 3; pdfDiv.style.zIndex = 1; canvas.style.backgroundImage = null">
+        <button class="round-button" style="grid-column: 1; grid-row: 2;"
+                @click="canvas.style.zIndex = 3; pdfDiv.style.zIndex = 1; canvas.style.backgroundImage = null">
           <i class="material-icons">cast_for_education</i>
         </button>
-        <fileUploader  :pdf="false" :picture="true" style="grid-row: 2; grid-column: 2;" v-if="imageBack == 0"></fileUploader>
-        <button class="round-button" style="grid-column: 2; grid-row: 2;" v-if="imageBack == 1" @click="clearBackground">
+        <fileUploader :pdf="false" :picture="true" style="grid-row: 2; grid-column: 2;"
+                      v-if="imageBack == 0"></fileUploader>
+        <button class="round-button" style="grid-column: 2; grid-row: 2;" v-if="imageBack == 1"
+                @click="clearBackground">
           <i class="material-icons">cancel</i>
         </button>
         <!---<input class="round-button custom-file-input" id="photo-upload-button" style="grid-row: 2; grid-column: 2;" type="file" @change="onSelect"> -->
@@ -55,30 +59,37 @@
 
       <div id="pen-thickness-ctrl-group" class="ctrl-group">
         <label class="thickness-label" id="thickness-label-a">A</label>
-        <div style="display: flex; flex-direction: row; justify-content: space-between; align-items: center; width: 100%">
-          <button id="thickness-inc-low" class="round-button inc-button" @click="thicknessDec" :disabled="role === 'std'">
+        <div
+            style="display: flex; flex-direction: row; justify-content: space-between; align-items: center; width: 100%">
+          <button id="thickness-inc-low" class="round-button inc-button" @click="thicknessDec"
+                  :disabled="role === 'std'">
             <i class="material-icons">remove</i>
           </button>
 
-          <button id="thickness-inc-high" class="round-button inc-button" @click="thicknessInc" :disabled="role === 'std'">
+          <button id="thickness-inc-high" class="round-button inc-button" @click="thicknessInc"
+                  :disabled="role === 'std'">
             <i class="material-icons">add</i>
-          </button></div>
+          </button>
+        </div>
 
 
       </div>
 
       <div id="color-wheel-ctrl-group" class="ctrl-group">
-        <v-swatches v-if="clientWide" v-model="color" popover-x="left" inline  background-color="#e0e5ec" row-length="4" :swatch-style=this.swatchStyle :close-on-select="true" :disabled="role === 'std'">
+        <v-swatches v-if="clientWide" v-model="color" popover-x="left" inline background-color="var(--main-color)"
+                    row-length="4" :swatch-style=this.swatchStyle :close-on-select="true" :disabled="role === 'std'">
         </v-swatches>
-        <v-swatches v-if="!clientWide" v-model="color" popover-x="left"   background-color="#e0e5ec" row-length="4" :swatch-style=this.swatchStyle :close-on-select="true" :disabled="role === 'std'">
+        <v-swatches v-if="!clientWide" v-model="color" popover-x="left" background-color="var(--main-color)"
+                    row-length="4" :swatch-style=this.swatchStyle :close-on-select="true" :disabled="role === 'std'">
         </v-swatches>
       </div>
 
     </div>
-    <div id="wrapper" style="display: grid; grid-template-rows: calc(100%); height: calc(100% - 120px); box-sizing: border-box;">
+    <div id="wrapper"
+         style="display: grid; grid-template-rows: calc(100%); height: calc(100% - 120px); box-sizing: border-box;">
       <div id="pdf-view-wrapper" style="z-index: 1; grid-row: 1; grid-column: 1;">
         <div id="pdf-nav-bar">
-          <button class="round-button" id="hide-button"  @click="expandWhiteBoardControlFunction"
+          <button class="round-button" id="hide-button" @click="expandWhiteBoardControlFunction"
                   style="display: flex; justify-content: space-between; width: 120px; padding-left: 10px; box-sizing: border-box;"
                   :disabled="role === 'std'">
             <label v-if="expandWhiteBoardControl">hide</label>
@@ -97,7 +108,8 @@
       </div>
       <!-- <input :required="test ? true : false"> -->
 
-      <canvas  id="white-board-canvas" @mousedown="mouseDown" @mousemove="mouseMove" @mouseup="mouseup" @mouseleave="mouseleave" style="z-index: 2; grid-row: 1; grid-column: 1;">
+      <canvas id="white-board-canvas" @mousedown="mouseDown" @mousemove="mouseMove" @mouseup="mouseup"
+              @mouseleave="mouseleave" style="z-index: 2; grid-row: 1; grid-column: 1;">
 
       </canvas>
 
@@ -111,7 +123,7 @@
 // eslint-disable-next-line no-unused-vars
 import VSwatches from 'vue-swatches'
 import fileUploader from "@/components/fileUploader";
-import {mapGetters,mapActions} from "vuex";
+import {mapGetters, mapActions} from "vuex";
 import VuePdfApp from "vue-pdf-app";
 import "vue-pdf-app/dist/icons/main.css";
 
@@ -119,18 +131,16 @@ import "vue-pdf-app/dist/icons/main.css";
 // eslint-disable-next-line no-unused-vars
 
 
-
-
 export default {
   name: "whiteBoard",
-  data(){
+  data() {
 
     return {
       server: null,
       color: 'rgb(61,85,110)',
       colorHold: 'rgb(61,85,110)',
-      thickness : 4,
-      swatchStyle: { boxShadow: '2px 2px 4px #bec3c9, -2px -2px 4px #ffffff'},
+      thickness: 4,
+      swatchStyle: {boxShadow: '2px 2px 4px #bec3c9, -2px -2px 4px #ffffff'},
       canvasContext: null,
       canvas: null,
       offset: {
@@ -150,23 +160,23 @@ export default {
       },
       canvasHeightHold: null,
       pdfDiv: null,
-      noPdf:{
+      noPdf: {
         value: 0,
         text: "Nothing is being shared,\nupload a PDF file first."
       },
-      shapeClickMemory:{
-        initialPoint:{
+      shapeClickMemory: {
+        initialPoint: {
           x: null,
           y: null
         },
-        finalPoint:{
+        finalPoint: {
           x: null,
           y: null
         }
       },
 
       //imageData
-      imageData:{
+      imageData: {
         file: null,
         message: null
       },
@@ -175,7 +185,7 @@ export default {
       clientWide: null,
       role: null,
 
-      PDF:{
+      PDF: {
         pdfSource: null,
         title: null,
         pageNumber: null
@@ -185,49 +195,45 @@ export default {
       imageBack: 0
 
 
-
-
-
     }
   },
-  components:{
+  components: {
     fileUploader,
     VSwatches,
     VuePdfApp
   },
 
-  computed:{
-    PDFPageNumber(){
+  computed: {
+    PDFPageNumber() {
       return this.PDF.pageNumber;
     }
   },
 
 
-  watch:{
-    PDF: function(){
-      console.log('pdfpage',this.PDFPageNumber)//emit pagenumber change
+  watch: {
+    PDF: function () {
+      console.log('pdfpage', this.PDFPageNumber)//emit pagenumber change
     }
   }
   ,
-  methods:{
-    ...mapGetters(['getServer','getRole','getRoomID']),
+  methods: {
+    ...mapGetters(['getServer', 'getRole', 'getRoomID']),
     ...mapActions(['updateRole']),
-    clearBackground: function (){
+    clearBackground: function () {
       this.canvas.style.backgroundImage = null;
       this.imageBack = 0;
     },
-    expandWhiteBoardControlFunction: function (){
+    expandWhiteBoardControlFunction: function () {
 
       let clientWideHold = this.clientWide;
       let wrapper = document.getElementById('wrapper');
 
-      if(this.expandWhiteBoardControl){
+      if (this.expandWhiteBoardControl) {
         this.clientWide = clientWideHold;
         wrapper.style.height = 'calc(100%)'
         this.expandWhiteBoardControl = !this.expandWhiteBoardControl;
 
-      }
-      else{
+      } else {
         this.clientWide = clientWideHold;
         wrapper.style.height = 'calc(100% - 120px)'
 
@@ -237,31 +243,30 @@ export default {
 
 
     },
-    addClick: function (x,y,dragging){
+    addClick: function (x, y, dragging) {
 
-      if(x) {
+      if (x) {
         this.click.x.push(x);
         this.click.y.push(y);
         this.click.drag.push(dragging);
       }
     },
-    drawOnCanvas: function (){
+    drawOnCanvas: function () {
       this.canvasContext.strokeStyle = this.color;
       this.canvasContext.lineJoin = 'round';
       this.canvasContext.lineWidth = this.thickness;
 
-      for(let i=0; i < this.click.x.length; i++){
+      for (let i = 0; i < this.click.x.length; i++) {
         this.canvasContext.beginPath();
-        if(this.click.drag[i] && i){
-          this.canvasContext.moveTo(this.click.x[i-1],this.click.y[i-1]);
+        if (this.click.drag[i] && i) {
+          this.canvasContext.moveTo(this.click.x[i - 1], this.click.y[i - 1]);
+
+        } else {
+          this.canvasContext.moveTo(this.click.x[i] - 1, this.click.y[i]);
 
         }
-        else{
-          this.canvasContext.moveTo(this.click.x[i] - 1,this.click.y[i]);
 
-        }
-
-        this.canvasContext.lineTo(this.click.x[i],this.click.y[i]);
+        this.canvasContext.lineTo(this.click.x[i], this.click.y[i]);
         this.canvasContext.closePath();
         this.canvasContext.stroke();
       }
@@ -277,20 +282,18 @@ export default {
       }));
     },
 
-    init: function (){
-
+    init: function () {
 
 
       this.server = this.$store.getters.getServer;
       this.role = this.$store.getters.getRole;
-      this.clientWide =1;
+      this.clientWide = 1;
 
       //vueswatch size based
       let canvasControl = document.getElementById('white-board-control');
-      if(canvasControl.offsetWidth < 900){
+      if (canvasControl.offsetWidth < 900) {
         this.clientWide = 0;
-      }
-      else{
+      } else {
         this.clientWide = 1;
       }
 
@@ -317,56 +320,54 @@ export default {
        }*/
 
 
-
       this.pdfDiv = document.getElementById('pdf-view-wrapper');
       this.canvas = document.getElementById('white-board-canvas');
       this.canvasContext = this.canvas.getContext("2d");
       this.canvasContext.fillStyle = 'blue';
 
 
-
       let scale = window.devicePixelRatio;
-      this.canvas.width = Math.floor(this.canvas.width*scale);
-      this.canvas.height = Math.floor(this.canvas.height*scale);
-      this.canvasContext.scale(scale,scale);
+      this.canvas.width = Math.floor(this.canvas.width * scale);
+      this.canvas.height = Math.floor(this.canvas.height * scale);
+      this.canvasContext.scale(scale, scale);
 
       //eventListeners
 
-      this.server.on("clear-the-canvas-from-server",() =>{
-        this.canvasContext.clearRect(0, 0, 2*this.canvas.width, 2*this.canvas.height);
+      this.server.on("clear-the-canvas-from-server", () => {
+        this.canvasContext.clearRect(0, 0, 2 * this.canvas.width, 2 * this.canvas.height);
       });
 
-      this.server.on("draw-from-server",(data) =>{
+      this.server.on("draw-from-server", (data) => {
         this.drawOnClientCanvas(data);
       })
 
-      this.server.on("circle-draw-from-server",({shapeClickMemory, strokeStyle, lineWidth}) =>{
+      this.server.on("circle-draw-from-server", ({shapeClickMemory, strokeStyle, lineWidth}) => {
 
         this.drawCircleClient({shapeClickMemory, strokeStyle, lineWidth});
       })
-      this.server.on("line-draw-from-server",({shapeClickMemory, strokeStyle, lineWidth}) =>{
+      this.server.on("line-draw-from-server", ({shapeClickMemory, strokeStyle, lineWidth}) => {
 
-        this.drawLineClient({shapeClickMemory,strokeStyle,lineWidth});
+        this.drawLineClient({shapeClickMemory, strokeStyle, lineWidth});
       })
-      this.server.on("rect-draw-from-server",({shapeClickMemory, strokeStyle, lineWidth}) =>{
+      this.server.on("rect-draw-from-server", ({shapeClickMemory, strokeStyle, lineWidth}) => {
 
-        this.drawRectClientL({shapeClickMemory,strokeStyle,lineWidth});
+        this.drawRectClientL({shapeClickMemory, strokeStyle, lineWidth});
       })
 
       //pdf event listeners
 
-      this.server.on("privateMessage",(data)=>{
-        console.log("pdfList",data)
+      this.server.on("privateMessage", (data) => {
+        console.log("pdfList", data)
       })
 
 
       //imageUpload
       //TODO fix IMAGE FRONT
-      this.server.on("bgURL",async (URL)=>{
+      this.server.on("bgURL", async (URL) => {
         this.imageBack = 1;
         // document.getElementById("image").src = URL
-        console.log('bgrul:::',URL)
-        this.canvas.style.backgroundImage = "url("+URL+")";
+        console.log('bgrul:::', URL)
+        this.canvas.style.backgroundImage = "url(" + URL + ")";
         this.canvas.style.backgroundPosition = "center";
         this.canvas.style.backgroundRepeat = "no-repeat";
         this.canvas.style.backgroundAttachment = "fixed";
@@ -375,14 +376,14 @@ export default {
       })
 
 
-      this.server.on("PDF",async (PDF)=>{
-        console.log('pdf:',PDF);
-        this.PDF.pdfSource=PDF;
+      this.server.on("PDF", async (PDF) => {
+        console.log('pdf:', PDF);
+        this.PDF.pdfSource = PDF;
 
       })
 
-      this.server.on("newRole", async (data)=>{
-        console.log('promote data',data)
+      this.server.on("newRole", async (data) => {
+        console.log('promote data', data)
         let user = data.find(user => user.socketID === this.server.id && user.online === true)
         this.updateRole(user.role)
         this.role = user.role;
@@ -390,15 +391,11 @@ export default {
       })
 
 
-
-
-
     },
-    mouseDown: function (event){
-      if(this.role == 'std'){
-        return;
-      }
-      else {
+    mouseDown: function (event) {
+      if (this.role != 'std') {
+
+
 
         // eslint-disable-next-line no-unused-vars
         let MouseX = event.pageX - this.offset.left;
@@ -423,24 +420,22 @@ export default {
       }
 
     },
-    mouseMove: function (event){
-      if(this.role == 'std'){
+    mouseMove: function (event) {
+      if (this.role == 'std') {
         return;
-      }
-      else{
-        if(this.paint){
-          this.addClick(event.pageX - this.offset.left,event.pageY - this.offset.top,true);
+      } else {
+        if (this.paint) {
+          this.addClick(event.pageX - this.offset.left, event.pageY - this.offset.top, true);
           this.drawOnCanvas();
         }
       }
 
     },
     // eslint-disable-next-line no-unused-vars
-    mouseup: function (event){
-      if(this.role == 'std'){
+    mouseup: function (event) {
+      if (this.role == 'std') {
         return;
-      }
-      else{
+      } else {
         this.paint = false;
         this.ClearDrawCoordinates();
       }
@@ -448,11 +443,10 @@ export default {
 
     },
 
-    mouseleave: function (){
-      if(this.role == 'std'){
+    mouseleave: function () {
+      if (this.role == 'std') {
         return;
-      }
-      else{
+      } else {
         this.paint = false;
         this.ClearDrawCoordinates();
       }
@@ -460,11 +454,11 @@ export default {
 
     },
 
-    ClearDrawCoordinates: function (){
+    ClearDrawCoordinates: function () {
       if (this.click.x.length > 0) {
 
         this.server.emit('maintain-history', {
-          click:{
+          click: {
             x: this.click.x,
             y: this.click.y,
             drag: this.click.drag
@@ -481,56 +475,55 @@ export default {
     },
 
 
-
-    thicknessInc:  function (){
-      if(this.thickness < 9){
+    thicknessInc: function () {
+      if (this.thickness < 9) {
         this.thickness += 1;
         document.getElementById('thickness-label-a').style.fontWeight = (this.thickness * 100).toString();
 
 
       }
     },
-    thicknessDec: function (){
-      if(this.thickness > 1){
+    thicknessDec: function () {
+      if (this.thickness > 1) {
         this.thickness -= 1;
         document.getElementById('thickness-label-a').style.fontWeight = (this.thickness * 100).toString();
 
       }
     },
 
-    eraseMode: function (){
-      if(this.color != '#e0e5ec'){
+    eraseMode: function () {
+      if (this.color != 'var(--main-color)') {
         this.colorHold = this.color;
       }
-      this.color = '#e0e5ec'
+      this.color = 'var(--main-color)'
     },
-    pendMode: function (){
+    pendMode: function () {
       this.color = this.colorHold;
     },
-    clearAll: function (){
-      if(this.role == 'std'){
+    clearAll: function () {
+      if (this.role == 'std') {
         return;
-      }else{
+      } else {
         this.server.emit('clear-the-canvas', {});
-        this.canvasContext.clearRect(0, 0, 2*this.canvas.width, 2*this.canvas.height);
+        this.canvasContext.clearRect(0, 0, 2 * this.canvas.width, 2 * this.canvas.height);
       }
 
     },
-    setCanvasOffset: function (){
+    setCanvasOffset: function () {
       let positionRect = this.canvas.getBoundingClientRect();
       this.offset.top = positionRect.top;
       this.offset.left = positionRect.left;
 
 
       let scale = window.devicePixelRatio;
-      this.canvas.width = Math.floor(this.canvas.offsetWidth*scale);
-      this.canvas.height = Math.floor(this.canvas.offsetHeight*scale);
-      this.canvasContext.scale(scale,scale);
+      this.canvas.width = Math.floor(this.canvas.offsetWidth * scale);
+      this.canvas.height = Math.floor(this.canvas.offsetHeight * scale);
+      this.canvasContext.scale(scale, scale);
     },
-    drawLine: function (){
+    drawLine: function () {
       this.canvasContext.beginPath();
-      this.canvasContext.moveTo(this.shapeClickMemory.initialPoint.x,this.shapeClickMemory.initialPoint.y);
-      this.canvasContext.lineTo(this.shapeClickMemory.finalPoint.x,this.shapeClickMemory.finalPoint.y);
+      this.canvasContext.moveTo(this.shapeClickMemory.initialPoint.x, this.shapeClickMemory.initialPoint.y);
+      this.canvasContext.lineTo(this.shapeClickMemory.finalPoint.x, this.shapeClickMemory.finalPoint.y);
       this.canvasContext.closePath();
       this.canvasContext.stroke();
 
@@ -549,12 +542,12 @@ export default {
 
     },
 
-    drawCircle: function (){
+    drawCircle: function () {
       let deltaX = this.shapeClickMemory.finalPoint.x - this.shapeClickMemory.initialPoint.x;
       let deltaY = this.shapeClickMemory.finalPoint.y - this.shapeClickMemory.initialPoint.y;
-      let radius = Math.sqrt((deltaX*deltaX) + (deltaY*deltaY))/2;
+      let radius = Math.sqrt((deltaX * deltaX) + (deltaY * deltaY)) / 2;
       this.canvasContext.beginPath();
-      this.canvasContext.arc((this.shapeClickMemory.finalPoint.x+this.shapeClickMemory.initialPoint.x)/2,(this.shapeClickMemory.finalPoint.y+this.shapeClickMemory.initialPoint.y)/2,radius,0,2*Math.PI);
+      this.canvasContext.arc((this.shapeClickMemory.finalPoint.x + this.shapeClickMemory.initialPoint.x) / 2, (this.shapeClickMemory.finalPoint.y + this.shapeClickMemory.initialPoint.y) / 2, radius, 0, 2 * Math.PI);
       this.canvasContext.closePath();
       this.canvasContext.stroke();
 
@@ -573,13 +566,13 @@ export default {
 
     },
 
-    drawRect: function (){
+    drawRect: function () {
       this.canvasContext.beginPath();
-      this.canvasContext.moveTo(this.shapeClickMemory.initialPoint.x,this.shapeClickMemory.initialPoint.y);
-      this.canvasContext.lineTo(this.shapeClickMemory.finalPoint.x,this.shapeClickMemory.initialPoint.y);
-      this.canvasContext.lineTo(this.shapeClickMemory.finalPoint.x,this.shapeClickMemory.finalPoint.y);
-      this.canvasContext.lineTo(this.shapeClickMemory.initialPoint.x,this.shapeClickMemory.finalPoint.y);
-      this.canvasContext.lineTo(this.shapeClickMemory.initialPoint.x,this.shapeClickMemory.initialPoint.y);
+      this.canvasContext.moveTo(this.shapeClickMemory.initialPoint.x, this.shapeClickMemory.initialPoint.y);
+      this.canvasContext.lineTo(this.shapeClickMemory.finalPoint.x, this.shapeClickMemory.initialPoint.y);
+      this.canvasContext.lineTo(this.shapeClickMemory.finalPoint.x, this.shapeClickMemory.finalPoint.y);
+      this.canvasContext.lineTo(this.shapeClickMemory.initialPoint.x, this.shapeClickMemory.finalPoint.y);
+      this.canvasContext.lineTo(this.shapeClickMemory.initialPoint.x, this.shapeClickMemory.initialPoint.y);
       this.canvasContext.closePath();
       this.canvasContext.stroke();
 
@@ -618,61 +611,60 @@ export default {
       }
     },
     //pass shapeMemory and line style
-    drawCircleClient: function ({shapeClickMemory,strokeStyle,lineWidth}){
+    drawCircleClient: function ({shapeClickMemory, strokeStyle, lineWidth}) {
       this.canvasContext.strokeStyle = strokeStyle;
       this.canvasContext.lineWidth = lineWidth;
 
       let deltaX = shapeClickMemory.finalPoint.x - shapeClickMemory.initialPoint.x;
       let deltaY = shapeClickMemory.finalPoint.y - shapeClickMemory.initialPoint.y;
-      let radius = Math.sqrt((deltaX*deltaX) + (deltaY*deltaY))/2;
+      let radius = Math.sqrt((deltaX * deltaX) + (deltaY * deltaY)) / 2;
 
       this.canvasContext.beginPath();
 
-      this.canvasContext.arc((shapeClickMemory.finalPoint.x+shapeClickMemory.initialPoint.x)/2,(shapeClickMemory.finalPoint.y+shapeClickMemory.initialPoint.y)/2,radius,0,2*Math.PI);
+      this.canvasContext.arc((shapeClickMemory.finalPoint.x + shapeClickMemory.initialPoint.x) / 2, (shapeClickMemory.finalPoint.y + shapeClickMemory.initialPoint.y) / 2, radius, 0, 2 * Math.PI);
       this.canvasContext.closePath();
       this.canvasContext.stroke();
     },
 
-    drawRectClientL: function ({shapeClickMemory,strokeStyle,lineWidth}){
+    drawRectClientL: function ({shapeClickMemory, strokeStyle, lineWidth}) {
       this.canvasContext.strokeStyle = strokeStyle;
       this.canvasContext.lineWidth = lineWidth;
       this.canvasContext.beginPath();
-      this.canvasContext.moveTo(shapeClickMemory.initialPoint.x,shapeClickMemory.initialPoint.y);
-      this.canvasContext.lineTo(shapeClickMemory.finalPoint.x,shapeClickMemory.initialPoint.y);
-      this.canvasContext.lineTo(shapeClickMemory.finalPoint.x,shapeClickMemory.finalPoint.y);
-      this.canvasContext.lineTo(shapeClickMemory.initialPoint.x,shapeClickMemory.finalPoint.y);
-      this.canvasContext.lineTo(shapeClickMemory.initialPoint.x,shapeClickMemory.initialPoint.y);
+      this.canvasContext.moveTo(shapeClickMemory.initialPoint.x, shapeClickMemory.initialPoint.y);
+      this.canvasContext.lineTo(shapeClickMemory.finalPoint.x, shapeClickMemory.initialPoint.y);
+      this.canvasContext.lineTo(shapeClickMemory.finalPoint.x, shapeClickMemory.finalPoint.y);
+      this.canvasContext.lineTo(shapeClickMemory.initialPoint.x, shapeClickMemory.finalPoint.y);
+      this.canvasContext.lineTo(shapeClickMemory.initialPoint.x, shapeClickMemory.initialPoint.y);
       this.canvasContext.closePath();
       this.canvasContext.stroke();
 
 
     },
 
-    drawLineClient: function ({shapeClickMemory,strokeStyle,lineWidth}){
+    drawLineClient: function ({shapeClickMemory, strokeStyle, lineWidth}) {
 
       this.canvasContext.strokeStyle = strokeStyle;
       this.canvasContext.lineWidth = lineWidth;
 
       this.canvasContext.beginPath();
-      this.canvasContext.moveTo(shapeClickMemory.initialPoint.x,shapeClickMemory.initialPoint.y);
-      this.canvasContext.lineTo(shapeClickMemory.finalPoint.x,shapeClickMemory.finalPoint.y);
+      this.canvasContext.moveTo(shapeClickMemory.initialPoint.x, shapeClickMemory.initialPoint.y);
+      this.canvasContext.lineTo(shapeClickMemory.finalPoint.x, shapeClickMemory.finalPoint.y);
       this.canvasContext.closePath();
       this.canvasContext.stroke();
 
 
     },
-    maintainShapeHistory: function (){
+    maintainShapeHistory: function () {
 
     },
-    undo: function (){
+    undo: function () {
       this.server.emit('undo-canvas', {});
     },
-    resizeLog: function (){
+    resizeLog: function () {
       let canvasControl = document.getElementById('white-board-control');
-      if(canvasControl.offsetWidth < 900){
+      if (canvasControl.offsetWidth < 900) {
         this.clientWide = 0;
-      }
-      else{
+      } else {
         this.clientWide = 1;
       }
 
@@ -685,25 +677,27 @@ export default {
     this.init();
     this.setCanvasOffset();
     window.onresize = this.resizeLog;
-    console.log("PDF",this.PDF)
+    console.log("PDF", this.PDF)
 
   }
 }
 </script>
 <style src="../style/neuMeet.css"></style>
 <style scoped>
-#wrapper{
+#wrapper {
   height: 100%;
   width: 100%;
   box-sizing: border-box;
 }
-#white-board-wrapper{
+
+#white-board-wrapper {
   border-radius: 24px;
   box-sizing: border-box;
   width: 100%;
   height: 100%;
 }
-#white-board-control{
+
+#white-board-control {
   padding: 5px;
   box-sizing: border-box;
   height: 120px;
@@ -713,20 +707,19 @@ export default {
   flex-direction: row-reverse;
 }
 
-#white-board-canvas{
+#white-board-canvas {
   box-sizing: border-box;
   width: 100%;
   height: calc(100%);
   border-radius: 24px;
-  border: 8px solid #e0e5ec;
-  background-color: #e0e5ec;
-  box-shadow: inset 3px 3px 6px #bec3c9,
-  inset -3px -3px 6px #ffffff;
+  border: 8px solid var(--main-color);
+  background-color: var(--main-color);
+  box-shadow: var(--neu-shadow-inset-3px);
   padding: 8px;
 
 }
 
-.ctrl-group{
+.ctrl-group {
   box-sizing: border-box;
   height: 100%;
   padding: 5px;
@@ -737,7 +730,8 @@ export default {
   justify-content: space-around;
   align-items: center;
 }
-#upload-ctrl-group{
+
+#upload-ctrl-group {
 
   display: grid;
   grid-template-rows: 55px 55px;
@@ -749,17 +743,17 @@ export default {
 }
 
 
-.upload-button > label{
+.upload-button > label {
   font-weight: bold;
 }
 
 
-.pdf-button >label{
+.pdf-button > label {
   font-weight: bold;
 }
 
 
-#shape-ctrl-group{
+#shape-ctrl-group {
   display: grid;
   grid-template-rows: 55px 55px;
   grid-template-columns: 55px 55px;
@@ -769,10 +763,11 @@ export default {
 }
 
 
-#color-wheel-ctrl-group{
+#color-wheel-ctrl-group {
 
 }
-#line-redo-ctrl-group{
+
+#line-redo-ctrl-group {
   display: grid;
   grid-template-rows: 55px 55px;
   grid-template-columns: 55px 55px;
@@ -781,7 +776,7 @@ export default {
   align-items: center;
 }
 
-.thickness-label{
+.thickness-label {
   margin: 0px;
   font-size: 70px;
   font-family: "Open Sans";
@@ -799,7 +794,8 @@ export default {
 
 
 }
-#pen-thickness-ctrl-group{
+
+#pen-thickness-ctrl-group {
   box-sizing: border-box;
   justify-content: space-around;
   width: 100px;
@@ -808,13 +804,13 @@ export default {
 
 }
 
-#thickness-inc-high, #thickness-inc-low{
+#thickness-inc-high, #thickness-inc-low {
   width: 20px;
   height: 20px;
 }
 
-#pdf-view-wrapper{
-  background-color: #e0e5ec;
+#pdf-view-wrapper {
+  background-color: var(--main-color);
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -823,49 +819,47 @@ export default {
   width: 100%;
   height: calc(100%);
   border-radius: 24px;
-  border: 8px solid #e0e5ec;
+  border: 8px solid var(--main-color);
   max-height: inherit;
 
-  box-shadow: inset 3px 3px 6px #bec3c9,
-  inset -3px -3px 6px #ffffff;
+  box-shadow: var(--neu-shadow-inset-3px);
 }
 
 .pdf-app.light {
-  --pdf-toolbar-color: #7389a9;
-  --pdf-button-hover-font-color: #ff7c74;
-  --pdf-app-background-color:#bcc6d6;
+  --pdf-toolbar-color: var(--text-color);
+  --pdf-button-hover-font-color: var(--accent-color);
+  --pdf-app-background-color: #bcc6d6;
 }
 
-#pdf-nav-bar{
+#pdf-nav-bar {
 
   padding: 4px 10px;
   box-sizing: border-box;
   width: 100%;
   max-height: 36px;
   min-height: 36px;
-  background-color: #e0e5ec;
+  background-color: var(--main-color);
   display: flex;
   justify-content: space-between;
   align-items: center;
   flex-direction: row;
   border-radius: 14px 14px 0px 0px;
-  box-shadow:  3px 3px 6px #bec3c9,
-  -3px -3px 6px #ffffff;
+  box-shadow: var(--neu-shadow-3px);
 
 }
-#pdf-nav-bar > button{
+
+#pdf-nav-bar > button {
   height: 25px;
   width: 40px;
 }
 
-#pdf-nav-bar-mid > label{
+#pdf-nav-bar-mid > label {
   font-style: italic;
 }
+
 #hide-button {
   width: 120px;
 }
-
-
 
 
 </style>

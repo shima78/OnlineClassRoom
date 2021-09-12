@@ -8,11 +8,11 @@
                ref="file"
                @change="onSelect"
         />
-        <input  v-if="picture"
-                class="round-button custom-file-input picture-upload-button"
-                type="file"
-                ref="file"
-                @change="onSelect"
+        <input v-if="picture"
+               class="round-button custom-file-input picture-upload-button"
+               type="file"
+               ref="file"
+               @change="onSelect"
         />
       </div>
 
@@ -25,56 +25,54 @@
 <script>
 import axios from 'axios';
 import {mapGetters} from "vuex";
+
 export default {
   name: 'FileUpload',
   data() {
     return {
-      file:"",
-      message:"",
-      server:this.$store.getters.getServer,
+      file: "",
+      message: "",
+      server: this.$store.getters.getServer,
     }
   },
-  props:{
+  props: {
     pdf: Boolean,
     picture: Boolean
   }
   ,
   methods: {
     ...mapGetters(['getServer']),
-    async onSelect(){
+    async onSelect() {
       //const allowedTypes = ["image/jpeg", "image/jpg", "image/png"];
       const file = this.$refs.file.files[0];
-      console.log('file',file)
+      console.log('file', file)
       this.file = file;
       //if(!allowedTypes.includes(file.type)){
       //  this.message = "Filetype is wrong!!"
       //}
-      if(file.size>50000000){
+      if (file.size > 50000000) {
         console.log('file size')
         this.message = 'Too large, max size allowed is 500kb'
-      }
-      else {
+      } else {
         console.log('sending to server')
         const formData = new FormData();
-        formData.append('file',this.file);
-        try{
-          await axios.post('http://localhost:3000/upload',formData).then(response => (this.message = response));
+        formData.append('file', this.file);
+        try {
+          await axios.post('http://localhost:3000/upload', formData).then(response => (this.message = response));
           // this.message = 'Uploaded!!'
           //console.log("UNDEFINED!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!",this.message)
-          console.log("response",JSON.stringify(this.message))
+          console.log("response", JSON.stringify(this.message))
           const str = JSON.stringify(this.message)
           console.log(JSON.parse(str))
           const filename = this.message.data.file.filename
           console.log(filename)
-          if(this.picture){
-            this.server.emit('fileUpload',filename)
+          if (this.picture) {
+            this.server.emit('fileUpload', filename)
+          } else if (this.pdf) {
+            this.server.emit('uploadPDF', filename, this.message.data.file.originalname)
           }
-          else if(this.pdf){
-            this.server.emit('uploadPDF',filename,this.message.data.file.originalname)
-          }
-        }
-        catch(err){
-          console.log('tried',err.response.data.error)
+        } catch (err) {
+          console.log('tried', err.response.data.error)
           console.log(err);
           this.message = err.response.data.error
         }
@@ -86,12 +84,14 @@ export default {
 
 <style src="../style/neuMeet.css"></style>
 <style>
-.file{
+.file {
   max-height: 40px;
 }
+
 .custom-file-input::-webkit-file-upload-button {
   visibility: hidden;
 }
+
 .custom-file-input::before {
   font-family: "Material Icons Outlined";
   display: flex;
@@ -105,14 +105,17 @@ export default {
   width: 100%;
   height: 100%;
   border-radius: 50px;
-  color: #7389a9;
+  color: var(--text-color);
 }
+
 .custom-file-input:active::before {
-  color: #ff7c74;
+  color: var(--accent-color);
 }
+
 .custom-file-input::-webkit-file-upload-button {
   visibility: hidden;
 }
+
 .custom-file-input::before {
   font-family: "Material Icons Outlined";
   display: flex;
@@ -126,15 +129,18 @@ export default {
   width: 100%;
   height: 100%;
   border-radius: 50px;
-  color: #7389a9;
+  color: var(--text-color);
 }
+
 .custom-file-input:active::before {
-  color: #ff7c74;
+  color: var(--accent-color);
 }
-.picture-upload-button::before{
+
+.picture-upload-button::before {
   content: '\e251';
 }
-.pdf-upload-button::before{
+
+.pdf-upload-button::before {
   content: '\e2c6';
 }
 </style>

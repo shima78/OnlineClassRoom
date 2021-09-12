@@ -15,12 +15,13 @@
       <div id="chat-message-box" class="side-shadow-container">
         <vue-scroll>
           <template v-for="messageOBJ in this.messagesArray">
-            <chat-bubble :key="messageOBJ.index" :username="messageOBJ.username" :message="messageOBJ.message" :time="messageOBJ.time"></chat-bubble>
+            <chat-bubble :key="messageOBJ.index" :username="messageOBJ.username" :message="messageOBJ.message"
+                         :time="messageOBJ.time"></chat-bubble>
           </template>
         </vue-scroll>
       </div>
 
-      <div id="chatMessageEntry" >
+      <div id="chatMessageEntry">
         <input id="chatMessageInput" type="text" class="input-bar" v-model="chatEntryText">
         <button id="send-button" class="round-button pink-button" @click="sendMessage">
           <i class="material-icons">send</i>
@@ -50,35 +51,45 @@
            </div> -->
           <textarea id="question-entry-input" class="input-bar scrollable" rows="6" v-model="questionEntryText">
             </textarea>
-        </div >
+        </div>
         <div id="question-input-action-wrapper">
-          <div style="display: flex; flex-direction: row;justify-content: space-between; align-items: center; margin-right: 30px">
+          <div
+              style="display: flex; flex-direction: row;justify-content: space-between; align-items: center; margin-right: 30px">
             <template v-if="role === 'owner'">
-              <button id="question-hard-inc-low" class="round-button inc-button"   @click="decDifficulty" >
+              <button id="question-hard-inc-low" class="round-button inc-button" @click="decDifficulty">
                 <i class="material-icons">remove</i>
               </button>
-              <input type="checkbox" class="slider-check-box" v-model="this.questionDifficulty.checkBoxBind" disabled="true" value=1>
-              <input type="checkbox" class="slider-check-box" v-model="this.questionDifficulty.checkBoxBind" disabled="true" value=2>
-              <input type="checkbox" class="slider-check-box" v-model="this.questionDifficulty.checkBoxBind" disabled="true" value=3>
-              <input type="checkbox" class="slider-check-box" v-model="this.questionDifficulty.checkBoxBind" disabled="true" value=4>
-              <input type="checkbox" class="slider-check-box" v-model="this.questionDifficulty.checkBoxBind" disabled="true" value=5>
-              <button id="question-hard-inc-high" class="round-button inc-button"   @click="incDifficulty">
+              <input type="checkbox" class="slider-check-box" v-model="this.questionDifficulty.checkBoxBind"
+                     disabled="true" value=1>
+              <input type="checkbox" class="slider-check-box" v-model="this.questionDifficulty.checkBoxBind"
+                     disabled="true" value=2>
+              <input type="checkbox" class="slider-check-box" v-model="this.questionDifficulty.checkBoxBind"
+                     disabled="true" value=3>
+              <input type="checkbox" class="slider-check-box" v-model="this.questionDifficulty.checkBoxBind"
+                     disabled="true" value=4>
+              <input type="checkbox" class="slider-check-box" v-model="this.questionDifficulty.checkBoxBind"
+                     disabled="true" value=5>
+              <button id="question-hard-inc-high" class="round-button inc-button" @click="incDifficulty">
                 <i class="material-icons">add</i>
               </button>
             </template>
             <template v-if="role === 'std' || role ==='presenter'">
-              <button id="qid-selector-left" class="round-button inc-button"  @click="lastQuestionSelect">
+              <button id="qid-selector-left" class="round-button inc-button" @click="lastQuestionSelect">
                 <i class="material-icons">chevron_left</i>
               </button>
-              <input type="text" class="input-bar" v-model="qid" style="height: 30px; width: 100%; text-align: center;" placeholder="Question Number"  disabled>
-              <button id="qid-selector-right" class="round-button inc-button"   @click="nextQuestionSelect">
+              <input type="text" class="input-bar" v-model="qid" style="height: 30px; width: 100%; text-align: center;"
+                     placeholder="Question Number" disabled>
+              <button id="qid-selector-right" class="round-button inc-button" @click="nextQuestionSelect">
                 <i class="material-icons">chevron_right</i>
               </button>
             </template>
 
           </div>
-          <button id="question-send-button" class="pink-button" @click="askQuestion" v-if="role === 'owner'"> Ask </button>
-          <button id="answer-send-button" class="pink-button" @click="answerQuestion" v-if="role === 'std' || role === 'presenter'"> Answer </button>
+          <button id="question-send-button" class="pink-button" @click="askQuestion" v-if="role === 'owner'"> Ask
+          </button>
+          <button id="answer-send-button" class="pink-button" @click="answerQuestion"
+                  v-if="role === 'std' || role === 'presenter'"> Answer
+          </button>
 
         </div>
       </div>
@@ -87,7 +98,8 @@
         <vue-scroll>
           <template v-for="questionOBJ in this.questionArray">
             <question-bubble :key="questionOBJ.index" :question-index="questionOBJ.id" :question-text="questionOBJ.text"
-                             :time="questionOBJ.time" :level="questionOBJ.difficulty" :answer-count="questionOBJ.answers.length">
+                             :time="questionOBJ.time" :level="questionOBJ.difficulty"
+                             :answer-count="questionOBJ.answers.length">
             </question-bubble>
           </template>
         </vue-scroll>
@@ -117,6 +129,7 @@ import QuestionBubble from "@/components/questionBubble";
 import AnswerBubble from "@/components/answerBubble";
 // eslint-disable-next-line no-unused-vars
 import {mapActions, mapGetters} from "vuex";
+
 export default {
   name: "MeetingSideBox",
   // eslint-disable-next-line vue/no-unused-components
@@ -129,25 +142,23 @@ export default {
       selected: 1,
       chatEntryText: null,
       questionEntryText: "",
-      messagesArray: new Array(),
+      messagesArray: [],
       questionDifficulty: {currentValue: 1, checkBoxBind: [1]},
-      questionArray: new Array(),
+      questionArray: [],
       answerArray: null,
       role: null,
       qid: 0,
       username: null,
     }
   },
-  methods:{
+  methods: {
     ...mapActions(['updateUsersData']),
-    ...mapGetters(['getRole','getUsername',"getUserData"]),
+    ...mapGetters(['getRole', 'getUsername', "getUserData"]),
     init: function () {
 
 
-
-
       //login inti
-      this.answerArray =  this.questionArray.map(q => q.answers);
+      this.answerArray = this.questionArray.map(q => q.answers);
 
       this.username = this.$store.getters.getUsername;
       this.role = this.$store.getters.getRole;
@@ -177,75 +188,73 @@ export default {
       });
 
       //get answers back
-      this.SERVER.on("answer",(answerData) =>{
+      this.SERVER.on("answer", (answerData) => {
 
         this.questionArray = answerData;
 
       })
 
       //answerAccept
-      this.SERVER.on("newAccept",(acceptData)=>{
+      this.SERVER.on("newAccept", (acceptData) => {
         this.updateUsersData(acceptData)
       })
 
       //answerScore
-      this.SERVER.on("newScore",(scoreData)=>{
-        console.log('NewscoreData',scoreData)
+      this.SERVER.on("newScore", (scoreData) => {
+        console.log('NewscoreData', scoreData)
         this.updateUsersData(scoreData)
       })
 
       //promoteUser
-      this.SERVER.on("newRole",data =>{
+      this.SERVER.on("newRole", data => {
         this.updateUsersData(data)
       })
 
     },
-    sendMessage : function (){
-      if(this.chatEntryText =="") {
-        return;
-      }
-      else{
+    sendMessage: function () {
+      if (this.chatEntryText != "") {
 
-        this.SERVER.emit("chatMessage",this.chatEntryText);
-        this.chatEntryText="";
+
+
+        this.SERVER.emit("chatMessage", this.chatEntryText);
+        this.chatEntryText = "";
       }
     },
-    incDifficulty:  function (){
-      if(this.questionDifficulty.currentValue < 5){
+    incDifficulty: function () {
+      if (this.questionDifficulty.currentValue < 5) {
         this.questionDifficulty.currentValue += 1;
         this.questionDifficulty.checkBoxBind.push(this.questionDifficulty.currentValue);
         console.log("checkbox" + this.questionDifficulty.checkBoxBind)
       }
     },
-    decDifficulty: function (){
-      if(this.questionDifficulty.currentValue > 1){
+    decDifficulty: function () {
+      if (this.questionDifficulty.currentValue > 1) {
         this.questionDifficulty.currentValue -= 1;
         this.questionDifficulty.checkBoxBind.pop();
         console.log("checkbox" + this.questionDifficulty.checkBoxBind)
       }
     },
-    askQuestion: function (){
+    askQuestion: function () {
       //TODO
-      if(this.questionEntryText == "") {
+      if (this.questionEntryText == "") {
         console.log('empty text')
-        return;
-      }
-      else{
+
+      } else {
 
         let questionSendData = {
           text: this.questionEntryText,
           difficulty: this.questionDifficulty.currentValue
         }
-        console.log('sending question to server',questionSendData)
+        console.log('sending question to server', questionSendData)
         //sending Question!
-        this.SERVER.emit('chatQuestions',questionSendData);
+        this.SERVER.emit('chatQuestions', questionSendData);
       }
     },
-    answerQuestion: function (){
-      if(this.questionEntryText == "") {
+    answerQuestion: function () {
+      if (this.questionEntryText == "") {
         console.log('empty text')
-        return;
-      }else{
+
+      } else {
         console.log('sending answer to server')
         let answerData = {
           username: this.username,
@@ -253,20 +262,20 @@ export default {
           qid: this.qid
         }
         //sending Answers!
-        this.SERVER.emit('chatAnswer',answerData);
+        this.SERVER.emit('chatAnswer', answerData);
 
       }
     },
-    lastQuestionSelect: function (){
+    lastQuestionSelect: function () {
       let questionList = this.questionArray.map(x => x.id);
-      console.log(questionList,this.qid-1)
-      if(questionList.includes(this.qid - 1)){
+      console.log(questionList, this.qid - 1)
+      if (questionList.includes(this.qid - 1)) {
         this.qid = this.qid - 1;
       }
     },
-    nextQuestionSelect: function (){
+    nextQuestionSelect: function () {
       let questionList = this.questionArray.map(x => x.id);
-      if(questionList.includes(this.qid+1)){
+      if (questionList.includes(this.qid + 1)) {
         this.qid = this.qid + 1;
       }
 
@@ -275,14 +284,14 @@ export default {
   mounted() {
     this.init();
   },
-  computed :{
-    userInfo(){
+  computed: {
+    userInfo() {
       return this.$store.getters.getUserData;
     },
-    SERVER(){
+    SERVER() {
       return this.$store.getters.getServer;
     },
-    currentAnswers(){
+    currentAnswers() {
       return this.$store.getters.getCurrentAnswerArray;
     }
 
@@ -291,7 +300,7 @@ export default {
 </script>
 <style src="../style/neuMeet.css"></style>
 <style scoped>
-#side-box{
+#side-box {
   width: 450px;
   height: 100%;
   max-height: 100%;
@@ -299,87 +308,98 @@ export default {
   padding: 0;
   display: grid;
   grid-template-columns: 1fr;
-  grid-template-rows: 60px  1fr ;
+  grid-template-rows: 60px  1fr;
 }
-.side-box-v-container{
+
+.side-box-v-container {
   display: grid;
   margin: 20px 10px 10px;
   border-radius: 24px;
 }
-#question-button{
+
+#question-button {
   grid-row: 1;
   grid-column: 3;
 }
-#list-button{
+
+#list-button {
   grid-row: 1;
   grid-column: 2;
 }
-#chat-button{
+
+#chat-button {
   grid-row: 1;
   grid-column: 1;
 }
-#chatList{
+
+#chatList {
   grid-template-columns: 100%;
   grid-template-rows: 1fr 60px;
 }
-#chatMessageEntry{
+
+#chatMessageEntry {
   display: flex;
   justify-content: space-between;
   align-items: center;
 }
-#chatMessageInput{
+
+#chatMessageInput {
   border-radius: 24px;
   width: calc(100% - 60px);
   height: 40px;
 }
-.pink-button{
-  background-color: #ff7c74;
-  box-shadow:  3px 3px 6px #bec3c9,
-  -3px -3px 6px #ffffff;
+
+.pink-button {
+  background-color: var(--accent-color);
+  box-shadow: var(--neu-shadow-3px);
   margin-right: 8px;
   border-radius: 100px;
 }
-.pink-button:active{
-  background-color: #e0e5ec;
-  box-shadow:  inset 3px 3px 6px #bec3c9,
-  inset -3px -3px 6px #ffffff;
+
+.pink-button:active {
+  background-color: var(--main-color);
+  box-shadow: var(--neu-shadow-inset-3px);
   margin-right: 8px;
   border-radius: 100px;
-  color: #ff7c74;
+  color: var(--accent-color);
 }
-#send-button:active{
-  background: #e0e5ec;
-  box-shadow: inset 3px 3px 6px #bec3c9,
-  inset -3px -3px 6px #ffffff;
+
+#send-button:active {
+  background: var(--main-color);
+  box-shadow: var(--neu-shadow-inset-3px);
 }
-#send-button > i{
-  color: #e0e5ec;
+
+#send-button > i {
+  color: var(--main-color);
 }
-#send-button:active > i{
-  color: #ff7c74;
+
+#send-button:active > i {
+  color: var(--accent-color);
 }
-.input-bar{
-  font-family: "Poppins",sans-serif;
+
+.input-bar {
+  font-family: "Poppins", sans-serif;
   font-size: 14px;
   font-weight: 500;
-  color: #7389a9;
+  color: var(--text-color);
   margin-right: 10px;
   margin-left: 10px;
   border-radius: 18px;
   padding-left: 12px;
   padding-right: 12px;
   border-width: 0px;
-  background-color: #e0e5ec;
-  box-shadow:  inset 4px 4px 8px #c5cad0,
-  inset -4px -4px 8px #fbffff;
+  background-color: var(--main-color);
+  box-shadow: var(--neu-shadow-inset-4px);
   -webkit-appearance: none;
   outline: none;
 }
-#question-list{
+
+#question-list {
   grid-template-columns: auto;
   grid-template-rows: 190px 1fr 1fr;
 }
-#question-entry{
+
+#question-entry {
   display: flex;
   flex-direction: column;
   align-items: start;
@@ -390,7 +410,8 @@ export default {
   border-radius: 0px;
   box-shadow: none;
 }
-#question-entry-input{
+
+#question-entry-input {
   box-sizing: border-box;
   width: 100%;
   padding-top: 10px;
@@ -398,7 +419,8 @@ export default {
   margin: 0px;
   border-radius: 24px;
 }
-#question-input-action-wrapper{
+
+#question-input-action-wrapper {
   width: 100%;
   box-sizing: border-box;
   display: flex;
@@ -407,7 +429,8 @@ export default {
   align-items: center;
   margin: 5px 0px 5px 0px;
 }
-#question-send-button{
+
+#question-send-button {
   width: 68px;
   height: 30px;
   border-radius: 18px;
@@ -417,14 +440,16 @@ export default {
   border: none;
   outline: none;
   color: white;
-  font-family: "Poppins",sans-serif;
+  font-family: "Poppins", sans-serif;
   font-size: 14px;
   font-weight: bold;
 }
-#question-send-button:active{
-  color: #ff7c74;
+
+#question-send-button:active {
+  color: var(--accent-color);
 }
-#answer-send-button{
+
+#answer-send-button {
   width: 68px;
   height: 30px;
   border-radius: 18px;
@@ -434,50 +459,53 @@ export default {
   border: none;
   outline: none;
   color: white;
-  font-family: "Poppins",sans-serif;
+  font-family: "Poppins", sans-serif;
   font-size: 14px;
   font-weight: bold;
 
 }
 
-#answer-send-button:active{
-  color: #ff7c74;
-}
-#answer-send-button:active > label{
-  color: white;
+#answer-send-button:active {
+  color: var(--accent-color);
 }
 
+#answer-send-button:active > label {
+  color: white;
+}
 
 
 .side-box-v-container::-webkit-scrollbar {
   display: none;
 }
+
 .side-shadow-container::-webkit-scrollbar {
   display: none;
 }
-.side-box-v-container{
+
+.side-box-v-container {
   overflow-y: scroll;
-  -ms-overflow-style: none;  /* IE and Edge */
-  scrollbar-width: none;  /* Firefox */
+  -ms-overflow-style: none; /* IE and Edge */
+  scrollbar-width: none; /* Firefox */
 }
-.side-shadow-container{
+
+.side-shadow-container {
   overflow-y: scroll;
   display: flex;
   flex-direction: column-reverse;
-  -ms-overflow-style: none;  /* IE and Edge */
-  scrollbar-width: none;  /* Firefox */
+  -ms-overflow-style: none; /* IE and Edge */
+  scrollbar-width: none; /* Firefox */
   border-radius: 24px;
-  background-color: #e0e5ec;
+  background-color: var(--main-color);
   margin-right: 10px;
   margin-left: 10px;
   margin-bottom: 10px;
   min-height: 20px;
-  box-shadow:  inset 4px 4px 8px #c5cad0,
-  inset -4px -4px 8px #fbffff;
+  box-shadow: var(--neu-shadow-inset-4px);
 }
+
 /*.question-label{
   font-size: 16px;
-  color: #e0e5ec;
+  color: var(--main-color);
   font-weight: bolder;
 }
 .question-label-wrapper{
@@ -487,7 +515,7 @@ export default {
   display: flex;
   justify-content: center;
   align-items: center;
-  background-color: #ff7c74;
+  background-color: var(--accent-color);
   border-radius: 12px 12px 0px 0px;
   padding: 4px 8px 4px 8px;
 }*/

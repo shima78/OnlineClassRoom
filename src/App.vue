@@ -10,20 +10,18 @@
 export default {
 
   name: 'App',
-  components: {
-
-  },
-  data: function (){
-    return{
+  components: {},
+  data: function () {
+    return {
       serverConnection: null,
 
     }
   },
   methods: {
-    serverConnect(socket){
+    serverConnect(socket) {
 
       this.serverConnection = socket;
-      console.log("app has received socket:\t",socket);
+      console.log("app has received socket:\t", socket);
 
     }
   },
@@ -38,9 +36,12 @@ export default {
 }
 
 </script>
-<style v-if=" 5 < 3">
+<style src="./style/-dark.css">
+
+</style>
+<style>
 #app {
-  max-width:100%;
+  max-width: 100%;
   margin: 0px;
   font-family: Avenir, Helvetica, Arial, sans-serif;
   -webkit-font-smoothing: antialiased;
@@ -51,18 +52,18 @@ export default {
 
 }
 
-#app-main{
+#app-main {
   display: flex;
   justify-content: flex-start;
-  max-width:100%;
+  max-width: 100%;
   width: 100vw;
   background-color: aqua;
   z-index: 1;
 }
 
 
-#app-main-view{
-  max-width:100%;
+#app-main-view {
+  max-width: 100%;
   max-height: 100%;
   width: 100vw;
   height: 100vh;
@@ -70,7 +71,7 @@ export default {
 }
 
 
-#home-box-container{
+#home-box-container {
   max-height: 100%;
   max-width: 100%;
   grid-row: 2/6;
@@ -78,13 +79,13 @@ export default {
   background-color: black;
   z-index: 2;
 }
-#home-footer{
+
+#home-footer {
   background-color: #111111;
   height: 200px;
   width: 100vw;
   max-width: 100%;
 }
-
 
 
 /* http://meyerweb.com/eric/tools/css/reset/
@@ -112,25 +113,31 @@ time, mark, audio, video {
   font: inherit;
   vertical-align: baseline;
 }
+
 /* HTML5 display-role reset for older browsers */
 article, aside, details, figcaption, figure,
 footer, header, hgroup, menu, nav, section {
   display: block;
 }
+
 body {
   line-height: 1;
 }
+
 ol, ul {
   list-style: none;
 }
+
 blockquote, q {
   quotes: none;
 }
+
 blockquote:before, blockquote:after,
 q:before, q:after {
   content: '';
   content: none;
 }
+
 table {
   border-collapse: collapse;
   border-spacing: 0;
